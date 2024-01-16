@@ -1,0 +1,24 @@
+#codepage correspondance
+#add the one you may need (actually supported: 932,1250, 1251, 1252, 1253, 1254, 1256, Utf8)
+#note 65001 = utf8
+english=1252
+french=1252
+polish=1250
+czech=1250
+danish=1252
+finnish=1252
+german=1252
+greek=1253
+italian=1252
+japanese=utf8
+norwegian=1252
+portuguese=1252
+spanish=1252
+swedish=1252
+turkish=1254
+russian=1251
+chinese=utf8
+hungarian=1250
+arabic=1256
+korean=utf8
+thai=utf8

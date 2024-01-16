@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+
+</head>
+<body>
+<div id="head">構建詞典:</div>
+<br>
+使用SST的最佳方法, 首先是根據來源語言和目的語言構建一個詞典.<br>
+目前來說, 最常用的來源語言是 'English', 因為大部分mod都是英文做的. 所以你需要有的3個skyrim_english.(S,DL,IL)Strings文件, 在Skyrim\data\Strings\中
+ (應該存在,默認會安裝). (如果你沒有那些檔,可以在SST的N網連結裡下載.)<br>
+有了那些檔後, 運行SkyrimStringTranslator, 在選項功能表中選擇 "設置選項和語言". 然後設置源/目的語言, 同時勾選"生成翻譯緩存".過程大概持續幾秒.<br>
+<br>
+<br>
+<div id="head">ESP 模式:</div>
+<br>
+載入一個*.esp/*.esm 並且翻譯, 之後保存*.esp/*.esm.<br>
+不過呢, 保存之前生成一個詞典會更好, 看後文,Strings模式段落裡.<br>
+<br>
+當你編輯一個字串時, 將看到(編輯視窗 - Esp專案 面板裡)同一個記錄裡的全部欄位清單. 按兩下切換當前編輯的記錄. 所有功能運作和STRINGS模式一樣.<br>
+<br>
+注意: 作者可能遺漏了一些要翻譯的欄位, 所以如果在遊戲中發現未翻譯的資料, 請把mod名稱告訴作者,以完善此程式.<br>
+你也可以自行編輯"records.txt"文件, 不過要當心一點 ;)<br>
+<br>
+注意2:
+Esp以一個相當直接的方式被載入.,只用於查看其中的記錄,並且將不會改動其內容.<br>
+這意味著如果未翻譯的原esp有損壞的資料的話(通常是esp被一些舊版工具編輯過造成的),
+SST可能拒絕載入. 遇到這情況的話,先用tes5edit檢查esp的完整性.<br>
+<br>
+<br>
+<div id="head">ESP 比較:</div>
+<br>
+用此工具可以根據2個esp直接構建翻譯配對字串.<br>
+注意: 編碼被設為目的語言.<br>
+<br>
+例子:<br>
+比如現有一個新版英文的mod, 和一個此mod的已翻譯舊版.<br>
+照常打開新版英文esp,然後用工具功能表裡的"載入esp文件"打開已翻譯的舊版esp. 
+所有FormID相同的項將會自動生成翻譯配對字串.<br>
+這個操作需要注意的一些限制:<br>
+某些字串不是直接關聯到特定的FormID而只是在記錄中列舉,
+這意味著如果mod作者在給出的列舉表裡增加或刪除某些條目,翻譯配對字串就不能100%準確對應生成.<br>
+所有的替換字串對將被加上"部分翻譯標記", 同時配對錯誤可能性大的字串對在右方有一個小燈圖示.<br>
+-如果小燈是亮的,那麼有問題的可能性就比較高,因為目前記錄中存在多於一個的列舉欄位. 在這情況下,編輯視窗的ESP比較結果面板裡列出找到的全部列舉欄位,可以輕鬆的修正翻譯配對字串的不匹配問題.<br>
+-如果小燈是暗的: 表示目前記錄只包含一個列舉欄位.<br>
+<br>
+注意: 小燈亮的字串不會被保存進緩存,除非經過手動驗證.<br>
+<br>
+<br>
+<div id="head">STRINGS 模式:</div>
+<br>
+注意: UI還是很粗糙需要改進. 不過功能已經齊全.<br>
+這裡假設用戶已經照上文說明構建了字典.<br>
+<br>
+舉例說現在想要翻譯Unofficial Skyrim Patch,從英文到法文.
+ (作者是法國人, 這裡又在賣萌說自己英文糟糕;))<br>
+<br>
+首先要逆當地語系化 Unofficial Skyrim Patch ( <a href="http://skyrim.nexusmods.com/mods/19">http://skyrim.nexusmods.com/mods/19
+</a>)<br>
+從一個外掛程式獲取strings檔的最好方法是使用Tes5Edit (<a href="http://skyrim.nexusmods.com/mods/25859/">
+http://skyrim.nexusmods.com/mods/25859/ </a>)<br>
+(其實SSL匯出/導入Strings文件也不錯)<br>
+<br>
+使用TesVedit<br>
+-載入Unofficial Skyrim Patch.Esp<br>
+-載入完成之後, 右擊esp名彈出功能表,選擇Other-&gt;Localization, 在'Language'
+選上English, 然後選擇 -&gt;localize -&gt;YES -&gt;
+不選任何東西, 然後保存檔.<br>
+<br>
+這樣手邊就有一個逆當地語系化的Unofficial Skyrim Patch.Esp 和3個Strings檔在指定的路徑裡<br>
+-Unofficial Skyrim Patch_English.STRINGS<br>
+-Unofficial Skyrim Patch_English.DLSTRINGS<br>
+-Unofficial Skyrim Patch_English.ILSTRINGS<br>
+(注意,如果現在運行遊戲會CTD,因為esp沒有字串內嵌,而且預設位置也沒有strings檔.)<br>
+<br>
+SST可以翻譯這些檔,而且也方便對mod新版的翻譯更新.<br>
+<br>
+<br>
+<div id="head">載入STRINGS:</div>
+<br>
+現在可以載入想要翻譯的Unofficial Skyrim Patch_English.STRINGS了.<br>
+- 在功能表裡, 選擇 檔 -&gt; 載入strings檔, 然後選擇Unofficial Skyrim Patch_English.STRINGS.<br>
+- 載入完之後, 在翻譯功能表裡選擇詞典匹配翻譯(Ctrl-T).<br>
+- 所有匹配的字串將會直接翻譯到目的語言. 未翻譯的字串則顯示成背景紅色<br>
+- 現在,可以直接手動翻譯紅色字串(選中一行按Enter,編輯,按Ctrl-Enter驗證翻譯),
+或者嘗試啟發式翻譯.<br>
+- 在功能表中選擇啟發式翻譯(Ctrl-H): SST 將會搜索類似的字串並且尋找最合適的翻譯.<br>
+注意:
+因為花費時間較長(取決於esp/esm和strigs的類型,ILSTRINGS就比較慢), 啟發式翻譯只針對當前可見的列表.<br>
+一旦完成後可以看到某些處理: 最匹配的是綠色, 匹配不是很好的顯示成紅色.<br>
+<br>
+當點擊一個匹配項時可看到其他可選的匹配項(如果存在多項,在LD列中會顯示一個"+數位"的記號),
+ 選擇一個最合適的作為譯文.<br>
+如果覺得翻譯的完全不對,可以右鍵選擇"取消翻譯". 
+如果覺得翻譯過得去,右鍵選擇"驗證為已翻譯"(快速鍵 S),這行就會變成藍色,
+或者手動編輯也可以. 這時的字串已經可以被加入到用戶緩存(選擇保存用戶緩存),
+ 並且這些字串將被保留下來用於後續更新.<br>
+<br>
+Unofficial Skyrim Patch是個大個頭mod,有大量的字串要檢查,所以會花一些時間完成這個翻譯,
+不過如果保存了用戶緩存,就可以隨時載入Unofficial Skyrim Patch_English.STRINGS,
+繼續未完成的工作而不用擔心之前的進度丟失...<br>
+<br>
+一旦完成翻譯, 只要選擇保存, SST會以目的語言和合適的編碼保存所有檔. (編碼和語言的組合可能需要事先試驗確保合適).<br>
+<br>
+<div id="head">用Tes5edit把翻譯好的STRINGS嵌入到esp.</div>
+<br>
+-打開Tes5Edit<br>
+-載入外掛程式<br>
+-右鍵菜單 -&gt; other -&gt;localization -&gt; 選擇 language
+-&gt;想要的語言(假設Skyrim_Language.strings文件和yourmod_Language.strings 都在skyrim\data\strings資料夾).<br>
+-然後選擇 other-&gt; Localization -&gt;delocalize.<br>
+如果一切順利,TesVedit會提醒你保存esp而沒有任何窗口彈出 - (警告窗口除外).<br>
+<br>
+</body></html>

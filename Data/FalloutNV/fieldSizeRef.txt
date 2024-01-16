@@ -1,0 +1,3 @@
+#RecName:FieldName:AuthCR=MaxSize
+#AuthCR: (1) indicate fields that can handle carriage return (CR) safely
+#MaxSize: maximum size of string observed in official content in various languages

@@ -1,0 +1,67 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head></head>
+<body>
+Trabajos en curso....<br>
+Aquí están algunas informaciones de uso:<br>
+<br>
+<br>
+<div id="head">String Flags:</div>
+<br>Durante las secuencias del proceso de traducción se puede configurar (de forma automática o
+manualmente) con diferentes flags,&nbsp;representado por diferentes
+colores.<br>Cada flags tiene un significado específico:<br>
+<br>
+<img style="width: 544px; height: 213px;" alt="Flags" src="../common/sstflags.gif"><br>
+<br>
+-Traducido [Blanco - Automático]:&nbsp; Strings traducido directamente
+a través de la
+cache de vocabulario se definen automáticamente con flag.<br>
+<br>
+-Validado como traducción completa [Azul - Definido por el usuario]: (F1 acceso directo)
+Esto es el equivalente "de usuario"
+a la flag traducido. Estos strings se consideran como "completamente
+traducido", y se agrega a la caché del vocabulario global si el usuario
+guardar los SSTStrings para el complemento actual.<br>
+<br>
+-Validado como traducción parcial [Carmesi - Auto/: Definido por usuario]: (atajo
+F2) El usuario puede
+optar por establecer
+un string  como "parcialmente traducido". Es como a&nbsp; "Trabajar En
+progreso" flag. <br>
+Estos  strings se guardan y se cargan en los SSTStrings, si el trabajo del usuario
+esta relacionado con el añadido,&nbsp; pero no se añaden al vocabulario
+global de la caché. Algunas funcionalidades avanzadas ajustan automáticamente
+los strings relevantes como parcialmente traducido, como la herramienta Buscar y reemplazar,
+Espcomparar.<br>
+<br>
+-Heuristic match (LD = Levenstein Distance*):
+[Verde a Rojo - Automático]. Strings similares se pueden encontrar de forma automática
+a través de
+una
+"Búsqueda Heurística" (en el menú, o Acceso directo: Ctrl-H). <br>
+Strings que están cerca de el original son verde,
+cuando los strings con bajo fósforo van a la zona roja. Estos strings no se guardan
+en SSTStrings, y no se añaden en el vocabulario
+global de la caché.<br>
+Cuándo
+los paneles "autotraducción están activos" (formulario principal, panel inferior),
+al hacer clic en cualquier string mostrará todas los string similares ordenados con su
+distancia de la fuente. (Verde + LD = 0 es el mejor posible.)<br>
+el signo + junto al número de LD significa que más de un resultado se ha encontrado por el procesador heurístico<br><br>
+-Sin traducir [Rojo, sin resultado LD, Automático &amp; usuario
+define]: (usando el atajo F4 restablece
+el estado de un string como eliminar cualquier traducción) estos
+string no han sido
+traducidos en absoluto. Estos string no se guardan en la
+SSTStrings, y
+no se añaden en el vocabulario global
+de la caché.<br>
+<br>
+-Advertencia Alias ​​[Amarillo - Automático]: String son de color amarillo cuando
+&lt;Alias&gt; referencia do&nbsp;no coincide entre el original y
+el String traducido. Hay un panel especial en el formulario de edición que
+ayuda a solucionar este tipo de problemas. Esta flag prioriza sobre todo los demás. Si un
+string se ha validado, se guardará en SSTStrings,
+and&nbsp; añadido en el global
+vocabulario cache.<br>
+<br><br>[continuara...]<br>
+</body></html>

@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head></head>
+<body>Elaboration en cours.<br>Informations d'usage.<br><br>Termes:<br>-<span style="text-decoration: underline;">Chaine</span>: représente le texte d'un champ de la liste. Chaine pour "chaine de caractère" &nbsp;(String, en anglais)<br>-<span style="text-decoration: underline;">Dictionnaire Global</span>:
+Chaque chaine validée et sauvée dans un fichier SST est ensuite ajoutée au
+dictionnaire global. La mise à jour des addons est ainsi grandement
+facilitée.<br>-<span style="text-decoration: underline;">Fichier SST</span>:
+toutes les chaines d'un addon peuvent etre sauvées dans un fichier SST.
+Ce fichier contient la traduction "en cours", et l'ensemble des statuts
+des chaines y est sauvé. Ainsi une traduction inachevée peut etre
+reprise plus tard, sans risque de perdre les étapes. Lorsqu'une
+traduction est complement achevée, l'addon peut alors être "finalisé"<br>Attention:.
+Un addon est finalisé avec les chaines telles qu'elle apparaissent en
+l'etat (traduite, ou non). Aussi, finaliser un addon avec des chaines
+partiellement
+traduites&nbsp;ou non validées rendra la mise à jour de ce dernier
+compliquée, puisque le fichier esp, lui, ne contient pas les statuts de
+traductions. Dans ce cas, il est préférable de toujours partir d'une
+version completement en anglais pour refinaliser une traduction.<br>
+<br>
+<br>
+<div id="head">les Tags de chaines.</div>
+<br>Durant la traduction, chaque chaîne peut être taggé (automatiquement ou manuellement) de différentes facons.<br>Chaque tag est représenté par une couleur dont la signification est détaillée ci dessous.<br>
+<br>
+<img style="width: 544px; height: 213px;" alt="Flags" src="../common/sstflags.gif"><br>
+<br>-Traduit (Translated) [Blanc - Auto]: Les chaine qui ont été
+traduites directement par reconnaissance directe depuis le dictionnaire
+global sont automatiquement définies comme traduites.<br>
+<br>-Validé (Validated as Complete translation) [Bleu - Manuel]:
+(raccourcis F1): Représente une traduction validée par l'utilisateur.
+Les chaines taggée de la sorte sont automatiquement ajoutées au
+dictionnaire si l'utilisateur sauve l'addon au format SST (et que le
+fichier SST est présent dans le dossier [userDictionaries] de
+l'application.<br>
+<br>-Validé Partiel. (Validated as Partial translation) [Mauve -
+Auto/Manuel]: (raccourcis F2). Lorsqu'une chaine n'est pas complètement
+traduite, l'utilisateur peut choisir de la tagger en "trad.partielle",
+afin d'y revenir plus tard. Ces chaines sont sauvées dans les fichiers
+SST, elles sont reappliqués si l'addon auxquelles elles se rèferent est
+rechargé, mais elles ne sont pas ajoutées au dictionnaire global.<br>Note:
+certaines fonctionnalités attribuent automatiquement le tag "Partiel"
+lorsqu'elles requièrent une supervision: "EspCompare", ou "Search and
+replace" par exemple.<br>
+<br>-Résultat Heuristique: (LD = Levenstein Distance) [Vert -&gt;
+Rouge, selon la proximité - Auto]. Lorqu'un recherche heuritique est
+exécutée, TesVT essaye de trouver toutes les chaines présentes dans le
+dictionnaire qui ressemblent à l'original. Les chaines vertes indiquent
+les meilleurs résultats. Le nombre indiqué dans la colonne LD complète
+l'information. (un + indique que plusieurs résultats ont été trouvés,
+et seul le plus pertinent a été choisi. Pour voir l'ensemble des
+résultats ouvrir l'onglet Autotranslation -sous la liste-, et cliquer
+sur une chaine: tous les résultats sont alors affichés).<br>Les chaines
+avec un résultat heuristique n'ont pas de statut validé. elles ne sont
+pas sauvées dans le fichier SST&nbsp;, ni ajoutées au dictionnaire
+global. Il faut les valider manuellement (F1) ou completer leur
+traduction en editant la chaine.<br><br>-Non Traduit [Rouge sans
+Resultat heuristique (LD). Auto/Manuel] (raccourcis F4): Toute chaine
+non traduite, ni resultat heuristique est defini de la sorte. La source
+est copié dans le champ de traduction pour une meilleure visibilité. Si
+l'utilisateur veut annuler un traduction, il faut manuellement invoquer
+ce tag (menucontextuel ou F4) . Attention l'annulation est
+irremediable. Ces chaines ne sont ni sauvées dans le fichier SST, ni
+ajoutées au dictionnaire global.<br>
+<br>
+-Alias Alerte [Jaune - Auto]: L'intégrité des chaines qui possèdent des
+&lt;Alias&gt; est controlée. Si une traduction fait appel à un alias
+qui n'est pas présent dans la source original, la chaine est
+automatiquement taggée de la sorte. Ce tag est prioritaire quel que
+soit le statut de la chaine par ailleurs.<br><br>[à suivre...]<br>
+</body></html>

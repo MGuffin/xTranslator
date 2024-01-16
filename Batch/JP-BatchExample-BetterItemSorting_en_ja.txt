@@ -1,0 +1,261 @@
+﻿#このファイルはバッチファイルのサンプルです。
+#バッチファイルは必ずBOM付のUTF-8で保存する必要があります。
+#サンプルとして、このファイルにはBetter item sorting用の英 -> 日ルールが記入されています。
+#ルールは必ずStartRuleで開始し、EndRuleで閉じる必要があります。
+#Search=[検索する文字列]
+#Replace=[置換文]
+#Pattern=[出力文字列の書式]  Modeが1～2用のオプション
+#Select=0～3: 検索・置換対象を設定します。0=すべての文字列 1=確認していない文字列 2=ヒューリスティック翻訳されていない文字列 3=選択した部分
+#Mode=0～2: 検索・置換方法を設定します。0=訳文を検索して置換 1=原文を検索して訳文に追加 2=検索はせずに置換語を訳文に加える
+#casesensitive=1  1にすると大文字・小文字の区別を有効にします。
+#AllLists=1  1にすると全てのタブを検索します（.Strings, .dlStrings, .ilStrings）
+
+
+StartRule
+Search=(Medicine)
+Replace=(治療薬)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Alcohol]
+Replace=[酒]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Ammo/Fuel]
+Replace=[弾薬/燃料]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Ammo]
+Replace=[弾薬]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Holo)
+Replace=(記録)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Caps)
+Replace=(キャップ)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Food)
+Replace=(食料)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Game)
+Replace=(ゲーム)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Hack)
+Replace=(ハック)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Note)
+Replace=(メモ)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Quest)
+Replace=(クエスト)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[B.Head]
+Replace=[Bヘッド]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Chem]
+Replace=[薬品]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Clothing]
+Replace=[衣服]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Crafting]
+Replace=[製作]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Device]
+Replace=[装置]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Dog]
+Replace=[犬]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Eyewear]
+Replace=[眼鏡]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Food Rad]
+Replace=[汚染食]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Grenade]
+Replace=[手榴弾]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Head]
+Replace=[帽子]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Headwear]
+Replace=[頭装備]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Mag]
+Replace=[雑誌]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Mask]
+Replace=[マスク]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Mine]
+Replace=[地雷]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Outfit]
+Replace=[体装備]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[S.Mutant]
+Replace=[Sミュータント]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search={Key}
+Replace={鍵}
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search={Material}
+Replace={素材}
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search={Pass}
+Replace={パス}
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search={Ring}
+Replace={指輪}
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+

@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+</head><body>
+SkyrimStringTranslator <span style="font-size: 18px;">by
+McGuffin</span><br>
+&nbsp;<br>
+<span style="font-size: 14px;"><strong>Contenidos</strong></span><br>
+&nbsp;<br>
+1. Introducción<br>
+2. Sobre los archivos STRINGS<br>
+3. Sobre SkyrimStringTranslator<br>
+4. Usar TES5Edit para extraer archivos strings<br>
+5. Uso<br>
+
+<p style="margin-left: 40px;">a. Pasos previos<br>b. Instalar &amp;
+desinstalar<br>
+c. Configurar SST<br>
+d. Traducir archivos strings</p>
+6. Lista de cambios<br>
+&nbsp;<br>
+<strong>Introducción</strong><br>
+<br>
+SkyrimStringTranslator: un editor avanzado para traducir los archivos
+string de <em>TES V: Skyrim</em>.<br>
+<br>
+Link de descarga: <a href="http://skyrim.nexusmods.com/mods/29148" class="bbc_url" title="Enlace externo" rel="nofollow external">http://skyrim.nexusmods.com/mods/29148</a><br>
+<br>
+Pero, ¿Qué son los archivos STRINGS?<br>
+<br>
+<strong>Sobre los archivos STRINGS</strong><br>
+<br>
+Desde <em>Fallout 3</em>, la información de textos en los
+juegos de Bethesda son almacenados en archivos STRINGS. Por cada
+lenguaje soportado deben existir tres archivos STRINGS, localizados en
+la carpeta \ Skyrim \ Data \ Strings. Seguramente, ahora en esa carpeta
+tienes los siguientes seis archivos estándar:<br>
+<br>
+<em>Skyrim_Spanish.STRINGS<br>
+Skyrim_Spanish.ILSTRINGS<br>
+Skyrim_Spanish.DLSTRINGS<br>
+Update_Spanish.STRINGS<br>
+Update_Spanish.ILSTRINGS<br>
+Update_Spanish.DLSTRINGS</em><br>
+<br>
+La nomenclatura de los nombres de los archivos es el siguiente:<br>
+<br>
+[nombre_mod]_[lenguaje].[extensión]<br>
+<br>
+Hay tres diferentes extensiones:
+<ul class="bbc">
+<li>STRINGS - items, nombres, frases comunes<br>
+</li>
+<li>DLSTRINGS - textos de libros y descripciones de misión<br>
+</li>
+<li>ILSTRINGS - diálogos.</li>
+</ul>
+Los archivos que con el nombre <em>Skyrim_[lenguaje].[extensión]</em>,
+son los archivos base y contienen la traducción original del juego.<br>
+<br>
+<strong>Sobre SkyrimStringTranslator</strong><br>
+<br>
+<em>SkyrimStringTranslator</em> es un editor avanzado para
+traducir los archivos string que los plugins de <em>TES V: Skyrim</em>
+utilizan para dar suporte multilenguaje. <em>SST </em>fue
+concebido con la habilidad de realizar traducciones automáticas en
+mente, y permitir una fácil actualización de esas traducciones.<br>
+<br>
+Puesto que hay algunos problemas de fiabilidad con las herramientas de
+traducción que modifican los archivos *.esp (como Skyrim String
+Localizer, por desgracia), <em>SkyrimStringTranslator</em>
+está diseñado para trabajar directamente sobre los archivos string, sin
+alterar el archivo esp.<br>
+<br>
+<em>SST </em>no posee la capacidad de localizar y
+delocalizar plugins, es decir que necesitas crear los archivos strings
+con anterioridad para luego editarlos con <em>SkyrimStringTranslator</em>.
+Se recomienda <a href="http://skyrim.nexusmods.com/mods/25859/" class="bbc_url" title="Enlace externo" rel="nofollow external">TES5Edit</a> para hacer eso.<br>
+<br>
+<strong>Usar TES5Edit para extraer archivos strings</strong>
+<ul class="bbcol decimal">
+<li>Selecciona el mod del cual deseas extraer los strings al
+abrir <em>TES5Edit</em><br>
+</li>
+<li>Haz clic derecho sobre el mod una vez se haya cargado.<br>
+</li>
+<li>En el menú contextual, dirígete abajo del todo, donde pone <em>Other
+&gt; Localization &gt; Localize plugin</em>.<br>
+</li>
+<li>Una vez le des a Localize plugin, te aparecerá un recuadro.
+Haz clic donde pone "<em>Localize</em>" y después dale a "<em>yes</em>".
+De este modo ya tendrás extraídos los strings del mod.<br>
+<br>
+<strong>Como integrar los Strings traducidos en el mod</strong><br>
+<br>
+</li>
+<li>Una vez extraidos los strings y haberlos traducidos
+deberias tener en tu carpeta Strings los archivos "mod_English.STRINGS"
+y "mod_Spanish.STRINGS.<br>
+</li>
+<li>Abre TES5Edit y carga el mod que has traducido. Ve a
+Other&gt;Localization&gt;Language. Deberia paarecer dos
+opciones: English y Spanish. Selecciona Spanish (español).<br>
+</li>
+<li>Ve a Other&gt;Localization&gt;Delocalize Plugin.
+TES5Edit se cerrará- Listo Ya tienes tu mod con los strings traducidos
+incorporados.<br>
+</li>
+</ul>
+<strong>Uso</strong><br>
+&nbsp;<br>
+<strong>Pasos previos</strong><br>
+<br>
+Para utilizar <em>SST</em>, primero debes construir un
+diccionario con strings del lenguaje de origen y el lenguaje de
+destino. El lenguaje de origen más conveniente es el Inglés, ya casi
+todos los mods se hacen en este idioma. Para esto necesitas los strings
+del juego en inglés, más los de tu idioma nativo..<br>
+<br>
+Puedes descargar los archivos Skyrim_STRINGS en inglés de aquí:<br>
+&nbsp;<br>
+<a href="https://dl.dropbox.com/u/47157149/Skyrim_STRINGS.zip" class="bbc_url" title="Enlace externo" rel="nofollow external">https://dl.dropbox.c...rim_STRINGS.zip</a><br>
+<br>
+Debes extraer el archivo en \ Skyrim \ Data \ Strings<br>
+<br>
+<strong>Instalar &amp; desinstalar</strong><br>
+<br>
+Para instalar, extrae la carpeta de <em>SST </em>del
+archivo descargado en el lugar que desees.<br>
+<br>
+Para desinstalar, borra la carpeta de <em>SST </em>que
+previamente extrajiste.<br>
+<br>
+<strong>Configurar SST</strong><br>
+<br>
+Primero debes asegurarte que tienes los tres archivos strings <em>Skyrim_English</em>
+junto a los archivos strings en español, <em>Skyrim_Spanish</em>,
+como he dicho antes.<br>
+&nbsp;<br>
+<strong>1 -</strong> Ejecuta el programa. Nos encontraremos
+con la ventana principal.<br>
+<br>
+<span><span rel="lightbox"><img class="bbc_img" src="./Tutorial_files/vMRADec.png" alt="vMRADec.png"></span></span><br>
+&nbsp;<br>
+<strong>2 - </strong>En primer lugar debes especificar la
+localización de la carpeta <em>Strings </em>del juego. En
+el menú, selecciona<em> File -&gt; Set Strings Directory</em>,
+a continuación, elige un archivo en la carpeta de Strings de Skyrim
+(generalmente \ Skyrim \ Data \ Strings). No importa qué archivo elijas
+en este punto, esto es sólo para señalar la dirección de la carpeta.<br>
+<br>
+<strong>3 -</strong> Luego, debes configurar los lenguajes
+de origen y de destino. En el menú, selecciona <em>File
+-&gt; Set Vocabulary Language</em>, selecciona <em>english</em>
+como el idioma de origen y el idioma de destino en la segunda lista (<em>spanish</em>
+en este caso). Haz clic en el botón <em>OK</em>.<br>
+&nbsp;<br>
+<span><span rel="lightbox"><img class="bbc_img" src="./Tutorial_files/HaXkapP.png" alt="HaXkapP.png"></span></span><br>
+<br>
+<strong>4 - </strong>Construir caché de vocabulario: En el
+menú selecciona <em>File -&gt; Build Cache</em>.<br>
+&nbsp;
+<ul class="bbc">
+<li>Si, como se dijo anteriormente, si tienes los archivos <em>Skyrim_English.STRINGS</em>
+y <em>Skyrim_Spanish.Strings</em> en la carpeta <em>Strings</em>
+de Skyrim debidamente establecidos <em>SST </em>construirá
+un caché de vocabulario. (Esto tomará unos segundos.)</li>
+</ul>
+Una vez que se haya realizado deberás ser capaz de navegar por todas
+las strings almacenadas en caché en la lista de vocabulario.<br>
+<br>
+<strong>Traducir archivos string.</strong><br>
+<br>
+<strong>1 -</strong> Puedes abrir archivos strings usando <em>File
+-&gt; Load</em> o con el atajo de teclado ( <span style="font-family: courier;">Ctrl + O</span> )<br>
+&nbsp;<br>
+<span><span rel="lightbox"><img style="width: 629px; height: 587px;" class="bbc_img" src="./Tutorial_files/4MBi1is.png" alt="CL0eSl1.png"></span></span><br>
+<br>
+<strong>2 -</strong> Una vez que se haya cargado, ve al
+menú <em>Translation</em> y selecciona Translate Exact
+Match ( Ctrl + T ).<br>
+&nbsp;<br>
+<br>
+<p style="margin-left: 40px;">Todas las strings con
+coincidencia exacta se traducirán directamente en su idioma. Los
+strings no traducidas tendrán un fondo rojo.</p>
+&nbsp;<br>
+<strong>3 - </strong>En este punto, puedes optar por
+traducir directamente los strings rojos de forma manual. Selecciona una
+línea, pulsa Enter, edita el texto, presiona Ctrl + Enter para validar.
+También puedes tratar de hacer una traducción heurística.<br>
+&nbsp;<br>
+<span><span rel="lightbox"><img class="bbc_img" src="./Tutorial_files/WZ3kJUY.png" alt="WZ3kJUY.png"></span></span><br>
+<br>
+<strong>4 -</strong> En el menú <em>Translation</em>
+, selecciona <em>Heuristic Translation</em> ( Ctrl + H ):
+SST buscará strings similares y tratará de encontrar la mejor
+coincidencia.<br>
+<p style="margin-left: 40px;"><strong>Nota:</strong>
+ya que toma bastante tiempo dependiendo del addon y el tipo de strings
+(por lo general es un poco más lento para los ILSTRINGS) la traducción
+heurística se lleva a cabo sólo para la lista visible actualmente. Para
+realizar una traducción heurística en todas la lineas, selecciona <em>Heuristic
+Translation for S,DL,ILSTRINGS</em> ( Ctrl + Alt + H ) en el menú
+<em>Translation</em>.</p>
+<strong>5 - </strong>Una vez hecho esto obtendrás
+indicaciones del resultado a través de tonalidades de color: las
+mejores coincidencias estarán en verde, y las coincidencias no tan
+buenas irán tendiendo al rojo.<br>
+&nbsp;<br>
+<span><span rel="lightbox"><img style="width: 635px; height: 553px;" class="bbc_img" src="./Tutorial_files/1jKStee.png" alt="4MBi1is.png"></span></span><br>
+<br>
+Al hacer clic en un coincidencia también se puede obtener todos los
+coincidencias alternativas (si hay alguna, se indica&nbsp; la
+etiqueta + junto al número de coincidencias en la columna de LD), y
+puedes seleccionar el más apropiado.<br>
+<br>
+Si piensas que la traducción está completamente equivocada puede hacer
+clic derecho sobre él y seleccionar "<em>Cancel translation</em>".
+Si la traducción es correcta, puedes elegir "<em>Validate
+translation</em>" (atajo de teclado S) o puedes editarlo
+manualmente presionando Enter. Las traducciones validadas estarán en
+azul.<br>
+&nbsp;<br>
+En este punto, esta string se puede incluir en el <em>userCache</em>.
+En el menú selecciona <em>File -&gt; Save </em><em>userCache</em>
+( Ctrl + U ), de este modo estos strings traducidos se mantendrán para
+futuras actualizaciones de la traducción.<br>
+<br>
+Una vez que hayas terminado, simplemente selecciona <em>Save</em>
+( Ctrl + S ) en el menú <em>File</em> para que SST guarde
+todos los archivos en su idioma de destino y la codificación adecuada.<br>
+<br>
+<br>
+<strong>Lista de cambios:</strong><br>
+<br>
+<strong>v0.32 - <em>19 Enero 2013</em></strong><br>
+&nbsp;
+<ul class="bbc">
+<li>Hacer clic en lupa en el campo de búsqueda abrirá un menú
+con algunas opciones.<br>
+</li>
+<li>Se ha añadido un nuevo menú en la lista de vocabulario, que
+permite agregar y eliminar directamente pares de strings.<br>
+</li>
+<li>La herramienta de quick Word-Match añadida en la versión
+0.30 se verá muy mejorado si el usuario agrega pares de strings para
+algunas palabras muy comunes (como "Usted", "Nosotros", "con",
+"algunos", "más", "no ", etc...)<br>
+</li>
+<li>En la ventana de edición, se añadió un módulo de
+verificación de Alias. Hacer clic en un alias reemplazará
+automáticamente la selección actual por el texto del alias.<br>
+</li>
+<li>En el menú contextual de la lista de strings, se añadió una
+funcionalidad para arreglar automáticamente strings con alias que no
+coinciden. El string modificada se etiquetan como traducción parcial.<br>
+</li>
+<li>Se han añadido unos bonitos iconos.</li>
+</ul>
+<strong>v0.31 - <em>18 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Corregido strings Unicode en minúsculas</li>
+</ul>
+<strong>v0.30 - <em>18 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Mejora de la interfaz del usuario. Los strings
+seleccionados y enfocados ahora son más visibles.<br>
+</li>
+<li>Search &amp; replace ahora disponible en el menú de
+traducción principal, o con el atajo de teclado Ctrl + F<br>
+</li>
+<li>Se agregó una herramienta de quick Word-Match en Search
+&amp; Replace / Search &amp; Edit. No es una traducción directa
+sino un sistema simple de sugerencias basada en palabras que a menudo
+coinciden&nbsp; o se ven a menudo juntas.<br>
+</li>
+<li>Añadido soporte para selección múltiple, todas las acciones
+se pueden aplicar en la selección.<br>
+</li>
+<li>Se ha añadido la posibilidad de ignorar de las strings que
+tienen un $ delante de ellos.<br>
+</li>
+<li>Varias pequeñas correcciones</li>
+</ul>
+<strong>v022c - <em>16 Enero 2013</em></strong><br>
+-Arreglado buscar y reemplazar para strings "sin resultados
+heurísticos".<br>
+<br>
+<strong>v0.22b - <em>15 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Las traducciones parciales ahora están ordenados justo
+después de los resultados heurísticos.</li>
+</ul>
+<strong>v0.22 - <em>15 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Simplificación de algunas de las características<br>
+</li>
+<li>Strings marcados con una etiqueta parcial (violeta), o
+válida (azul), ya no se llevaran un resultado heurístico.<br>
+</li>
+<li>Traducir con coincidencia exacta ahora tiene en cuenta la
+que ha sido ya validado, y resetea los resultados heurísticos.</li>
+</ul>
+<strong>v0.21a - <em>13 Enero 2013</em></strong>
+<ul class="bbc">
+<li>La edición manual ahora elimina la etiqueta de "traducción
+parcial".</li>
+</ul>
+<strong>v0.21 - <em>13 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Ahora se puede añadir una etiqueta de "traducción parcial"
+para los strings que estén incompletos. Esa etiqueta se guarda en el
+userCache para que se pueda realizar un seguimiento de la misma. Los
+strings marcados son de color violeta.<br>
+</li>
+<li>Se ha añadido una herramienta de búsqueda y reemplazo, que
+puedes encontrar en el menú contextual. Por el momento se trata de una
+implementación preliminar, pero es mejor que nada. Los strings
+modificados se marcan automáticamente como "traducción parcial" (ver
+más arriba).<br>
+</li>
+<li>La base de datos caché fue cambiado. Así que tendrás que
+reconstruirlo. Si tienes un caché de usuario, esta se convertirá
+automáticamente.<br>
+</li>
+<li>Varias mejoras y correcciones.</li>
+</ul>
+<strong>v0.17 - <em>07 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Actualización menor: Simplificado de algunos mecanismos
+internos<br>
+</li>
+<li>La caché de vocabulario también se descargará
+automáticamente si strings de otro lenguaje de origen son cargados.</li>
+</ul>
+<strong>v0.16 - <em>06 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Se ha añadido una búsqueda rápida de addonStrings.<br>
+</li>
+<li>Se ha añadido una herramienta de comparación en la ventana
+de <em>edit/search</em> que muestra lo que ha cambiado
+entre una string fuente original y la string actualizada
+"heurísticamente". (Sólo funcionará si una búsqueda heurística se ha
+realizado en primer lugar). Un menú contextual permite cambiar entre
+string original / actualizada.<br>
+</li>
+<li>El caché ahora sólo se carga al iniciar el programa (o a
+pedido)</li>
+</ul>
+<strong>v0.15 - <em>04 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Se ha añadido la posibilidad de construir pares de strings
+a partir de archivos SSLXLTN (los archivos "Save translation" generados
+por Skyrim String Localizer). Compruebe el archivo vocabulary.txt para
+más información.<br>
+</li>
+<li>Varias correcciones de la interfaz del usuario<br>
+</li>
+<li>Varias optimizaciones y limpieza de código (una vez más)</li>
+</ul>
+<strong>v0.14 - <em>03 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Se ha añadido más lenguajes por defecto. Compruebe el
+archivo <em>codepage.txt</em> para añadir otras nuevas.<br>
+</li>
+<li>Heurística de búsqueda optimizado y mejorado en gran medida<br>
+</li>
+<li>Se ha añadido resaltado en color amarillo para los
+resultados heurísticos buenos pero donde las &lt;alias&gt; del
+string no coinciden exactamente. (La próxima versión traerá algunas
+herramientas para administrar esto más eficientemente)<br>
+</li>
+<li>Se ha añadido una comprobación heurística en la ventana de <em>edit/search</em>.<br>
+</li>
+<li>Corregido problemas con la barra de desplazamiento en todas
+las listas (debido a tamaño de celdas personalizadas)<br>
+</li>
+<li>Varias optimizaciones y limpieza de código</li>
+</ul>
+<strong>v0.13 - <em>02 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Movidos comandos en el menú principal. Añadido atajos de
+teclado.<br>
+</li>
+<li>Se ha añadido un manejo más estricto del idioma
+seleccionado para el caché de vocabulario. El caché de lenguaje ahora
+puede ser configurado antes de cargar las strings (de otro modo, debe
+cerrar la aplicación para cambiar las opciones)<br>
+</li>
+<li>En la ventana de <em>edit/search</em>,
+seleccionar una parte del texto en la ventana izquierda automáticamente
+inicia una búsqueda de la selección<br>
+</li>
+<li>Varias optimizaciones</li>
+</ul>
+<strong>v0.12 - <em>01 Enero 2013</em></strong>
+<ul class="bbc">
+<li>Interfaz del usuario mejorado ligeramente<br>
+</li>
+<li>Se ha añadido más control/gestión de errores<br>
+</li>
+<li>Ahora no es posible guardar el userCache si está vacío</li>
+</ul>
+<strong>v0.11 - <em>31 Diciembre 2012</em></strong>
+<ul class="bbc">
+<li>Se ha solucionado un problema que podría impedir guardar en
+el lugar correcto.</li>
+</ul>
+<strong>v.01 - <em>30 Diciembre 2012</em></strong>
+<ul class="bbc">
+<li>Primera versión</li>
+</ul>
+</body></html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+
+</head>
+<body>
+<div id="head">Erstellen eines Wörterbuches:</div>
+<br>
+<br>
+Die beste Methode um SST zu benutzen ist es, sich ein Wörterbuch aus
+der Ausgangssprache und der Zielsprache zu erstellen.<br>
+Als Ausgangssprache erweist sich 'Englisch' am geeignetsten, da sogut
+wie alle Mods in dieser Sprache gemacht werden. Du benötigst deshalb
+alle 3
+skyrim_english.(S,DL,IL)Strings-Dateien in deinem Skyrim\data\Strings\
+-Ordner, zusätzlich zu den Strings-Dateien deiner Sprache (Diese
+solltest du bereits besitzen. Sie sollten im Installations-Ordner von
+Skyrim liegen). (Solltest du diese Dateien nicht haben,
+lade sie einfach von der SST-Nexus-Seite herunter
+.)<br>
+Sobald du diese Dateien ordnungsgemäß installiert hast, kannst du den
+SkyrimStringTranslator starten und dann "Vokabular und Cache erstellen"
+im
+Vokabular-Menü auswählen. Lege jetzt die Ausgengssprache und die
+Zielsprache fest und wähle die Option
+"Cache erstellen" aus. Der Vorgang wird ein paar Sekunden dauern.<br>
+<br>
+<br>
+<div id="head">ESP-Modus:</div>
+<br>
+Lade eine *.esp/*.esm, übersetze sie und speicher die *.esp/*.esm. Ganz
+einfach.<br>
+Allerdings ist es ratsam sich vorher ein Wörterbuch zu generieren.
+Siehe dazu weiter
+unten, im Abschnitt Strings-Modus.<br>
+<br>
+Wenn
+du einen String bearbeitest, erhältst du (im Bearbeitungsfenster -
+espRecord-Panel) eine
+Liste sämtlicher Felder mit den selben Records. Mit einem Doppelklick
+kannst
+kannst du zwischen den Records wechseln. Die Funktionen sind die selben
+wie im
+STRINGS-Modus.<br>
+<br>
+Anmerkung: Es besteht die Möglichkeit, dass nicht alle zu übersetzenden
+Felder
+ausgewählt sind. Wenn du Sachen im Spiel findest die nicht übersetzt
+wurde, berichte dem
+Entwickler des Programms (McGuffin) davon und nenn ihm die Mod.<br>
+Du kannst sie ebenfalls in die "records.txt"-Datei einfügen, aber mach
+das mit Bedacht ;)<br>
+<br>
+Anmerkung2:
+Esp-Dateien werden mit einer sehr unkomplizierten Methode geladen. Es
+setzt voraus
+Records zu finden wenn welche vorhanden sind und schummelt dabei auch
+nicht.<br>
+Das
+bedeutet: sollten die Daten deiner originalen, nicht-übersetzten Esp
+beschädigt sein,
+(was der Fall sein könnte wenn die Esp mit einem älteren Tool
+bearbeitet wurde), wird der SST sich vermutlich weigern diese zu laden.
+Bevor du anfängst zu klagen, solltest
+du die Unversehrtheit deiner originalen Esp mit Hilfe von
+Tes5edit prüfen.<br>
+<br>
+<br>
+<div id="head">ESP-Vergleich:</div>
+<br>
+Mit diesem Werkzeug kannst du direkt String-Paare zwischen 2 Esps
+erstellen.<br>
+Anmerkung: Das Encoding ist auf die Zielsprache eingestellt.<br>
+<br>
+Beispiel:<br>
+Du hast eine Mod im Englischen und eine vorherige, bereits übersetzte
+Version der Mod.
+<br>
+Öffne die
+englische Esp ganz normal und öffne dann die übersetzte Version über
+den Menüpunkt
+"Esp-Vergleich". Es werden automatisch alle String-Paare generiert,
+bei denen die FormID übereinstimmt.<br>
+Dieses Verfahren hat jedoch bestimmte Einschränkungen:<br>
+Einige
+Strings sind nicht direkt mit einer bestimmten FormID verbunden,
+sondern werden nur
+innerhalb von Records enumeriert. Das bedeutet: Wenn der Mod-Autor
+einige dieser enumarierten Einträge ändert
+oder entfernt, können die String-Paare nicht mit einer Genauigkeit von
+100% erstellt werden.<br>
+Alle ersetzten Paare werden als
+"Partielle Übersetzung" markiert und Strings die mit einer hohen
+Wahrscheinlichkeit falsch sind,
+werden mit einem kleinem 'Glühbirnen'-Icon auf der rechten Seite
+markiert.<br>
+-wenn das Licht AN ist,
+dann ist das Risiko hoch, dass sich mehr als ein enumeriertes Feld
+im Record befindet... In diesem Fall enthält das
+Esp-Ergebnisvergleichspanel im Editierfenster sämtliche gefundenen
+enum-Felder.
+So kannst du einfach Strings berichtigen die nicht übereinstimmen.<br>
+-wenn das licht AUS ist, kennzeichnet es lediglich bekannte
+enum-Felder, der
+eigentliche Record besitzt aber nut ein enum-Feld.<br>
+<br>
+Anmerkung: Strings mit der "Licht AN-Warnung" werden nicht im
+Nutzer-Cache gespeichert
+solange du sie nicht manuell validiert hast.<br>
+<br>
+<br>
+<div id="head">STRINGS-Modus:</div>
+<br>
+Anmerkung: Die Nutzeroberfläche ist immernoch etwas grob gehalten und
+bedarf einige Verbesserungen. Sie funktioniert
+jedoch bereits vollständig.<br>
+Ich gehe davon aus dass du den vollständigen Stapel an skyrim_english
+Strings-Dateien
+bereits in deinem Skyrim-Ordner liegen hast, so wie bereits gesagt.<br>
+<br>
+Als Beispiel
+nehmen wir an, du möchtest den Unofficial Skyrim Patch vom Englischen
+ins Deutsche übersetzen.
+<br>
+<br>
+Zunächst musst du den Unofficial Skyrim Patch delokalisieren ( <a href="http://skyrim.nexusmods.com/mods/19">http://skyrim.nexusmods.com/mods/19
+</a>)<br>
+Die beste Methode um an die Strings-Dateien jeder Mod ranzukommen, ist
+es
+Tes5Edit zu benutzen (<a href="http://skyrim.nexusmods.com/mods/25859/">
+http://skyrim.nexusmods.com/mods/25859/ </a>)<br>
+<br>
+Mit TesVedit<br>
+-lade die Unofficial Skyrim Patch.Esp<br>
+-sobald
+es geladen hat, mache einen Rechtsklick auf die Esp, gehe im
+Kontextmenü auf Other-&gt;Localization und sieh nach ob
+'Language'
+auf Englisch gestellt ist. Wähle dann -&gt;localize -&gt;YES
+-&gt;
+wähle nichts weiteres aus und speicher dann die Dateien.<br>
+<br>
+jetzt hast du eine delokalisierte Unofficial Skyrim Patch.Esp und 3
+Strings-Dateien
+im Strings-Ordner mit den folgenden Namen:<br>
+-Unofficial Skyrim Patch_English.STRINGS<br>
+-Unofficial Skyrim Patch_English.DLSTRINGS<br>
+-Unofficial Skyrim Patch_English.ILSTRINGS<br>
+(Anmerkung:
+Wenn du Skyrim jetzt versuchst zu starten wird es abstürzen, weil in
+der Esp nun keine Strings mehr eingebettet sind und du nicht über die
+jeweiligen STRINGS-Dateien in deiner Sprache verfügst)<br>
+<br>
+Der SST wird dir dabei helfen, diese Dateien zu übersetzen und die
+nächsten Versionen der Mod
+zu aktualisieren.<br>
+<br>
+<br>
+<div id="head">STRINGS laden:</div>
+<br>
+Jetzt kannst du die Unofficial Skyrim Patch_English.STRINGS die du
+übersetzen möchtest
+laden.<br>
+- Gehe im Menü auf Datei -&gt; Laden und wähle dann die Unofficial
+Skyrim Patch_English.STRINGS.<br>
+- Sobald es geladen hat gehst du ins Übersetzungsmenü und klickst auf
+"Übersetze bei direkter Übereinstimmung"(Strg-T).<br>
+-
+Sämtliche Strings die mit dem Englischen übereinstimmen werden direkt
+in deine Sprache übersetzt. Nicht-übersetzte Strings haben einen roten
+Hintergrund<br>
+- An dieser
+Stelle kannst du dich nun entscheiden ob du die roten Strings manuell
+übersetzen
+möchtest, (Wähle eine Zeile, drücke Enter, bearbeite es, drücke
+Strg-Enter um zu bestätigen),
+oder wende eine heuristische Übersetzung an.<br>
+- Wähle im Menü die heuristische Übersetzung aus (Strg-H): Der SST wird
+nach
+vergleichbaren Strings suchen um dabei die beste Übereinstimming finden.<br>
+Anmerkung:
+Da die heuristische Übersetzung etwas mehr Zeit benötigt, (hängt vom
+Addon und von der Art der Strings ab - für gewöhnlich etwas langsamer
+bei den ILSTRINGS) wird sie
+nur für die aktuell sichtbare Liste angewendet.<br>
+Sobald diese abgeschlossen ist kannst du die Übersetzung kontrollieren:
+Die besten Übereinstimmungen sind in grün und
+die weniger guten Übereinstimmungen in rot.<br>
+<br>
+Wenn du
+auf eine Übereinstimmung klickst kannst du auch sämtliche Alternativen
+einsehen (sind welche vorhanden wird
+dies mit einem + neben der Übereinstimmungsnummer unter der LD-Kolummne
+angezeigt
+) und eine passendere auswählen.<br>
+Wenn du glaubst
+der String sei völlig falsch, kannst einen Rechtsklick drauf machen und
+'Übersetzung abbrechen' auswählen.
+Wenn du glaubst es ist in Ordnung, kannst du
+'Übersetzung validieren' auswählen (Tastenkürzel F1) und die Zeile wird
+sich blau färben. Du kannst sie auch manuell
+bearbeiten. An dieser Stelle kann der String im Nutzer-Cache
+gespeichert werden
+(SSTStrings-Wörterbuch speichern). Diese Strings werden für zukünftige
+Updates
+gespeichert.<br>
+<br>
+Der Unofficial Skyrim Patch ist eine große Mod
+mit einer Menge an Strings die es zu überprüfen gilt. Das kann eine
+sehr zeitaufwenige Aufgabe werden.
+Mit dem Speichern deines Nutzer-Cache kannst du die
+Unofficial Skyrim Patch_English.STRINGS zu jeder Zeit wieder öffnen und
+an der selben Stelle weitermachen an der du aufgehört hast,
+ohne dabei deine bisherige Arbeit zu verlieren...<br>
+<br>
+Sobald du fertig bist, wähle
+'Esp/Esm exportieren' und der SST wird sämtliche Dateien in deiner
+Sprache und mit
+richtigem Encoding speichern. (Das Encoding bedarf in manchen Sprachen
+noch einige
+Tests).<br>
+<br>
+<div id="head">Übersetzte STRINGS mit Tes5edit in die Esp
+einbetten.</div>
+<br>
+-Öffne Tes5Edit<br>
+-Lade dein Addon<br>
+-Rechtsklicke auf die Mod -&gt; other -&gt;localization
+-&gt; wähle
+language
+-&gt;deine Sprache (vorrausgesetzt deine
+Skyrim_Language.strings-Datei und
+deinemod_Language.strings befinden sich im skyrim\data\strings-Ordner).<br>
+-Wähle dann other-&gt; Localization -&gt;delocalize.<br>
+Wurde alles korrekt gemacht, wird
+TesVedit dich lediglich fragen ob du die
+Esp speichern möchtest. Keine zusätzlichen Fenster sollten einblenden -
+(mit Ausnahme des Warnfensters
+).<br>
+<br></body></html>

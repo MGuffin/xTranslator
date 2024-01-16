@@ -1,0 +1,1572 @@
+﻿#Do Not Edit
+[StartRule]
+	Header=[$]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|POST_BottleCapMinePlacedCaps|003D2030
+[EndRule]
+
+[StartRule]
+	Header=[$]
+	rSig=CNCY
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|Caps001|0000000F
+[EndRule]
+
+[StartRule]
+	Header=(Lock)
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|BobbyPin|0000000A
+	Include_1=form|BobbyPinBox|0008FCA8
+[EndRule]
+
+[StartRule]
+	Header=[$]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|BlockSuperDuperPerk|0043C439
+[EndRule]
+
+[StartRule]
+	Header=[*]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|UnscrappableObject|001CC46A
+	Exclude_0=kwd_|NotJunkJetAmmo|000E9447
+[EndRule]
+
+[StartRule]
+	Header=[bHead]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|BobbleheadKeyword|00135E6C
+[EndRule]
+
+[StartRule]
+	Header=[paMod]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_pa_
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeLooseMod|00135C17
+[EndRule]
+
+[StartRule]
+	Header=[aMod]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_armor_
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeLooseMod|00135C17
+[EndRule]
+
+[StartRule]
+	Header=[aMod]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_torso_
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeLooseMod|00135C17
+[EndRule]
+
+[StartRule]
+	Header=[aMod]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_leather_
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeLooseMod|00135C17
+[EndRule]
+
+[StartRule]
+	Header=(Ore)
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_ore_
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|UnsellableObject|003D4327
+[EndRule]
+
+[StartRule]
+	Header=[x]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeBookBurnt|0044D496
+[EndRule]
+
+[StartRule]
+	Header=[Misc]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|NotJunkJetAmmo|000E9447
+	Include_1=kwd_|UnscrappableObject|001CC46A
+[EndRule]
+
+[StartRule]
+	Header=[+]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|NoAutoScrapJunk|004ECBA8
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeToy|0044D48D
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeSports|0044D498
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeBones|0044D497
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=_casing
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=(*)
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=ammo_powder
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|UnsellableObject|003D4327
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=-1
+	anyKW=0
+	hasCompo=-1
+[EndRule]
+
+[StartRule]
+	Header=[~Mod]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeLooseMod|00135C17
+[EndRule]
+
+[StartRule]
+	Header=[-]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=-1
+	hasCompo=-1
+[EndRule]
+
+[StartRule]
+	Header=[Misc]
+	rSig=MISC
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=-1
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Card]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=card
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Pass]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=code
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Pass]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=password
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Pass]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=credential
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Key]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=key
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Pass]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=login
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Data]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=data
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Card]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=id
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Card]
+	rSig=KEYM
+	fSig=FULL
+	enabled=-1
+	inEdid=clearance
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=(Recipe)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeRecipe|003E1567
+[EndRule]
+
+[StartRule]
+	Header=(Recipe)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|DLC04NukaNukeSchematicStatic|00114932
+[EndRule]
+
+[StartRule]
+	Header=(Nuke-C)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|INV_TransceiverObjectSpruceKnob|00485034
+	Include_1=kwd_|BookType_NukeTransceiver|00524C66
+	Include_2=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=(Nuke-B)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|INV_TransceiverObjectMonongah|00485033
+	Include_1=kwd_|BookType_NukeTransceiver|00524C66
+	Include_2=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=(Nuke-A)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|INV_TransceiverObjectSugarGrove|003EB3D7
+	Include_1=kwd_|BookType_NukeTransceiver|00524C66
+	Include_2=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=[Mag]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MagazineKeyword|001D4A70
+[EndRule]
+
+[StartRule]
+	Header=(Map)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=treasuremap
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Nuke]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|BookType_NukeTransceiver|00524C66
+	Include_1=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=[Nuke]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|NuclearLaunchCode_HighPoly|0032CE0A
+	Include_1=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=[Nuke]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|INV_NuclearLaunchCodeCipherPageMonongah|004E417A
+	Include_1=kwd_|FeaturedItem|001B3FAC
+[EndRule]
+
+[StartRule]
+	Header=[Nuke]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|BookType_NukeTransceiver|00524C66
+[EndRule]
+
+[StartRule]
+	Header=[Nuke]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|INV_NuclearLaunchCodeCipherPageMonongah|004E417A
+	Include_1=art_|INV_NuclearLaunchCodeCipherPageSpruceKnob|004E417B
+	Include_2=art_|INV_NuclearLaunchCodeCipherPageSugarGrove|004E417C
+	Include_3=art_|NuclearLaunchCode_HighPoly|0032CE0A
+	Include_4=kwd_|UnsellableObject|003D4327
+[EndRule]
+
+[StartRule]
+	Header=[Card]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|HighPoly_GovernmentID|0035F125
+[EndRule]
+
+[StartRule]
+	Header=(Map-)
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|HighPoly_MTRZ05ExcavatorMap01|004FE039
+[EndRule]
+
+[StartRule]
+	Header=[Note]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=art_|DONOTUSE_InventoryNote|001B5EF1
+	Include_1=art_|DONOTUSE_InventoryNoteTorn|001F97D4
+	Include_2=art_|DotMatrixPrinterNoteINV01|00052D26
+	Include_3=art_|HighPoly_Note_Charleston01|0038FAD5
+	Include_4=art_|HighPoly_Note_CharlestonHerald01|0038FAD6
+	Include_5=art_|HighPoly_Note_Classified|000022EB
+	Include_6=art_|HighPoly_Note_Classified03|0035F110
+	Include_7=art_|HighPoly_Note_DepartmentOfDefense|0038FAD7
+	Include_8=art_|HighPoly_Note_Envelope01|0038FAE6
+	Include_9=art_|HighPoly_Note_EnvelopeWavyWillards01|0043E1AC
+	Include_10=art_|HighPoly_Note_GarrahanMiningCo01|0038FADA
+	Include_11=art_|HighPoly_Note_Governor|0035F130
+	Include_12=art_|HighPoly_Note_HornwrightIndustrial01|0038FADB
+	Include_13=art_|HighPoly_Note_JournalCover01|0038FADC
+	Include_14=art_|HighPoly_Note_LinedPaper01|0038FAE2
+	Include_15=art_|HighPoly_Note_NotebookPage01|0038FAE3
+	Include_16=art_|HighPoly_Note_NotebookPaper01|0038FAE4
+	Include_17=art_|HighPoly_Note_Plain01|0038FAE5
+	Include_18=art_|HighPoly_Note_Plain02|0038FADE
+	Include_19=art_|HighPoly_Note_Plain03|0038FADF
+	Include_20=art_|HighPoly_Note_Plain04|0038FAE0
+	Include_21=art_|HighPoly_Note_Postcard_DollySods01|003E5D86
+	Include_22=art_|HighPoly_Note_Postcard_DollySods02|003E5D83
+	Include_23=art_|HighPoly_Note_Postcard_FreddyFears01|003E5D80
+	Include_24=art_|HighPoly_Note_Postcard_HarpersFerry01|003E5D77
+	Include_25=art_|HighPoly_Note_Postcard_HarpersFerry02|003E5D70
+	Include_26=art_|HighPoly_Note_Postcard_PumpkinHouse01|003E5D6D
+	Include_27=art_|HighPoly_Note_Postcard_RedRocketMegaStop01|003E5D5B
+	Include_28=art_|HighPoly_Note_Postcard_ValleyGalleria01|003E5D58
+	Include_29=art_|HighPoly_Note_Postcard02|0038FAE8
+	Include_30=art_|HighPoly_Note_Postcard03|0038FAE9
+	Include_31=art_|HighPoly_Note_PresidentOffice01|0038FAE1
+	Include_32=art_|HighPoly_Note_Whitespring01|0038FADD
+	Include_33=art_|HighPoly_Note|00140D7D
+	Include_34=art_|HighPoly_NoteRipped|00140D7E
+	Include_35=art_|Note_HighPoly|00137AA2
+	Include_36=art_|Note_HighPolyNoteTorn|00137AA6
+	Include_37=art_|Note_HighPolyParchment|00137AAA
+[EndRule]
+
+[StartRule]
+	Header=[Note]
+	rSig=BOOK
+	fSig=FULL
+	enabled=-1
+	inEdid=note
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Power]
+	rSig=AMMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|isPowerArmorBattery|0005BDAA
+[EndRule]
+
+[StartRule]
+	Header=[Ammo*]
+	rSig=AMMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|AmmoTypeEnergy|003896DD
+	Include_1=kwd_|ObjectTypeAmmo|000F4AE8
+[EndRule]
+
+[StartRule]
+	Header=[Ammo!]
+	rSig=AMMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|AmmoTypeExplosive|003896DF
+	Include_1=kwd_|ObjectTypeAmmo|000F4AE8
+[EndRule]
+
+[StartRule]
+	Header=[Ammo]
+	rSig=AMMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeAmmo|000F4AE8
+[EndRule]
+
+[StartRule]
+	Header=[Ammo!]
+	rSig=AMMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|crAmmoDLC01_BotFatManMiniNuke|0010EA68
+[EndRule]
+
+[StartRule]
+	Header=(Vault)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|VaultSuitKeyword|000C5625
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ArmorBodyPartHead|0010C418
+	Include_1=kwd_|ObjectTypeClothing|0033C76A
+	Exclude_0=kwd_|ClothingTypeHat|0012EEE8
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ma_MiningHelmet|001538E3
+[EndRule]
+
+[StartRule]
+	Header=(Mask)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeClothing|0033C76A
+	Include_1=kwd_|SURV_DiseasePrevention_Inhalation|0010A09B
+[EndRule]
+
+[StartRule]
+	Header=(Mask)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeHat|0012EEE8
+	Include_1=kwd_|SURV_DiseasePrevention_Inhalation|0010A09B
+[EndRule]
+
+[StartRule]
+	Header=(Mask)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeMask|0044D49A
+	Exclude_0=kwd_|ClothingTypeHat|0012EEE8
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ArmorBodyPartEyes|0010C419
+	Include_1=kwd_|ObjectTypeClothing|0033C76A
+	Exclude_0=kwd_|ClothingTypeHat|0012EEE8
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeGlasses|0048682F
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ArmorBodyPartEyes|0010C419
+	Include_1=kwd_|ObjectTypeClothing|0033C76A
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|AnimHelmetCoversMouth|001E5F73
+	Include_1=kwd_|ObjectTypeClothing|0033C76A
+	Exclude_0=kwd_|ClothingTypeHat|0012EEE8
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeHat|0012EEE8
+[EndRule]
+
+[StartRule]
+	Header=(Head)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeFishingHat|00452E6D
+[EndRule]
+
+[StartRule]
+	Header=(Hazmat)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|SURV_DiseasePrevention_Inhalation|0010A09B
+	Include_1=kwd_|SURV_DiseasePrevention_InWater|0030302D
+	Exclude_0=kwd_|ArmorTypePower|0004D8A1
+[EndRule]
+
+[StartRule]
+	Header=(Cloth)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeClothing|0033C76A
+[EndRule]
+
+[StartRule]
+	Header=(Cloth)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=_notplayable
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ClothingTypeCostume|0044D49B
+[EndRule]
+
+[StartRule]
+	Header=[x]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|IngredientTypeMoldy|0013485C
+[EndRule]
+
+[StartRule]
+	Header=(Aid-)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|GlowingOneBlood|000E2F68
+[EndRule]
+
+[StartRule]
+	Header=[Toxic]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|EN07_HighRadiationFluids|0028D189
+	Include_1=form|GlowingOneBlood|000E2F68
+	Include_2=form|SkeetoSpit|00058ABC
+	Include_3=form|WaterToxic|0000CF92
+	Include_4=form|WaterToxicGoo|0051B568
+[EndRule]
+
+[StartRule]
+	Header=[Toxic]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|DrinkTypeWaterToxic|0013486A
+[EndRule]
+
+[StartRule]
+	Header=[Drink-]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|WaterDirty|0000EE1D
+[EndRule]
+
+[StartRule]
+	Header=(Water)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|WaterBoiled|000366BF
+[EndRule]
+
+[StartRule]
+	Header=(Water+)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|WaterPurified|000366C0
+[EndRule]
+
+[StartRule]
+	Header=[Nuka]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|SurvivalistCoffee|0037E0C4
+[EndRule]
+
+[StartRule]
+	Header=[vBox]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|POST_ATX_Lunchbox_Consumable|003DF247
+[EndRule]
+
+[StartRule]
+	Header=(Aid+)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeStimpak|000F4AEB
+[EndRule]
+
+[StartRule]
+	Header=(Drug)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ChemTutorialKeyword|0037E0BC
+	Include_1=kwd_|ObjectTypeChem|000F4AE7
+	Exclude_0=kwd_|ChemTypeHealing|003078BD
+[EndRule]
+
+[StartRule]
+	Header=[Nuka]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|DrinkTypeSoda|0013484B
+	Include_1=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Box]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypePackaged|0013485D
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=(Aid-)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ChemTypeHealing|003078BD
+	Include_1=kwd_|ObjectTypeBloodPack|0011C58A
+[EndRule]
+
+[StartRule]
+	Header=(Aid)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ChemTypeHealing|003078BD
+	Include_1=kwd_|ObjectTypeChem|000F4AE7
+[EndRule]
+
+[StartRule]
+	Header=(Aid)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ChemTypeHealing|003078BD
+	Include_1=kwd_|SURV_Icon_Chems|0050CBBB
+[EndRule]
+
+[StartRule]
+	Header=[°]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|DrinkTypeAlcohol|0010C416
+	Exclude_0=kwd_|DrinkTypeTea|00284969
+[EndRule]
+
+[StartRule]
+	Header=[Seed]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|IngredientTypeVegetable|002944CE
+	Include_1=kwd_|MealTypeRaw|00134858
+[EndRule]
+
+[StartRule]
+	Header=[Seed]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeRaw|00134858
+	Include_1=kwd_|ObjectTypeFlowers|003A201E
+[EndRule]
+
+[StartRule]
+	Header=[Seed]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|IngredientTypeFruit|002944D1
+	Include_1=kwd_|MealTypeRaw|00134858
+[EndRule]
+
+[StartRule]
+	Header=[Flavor]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|IngredientTypeFlavor|00118612
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=[Food-]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeRaw|00134858
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=[Food]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeCooked|0013486C
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=[Misc]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeSyringerAmmo|0018506F
+[EndRule]
+
+[StartRule]
+	Header=[Food+]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeTasty|00110725
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=[Food+]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeGourmet|0011090C
+	Include_1=kwd_|ObjectTypeFood|00055ECC
+[EndRule]
+
+[StartRule]
+	Header=[Drink+]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeTasty|00110725
+	Include_1=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Serum]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeSerum|00393F7F
+[EndRule]
+
+[StartRule]
+	Header=(Flux)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|PlantTypeFlux|00496168
+[EndRule]
+
+[StartRule]
+	Header=[Stealth]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|StealthBoyKeyword|0009AC96
+[EndRule]
+
+[StartRule]
+	Header=(Aid)
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ChemTypeRadaway|0006FA1B
+[EndRule]
+
+[StartRule]
+	Header=[bHead]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|BobbleheadKeyword|00135E6C
+[EndRule]
+
+[StartRule]
+	Header=[Drink]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|DrinkTypeTea|00284969
+	Include_1=kwd_|MealTypeCooked|0013486C
+	Include_2=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Mag]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MagazineKeyword|001D4A70
+[EndRule]
+
+[StartRule]
+	Header=[Drink-]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeRaw|00134858
+	Include_1=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Drink+]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|MealTypeTasty|00110725
+	Include_1=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Drink]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|ObjectTypeDrink|000F4AEC
+[EndRule]
+
+[StartRule]
+	Header=[Misc]
+	rSig=ALCH
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=-1
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Holo]
+	rSig=NOTE
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|UnsellableObject|003D4327
+[EndRule]
+
+[StartRule]
+	Header=(Mine)
+	rSig=WEAP
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|AnimsMine|000E56C4
+	Include_1=kwd_|WeaponTypeExplosive|0004C922
+[EndRule]
+
+[StartRule]
+	Header=(@)
+	rSig=WEAP
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|WeaponTypeGrenade|0010C415
+[EndRule]
+
+[StartRule]
+	Header=[Seed]
+	rSig=FLOR
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|PerkGreenThumbValidFlora|004E7227
+[EndRule]
+
+[StartRule]
+	Header=[*]
+	rSig=FLOR
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|PerkWoodchuckerValidFlora|004F9FD2
+[EndRule]
+
+[StartRule]
+	Header=[*]
+	rSig=FLOR
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=kwd_|WorkshopResourceCapacityObject|003E5B22
+[EndRule]
+
+[StartRule]
+	Header=[*]
+	rSig=FLOR
+	fSig=FULL
+	enabled=-1
+	inEdid=vein
+	exEdid=harvested
+	noKW=0
+	anyKW=0
+	hasCompo=0
+[EndRule]
+
+[StartRule]
+	Header=[Key]
+	rSig=MESG
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|MTRZ01_LostKeyNameMessage|0000F4CC
+[EndRule]
+
+[StartRule]
+	Header=(!Frame!)
+	rSig=ARMO
+	fSig=FULL
+	enabled=-1
+	inEdid=
+	exEdid=
+	noKW=0
+	anyKW=0
+	hasCompo=0
+	Include_0=form|PowerArmorChassis|001410CB
+[EndRule]
+

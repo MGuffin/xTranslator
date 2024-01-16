@@ -1,0 +1,20 @@
+#codepage correspondance
+#add the one you may need (actually supported: 949, 932,1250, 1251, 1252, 1253, 1254, 1256, Utf8)
+#fallout4 seems to encode everything in utf8
+en=1252
+fr=utf8
+es=utf8
+esmx=utf8
+de=utf8
+it=utf8
+pl=utf8
+ptbr=utf8
+ru=utf8
+cn=utf8
+ja=utf8
+hu=utf8
+cs=utf8
+ko=utf8
+ar=utf8
+tr=utf8
+th=utf8

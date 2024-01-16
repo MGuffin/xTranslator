@@ -1,0 +1,8 @@
+#list of strings pairs from source language to destination one. 
+#the most convenient is probably English as source -> Another as dest
+#you must have, in your data\strings folder, both batch of sources and targets language files (.strings, .dlstrings and .ilstrings).
+#just put the main name of the file in the list.
+#for example, for Skyrim_english.string just put STRINGS=Skyrim   (STRINGS must be capitalized)
+#if you have all relevant files for Update patch it would fit well in first position (as it override old files)
+#
+

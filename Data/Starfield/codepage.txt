@@ -1,0 +1,24 @@
+#codepage correspondance, 
+#-first value is the primary encoding (used for reading and saving) 
+#-(Optional) second value is the fallback encoding (reading only) only if utf8 is the primary one. (no effect otherwise)
+#add the one you may need (actually supported: 949, 932,1250, 1251, 1252, 1253, 1254, 1256, Utf8)
+en=utf8,1252
+fr=utf8,1252
+es=utf8,1252
+esmx=utf8,1252
+de=utf8,1252
+it=utf8,1252
+pl=utf8,1250
+ptbr=utf8,1252
+ru=utf8,1251
+hu=utf8,1250
+cs=utf8,1250
+ar=utf8,1256
+tr=utf8,1254
+ja=utf8,932
+th=utf8
+ko=utf8
+zhhans=utf8
+zhhant=utf8
+fi=utf8
+est=utf8,1257

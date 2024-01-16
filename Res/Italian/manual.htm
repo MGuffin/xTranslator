@@ -1,0 +1,66 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head></head>
+<body>
+Work in progress....<br>
+Here are some usage informations:<br>
+<br>
+<br>
+<div id="head">String Flags:</div>
+<br>During the translation process strings can be set (automatically or
+manually) with different flags,&nbsp;represented by differents
+colors.<br>Each flag have a specific signification:<br>
+<br>
+<img style="width: 544px; height: 213px;" alt="Flags" src="../common/sstflags.gif"><br>
+<br>
+-Translated [White - Automatic]:&nbsp; Strings translated directly
+through the
+vocabulary cache are automatically set with this flag.<br>
+<br>
+-Validated as Complete translation [Blue - User defined]: (shortcut F1)
+This is the "user" equivalent
+to the translated flag. This strings are considered as "completely
+translated", and will be add to the global vocabulary cache if the user
+save the SSTStrings for the current addon.<br>
+<br>
+-Validated as Partial translation [Purple - Auto/: User defined]: (shortcut
+F2) The user can
+choose to set
+a string as "Partially translated" . It's like a&nbsp; "Work In
+progress" flag. <br>
+Theses strings are saved and loaded in the SSTStrings, if the user work
+on the related addon,&nbsp; but are not added to the global
+vocabulary cache. Some advanced functionnalities automatically set
+relevant strings as Partially Translated, like Search and replace,
+EspCompare tool.<br>
+<br>
+-Heuristic match (LD = Levenstein Distance*):
+[Green to Red - Automatic]. Similar Strings can be automatically found
+through
+an
+"Heuristic search" (In Menu, or Shortcut: Ctrl-H). <br>
+Strings that are close to the original are Green,
+when strings with low match go to the red. These strings are not saved
+in the SSTStrings, and not added in the global
+vocabulary cache.<br>
+When
+the panels "AutoTranslation is active" (Main form, Bottom Panel),
+clicking on any string will show all similar strings sorted with their
+distance from the source. (Green + LD = 0 is the best match possible.)<br>
+the + next to the LD number means that more than one result has been found by the heuristic processor<br><br>
+-UnTranslated [Red, without LD result, Automatic &amp; User
+defined]: (using the shortcut F4 resets
+the state of a string as Untranslated an remove any translation) these
+string have not been
+translated at all. These strings are not saved in the SSTStrings, and
+not added in the global
+vocabulary cache.<br>
+<br>
+-Alias Warning [Yellow - Automatic]: String are colored in Yellow when
+&lt;Alias&gt; reference do&nbsp;not match between original and
+translated String. There is a special Panel in the Edit Form that
+helps to fix this kind of issue. This flag override all others. If a
+string has been validated, it will be saved in the SSTStrings,
+and&nbsp; added in the global
+vocabulary cache.<br>
+<br><br>[to be continued...]<br>
+</body></html>

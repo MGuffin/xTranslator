@@ -1,0 +1,44 @@
+﻿#Set of rules for batch Search and replace.
+#This files must be saved in utf8 *with* bom
+#Examples for Better item sorting En ->french
+#each rule must start by StartRule and end by EndRule
+#Search=[String to search]
+#Replace=[replacement string]
+#Pattern=[pattern formatting output] for mode 1 & 2
+#Select= 0 to 3: indicate the type of selection of string (same order/function as in the search and replace windows) 0= all strings
+#Mode= 0 to 2 , which mode of search and replace is used (same order/function as in the search and replace windows)
+#casesensitive=1  set this to search with case sensitive option activated
+#AllLists=1  search in all lists (.Strings, .dlStrings, .ilStrings)
+
+
+StartRule
+Search=(Medicine)
+Replace=(Soins)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Alcohol]
+Replace=[Alcool]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=[Ammo]
+Replace=[Munitions]
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule
+
+StartRule
+Search=(Holo)
+Replace=(Holo)
+Pattern=%REPLACE% %ORIG%
+select=0
+mode=1
+EndRule

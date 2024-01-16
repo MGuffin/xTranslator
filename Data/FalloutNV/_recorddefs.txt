@@ -1,0 +1,54 @@
+#WARNING: do not modify this file, unless you know what you are doing.
+#Bad editing can  result in corrupted Esp.
+#FieldId=RecordID=List (0: strings, 1: dlStrings, 2: ilStrings
+#CharCase must match
+#(*) indicate the string can't be null (needs at least one space).
+#(!) indicate the string skip the zero terminal .
+#-proc1, -proc2, -proc3 refer to internal procedures that defines some conditions for reading the data
+Def_:NAM1=INFO=2*
+Def_:CNAM=QUST=1
+Def_:NNAM=QUST=0
+Def_:ITXT=MESG=0
+Def_:RDMP=REGN=0
+Def_:EPF2=PERK=0
+Def_:RNAM=FLOR=0
+Def_:RNAM=INFO=0*
+Def_:BPTN=BPTD=0
+Def_:MNAM=FACT=0
+Def_:FNAM=FACT=0
+Def_:ONAM=AMMO=0
+Def_:XATO=ACTI=0
+Def_:XATO=REFR=0
+Def_:ITXT=TERM=0
+Def_:RNAM=TERM=0
+Def_:ANAM=AVIF=0
+#
+Def_:TNAM=NOTE=0-proc3
+Def_:DATA=GMST=0-proc1
+Def_:EPFD=PERK=0-proc2
+#the two next fields must remain at the end of the section since they are fallback.
+Def_:FULL=****=0
+Def_:DESC=****=1
+#Scripts: uncomment this line (remove the '#') to be able to edit them. Do not edit anything else!!!!
+#Def_:SCTX=****=0!
+
+#Warning Field: known enumerated entries (field=record)
+Warn:ITXT=MESG
+Warn:ITXT=TERM
+Warn:BTXT=TERM
+Warn:UNAM=TERM
+Warn:NNAM=QUST
+Warn:NAM1=INFO
+Warn:CNAM=QUST
+Warn:FULL=WEAP
+Warn:FULL=ARMO
+Warn:FULL=NPC_
+Warn:BPTN=BPTD
+Warn:MPPN=RACE
+Warn:FMRN=RACE
+#--------Skipped record----
+#Records with no known Lstrings
+#these records will not be parsed 
+
+
+

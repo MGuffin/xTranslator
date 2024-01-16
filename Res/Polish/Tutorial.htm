@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+
+<link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+<div id="head">TWORZENIE SŁOWNIKA</div>
+<br>
+Program ma największy potencjał, gdy doda się do niego słowniki, pary
+tekstów z języka źródłowego i wynikowego. Na samym początku są dostępne
+tylko oficjalnie słowniki, bazy tłumaczenia z oryginalnej gry Skyrim
+oraz ewentualnie dodatków DLC (jeśli je posiadasz, np. Dawnguard) - z
+tym że trzeba je wygenerować.<br>
+<br>
+Baza tłumaczeń lub słownik to inaczej dwa pliki STRINGS, z których
+jeden zawiera teksty w języku źródłowym (np. angielskim), a drugi w
+języku docelowym (np. polskim). Razem z programem TesVtranslator
+znajduje się plik "vocabulary.txt". To właśnie w nim są zapisane
+oryginalne, domyślne słowniki:<br>
+STRINGS=Update<br>
+STRINGS=Dawnguard<br>
+STRINGS=Skyrim<br>
+STRINGS=hearthfires<br>
+STRINGS=dragonborn<br>
+<br>
+Ważne jest, aby posiadać dokładnie po dwa odpowiadające sobie pliki
+STRINGS, na przykład:<br>
+dla <b>Skyrim_<font color="ff0000">English</font>.STRINGS</b><br>
+odpowiadający mu plik <b>Skyrim_<font color="ff0000">Polish</font>.STRINGS</b>
+Ta sama zasada dotyczy wszystkich modów. Otwórz katalog
+Skyrim\Data\String i zobacz jak wyglądają te pary plików. Muszą być po
+trzy pary na każdy plik Esp\Esm
+<br>
+<br>
+Uwaga:<br>
+Jeśli posiadasz polską wersję dodatku Dawnguard i w katalogu
+Data\Strings są tylko pliki Polish, a nie ma English, to pliki do
+angielskiej wersji znajdują się spakowane w Dawnguard.bsa - można je
+wypakować np. za pomocą programu BSA Browser.<br>
+<br>
+Jak wygenerować te domyślne słowniki:<br>
+Gdy upewnisz się że pliki znajdują się na miejscu, uruchom
+tesVtranslator i wybierz "set Vocabulary and Cache" z menu Plik.
+Następnie ustaw odpowiedni język źródłowy oraz zaznacz opcję "build
+cache". W tym oknie można również zmienić język interfejsu programu
+(np. na polski - Polish). Proces budowy pamięci słowników zajmie kilka
+do kilkunastu sekund. Jeśli dokonana była zmiana języka interfejsu
+translatora, to trzeba ponownie uruchomić program, by zmiana odniosła
+skutek.<br>
+<br>
+<br>
+<div id="head">Tryb ESP</div>
+<br>
+Wczytaj plik *.esp/*.esm, przetłumacz i zapisz plik. To wszystko.<br>
+Jedyne, na co warto zwrócić uwagę, to iż na początku warto przygotować
+słowniki w pamięci na postawie plików Strings do Skyrim (patrz początek
+o tworzeniu słownika oraz ewentualnie rozdział o trybie Strings).<br>
+<br>
+Gdy edytujesz rekord z tekstem (po podwójnym kliknięciu, po otwarciu
+okna edytowania), w zakładce espRekord wyświetlone zostaną wszystkie
+pola należące do tego rekordu. Na przykład, jeśli tłumaczysz mod, który
+dodaje do Skyrim nowy perk (cechę postaci) oraz opis tego perka, to w
+translatorze otrzymasz podgląd na nazwę perka w jednym polu oraz na
+jego opis w drugim. Po podwójnym kliknięciu możesz przełączać się
+między tymi polami.<br>
+<br>
+Uwaga: Być może w definicji rodzajów obiektów do czytania z plików ESP
+zostały pominięte pewne rodzaje, które powinny zostać użyte. Jeśli
+zauważysz, że tesVtranslator pomija jakieś pola i nie wczytuje ich, a
+powinien, to zgłoś to autorowi programu, podając nazwę moda, który
+tłumaczysz.<br>
+Ewentualnie możesz dodać te brakujące definicje do pliku "records.txt",
+z tym że należy to robić z rozwagą, aby czegoś nie zepsuć ;)<br>
+<br>
+Uwaga2:
+Plik Esp jest wczytywany taki, jaki jest, co oznacza, że translator nie
+będzie próbował naprawiać danych ani zgadywać, gdzie mają być, jeśli
+nie ma ich we właściwym miejscu. Gdy plik Esp zawiera niepoprawne dane
+(ponieważ np. był edytowany w starszych edytorach lub programach), to
+translator prawdopodobnie ich nie wczyta. W takich wypadkach sprawdź
+integralność pliku Esp za pomocą programu tes5edit.<br>
+<br>
+<br>
+<div id="head">Porównanie ESP</div>
+<br>
+Jest to funkcja dostępna w menu Narzędzia. Dzięki niej można
+automatycznie tworzyć pary tekstów, używając jednego pliku Esp jako
+źródłowego oraz drugiego jako docelowego.<br>
+Uwaga: kodowanie jest ustawione na język docelowy.<br>
+<br>
+Przykład:<br>
+Załóżmy, że posiadasz mod w języku angielskim, który chcesz
+przetłumaczyć na język polski. Wcześniejsza wersja tego moda jest już
+przetłumaczona - masz plik Esp z tej wcześniejszej wersji w języku
+polskim.<br>
+<br>
+Wczytaj plik Esp, który chcesz przetłumaczyć (tak jak zwykle), a
+następnie użyj opcji "Wczytaj Esp (porównywanie)" z menu Narzędzia.
+Dzięki temu, jeśli w starej przetłumaczonej wersji moda znajdują się te
+same wpisy, posiadające ten sam FormID, co wpisy w nowej wersji moda,
+którą tłumaczysz, to tłumaczenie zostanie automatycznie przeniesione
+dla tych wpisów.<br>
+<br>
+Takie rozwiązanie ma jednak pewne ograniczenia, z których trzeba sobie
+zdawać sprawę:<br>
+Niektóre teksty zapisane w pluginie nie są bezpośrednio związane z
+żadnym FormID, ale mają własne oznaczenia liczbowe. To oznacza, że
+jeśli autor moda doda lub usunie jakiś wpis tak oznaczony, to
+przeniesienie tłumaczenia na nową wersję moda może nie być dokładne.<br>
+<br>
+Wszystkie znalezione na podstawie FormId dopasowania zostaną oznaczone
+kolorem fioletowym jako częściowe tłumaczenie, a dodatkowo pola, które
+w pluginie mają własne oznaczenie liczbowe, niezależnie od FormID, będą
+oznaczone małą ikonką żarówki.<br>
+<br>
+- Jeśli żarówka świeci się, to gdy podwójnie klikniesz na pole z
+tekstem oznaczone tą żarówką (jest w prawej części okna), w oknie
+edytowania możesz przejść do zakładki "WynikPorównaniaEsp", gdzie
+zostaną pokazane wszystkie pola podpięte pod dane FormID. Dzięki temu
+możesz szybko naprawić tłumaczenie, jeśli pola zostały w modzie
+poprzestawiane.<br>
+<br>
+- Jeśli żarówka nie świeci się, to dane pole FormID posiada tylko jedno
+podporządkowane pole z tekstem, jedno pole z własną numeracją.<br>
+<br>
+Uwaga: Pary tłumaczeń z zapaloną żarówką jako ostrzeżeniem nie są
+zapisywane w pamięci słownika. Trzeba je sprawdzić ręcznie, czy
+tłumaczenia są poprawne, i ręcznie zatwierdzić.<br>
+<br>
+<br>
+<div id="head">Tryb STRINGS</div>
+<br>
+Za chwilę zrobimy przykład, który pozwoli zapoznać się z głównymi
+funkcjami translatora. Wpierw upewnij się, że w katalogu
+Skyrim\Data\Strings znajdują się pliki:<br>
+Skyrim_English.DLSTRINGS<br>
+Skyrim_English.ILSTRINGS<br>
+Skyrim_English.STRINGS<br>
+Skyrim_Polish.DLSTRINGS<br>
+Skyrim_Polish.ILSTRINGS<br>
+Skyrim_Polish.STRINGS<br>
+Jest to komplet plików dla jednego Esp/Esm, w tym przypadku dla
+Skyrim.esm. <br>
+<br>
+Teraz załóżmy, że dopiero co udało ci się trafić na program
+tesVtranslator, uruchamiasz go pierwszy raz. Chcesz przetłumaczyć mod
+"Unofficial Skyrim Patch" z języka angielskiego na polski. Zawiera on
+dużo tekstów, ale wiele z nich można przetłumaczyć automatycznie,
+dlatego posłuży jako dobry przykład wykorzystania tesVtranslatora.<br>
+<br>
+Upewnij się, że tesVtranslator widzi powyższe pliki Strings dla Skyrim.
+Z "Słowniki" wybierz "Ustaw słowniki i pamięć". Powinno to wyglądać
+mniej więcej tak:<br>
+<br>
+<img style="width: 663px; height: 433px;" alt="Flags" src="../Polish/img_cache.png"><br>
+<br>
+Pobierz angielską wersję moda Unofficial Skyrim Patch ( <a href="http://skyrim.nexusmods.com/mods/19">http://skyrim.nexusmods.com/mods/19
+</a>)<br>
+<br>
+Używamy trybu tłumaczenia na plikach Strings, a ponieważ angielski
+"Unofficial Skyrim Patch" ich nie posiada, to wpierw trzeba je
+wygenerować. W tym celu najlepiej posłużyć się programem Tes5Edit (<a href="http://skyrim.nexusmods.com/mods/25859/">
+http://skyrim.nexusmods.com/mods/25859/ </a>)
+<br>
+<br>
+Uruchom Tes5edit i:<br>
+- wybierz plik Unofficial Skyrim Patch.Esp do wczytania<br>
+- gdy wczytywanie dobiegnie do końca (w oknie komunikatów pojawi się
+"finished"), kliknij prawym na nazwę pluginu po lewej i z menu
+kontekstowego wybierz Other-&gt;Localization.<br>
+- zanim wybierzesz jakąkolwiek z opcji, upewnij się że w 'Language'
+wybrany jest język English.<br>
+- Następnie wybierz -&gt;Localize.<br>
+- Pojawi się ostrzeżenie o próbie zmiany pliku pluginu i pytanie czy na
+pewno wiesz co robisz. Wybierz YES.<br>
+- otworzy się okno wyboru plików do zapisu modyfikacji. Nic nie
+zmieniaj, zatwierdź domyślny wybór.<br>
+<br>
+W ten sposób plugin "Unofficial Skyrim Patch.Esp" został zmienony na
+rodzaj lokalizowany (taki wymaga plików Strings) i do katalogu
+Skyrim\Data\Strings wygenerowały się 3 pliki Strings:<br>
+-Unofficial Skyrim Patch_English.STRINGS<br>
+-Unofficial Skyrim Patch_English.DLSTRINGS<br>
+-Unofficial Skyrim Patch_English.ILSTRINGS<br>
+<br>
+Uwaga:<br>
+Jeśli używasz polskiej wersji Skyrim i uruchomisz ją teraz z aktywnym
+pluginem Unofficial Skyrim Patch, to gra od razu wyrzuci do systemu.
+Stanie się tak, ponieważ wszystkie teksty z "Unofficial Skyrim
+Patch.esp" są teraz przeniesione do plików Strings z dopiskiem English,
+brakuje plików Polish.<br>
+<br>
+Translator pomoże przetłumaczyć te pliki na język polski, a ponadto
+stworzy w pamięci słownik, który będzie bardzo pomocny, jeśli zostanie
+wydana nowa wersja moda Unofficial Skyrim Patch.<br>
+<br>
+<br>
+<div id="head">Wczytanie plików STRINGS</div>
+<br>
+Teraz możesz wczytać w translatorze plik "Unofficial Skyrim
+Patch_English.STRINGS" do przetłumaczenia (zawsze wybiera się do
+wczytania ten jeden, główny plik, pozostałe dwa nie są widoczne, ale
+translator wczyta je wszystkie razem).<br>
+- Z menu wybierz Plik -&gt; Wczytaj Strings, a potem wybierz
+"Unofficial
+Skyrim Patch_English.STRINGS".<br>
+- Gdy dane zostaną załadowane, z menu Tłumaczenie wybierz "Tłumacz
+dokładne dopasowanie" (skrót klawiszowy: Ctrl+T).<br>
+- Gdy w plikach String pluginu "Unofficial Skyrim Patch" zostanie
+znaleziony tekst dokładnie taki sam, jaki jest w słownikach w pamięci
+translatora (czyli na razie tylko tych przygotowanych na początku z
+Skyrim_English oraz _Polish), to translator sam go przetłumaczy na
+język polski. Teksty, których nie znajdzie, oznaczy kolorem czerwonym w
+tle.<br>
+- Od tego momentu możesz ręcznie przetłumaczyć czerwone pola (podwójnie
+klikając na daną linię z tekstem lub zaznaczając ją i naciskając Enter
+- otworzy się okno edytowania), albo spróbować tłumaczenia
+heurystycznego:<br>
+<br>
+- Z menu Tłumaczenie wybierz "Heurystyczne tłumaczenie dla obecnej
+zakładki" (Ctrl+H). Translator spróbuje odnaleźć takie teksty w
+słowniku, które niewiele się różnią od tych z tłumaczonego pluginu, i
+doda je jako propozycje tłumaczeń.<br>
+<br>
+Najlepiej dopasowane teksty otrzymają oznaczenie kolorem zielonym, te
+mniej kolorem czerwonym, a w kolumnie LD pojawi się liczba określająca
+iloma znakami różnią się teksty (patrz <a href="Manual.htm">Opis
+funkcji</a>).<br>
+<br>
+Gdy zaznaczysz udane dopasowanie (w kolumnie LD będzie podana liczba
+różnic w znakach), to w zakładce AutoTłumaczenie możesz zobaczyć inne
+możliwe dopasowania i propozycje tłumaczeń. Po kliknięciu prawym na
+jedną z takich propozycji możesz wybrać "Validate this translation",
+aby wybrać i zatwierdzić wybór tłumaczenia.<br>
+<br>
+Jeśli jednak stwierdzisz, że po tłumaczeniu heurystycznym wynik
+całkowicie nie pasuje, możesz anulować tłumaczenie danego tekstu,
+klikając na niego prawym i wybierając "Cancel translation" (skrót: F4).
+Jeśli jednak uznasz, że jest poprawne, możesz je zatwierdzić, Bklikając
+na niego prawym i wybierając "Validate translation" (skrót: F1) - wtedy
+dana linia zmieni kolor na niebieski.<br>
+<br>
+Unofficial Skyrim Patch to duży mod i dużo tekstów trzeba sprawdzić. W
+każdej chwili możesz zapisać pracę, wybierając z menu Plik opcję
+"Zapisz słownik SST". Pamiętaj tylko, że w słowniku zostaną zapisane
+tylko zatwierdzone tłumaczenia (te oznaczone kolorem niebieskim,
+natomiast linie koloru białego już są w słowniku). Aby zapisać tekst do
+plików Strings, z menu Plik wybierz "Eksportuj STRINGS" - w plikach
+zostaną zapisane wszystkie teksty z kolumny "Przetłumaczony"
+(niezależnie jakim kolorem są oznaczone i czy są w jęz. polskim czy
+angielskim).<br>
+<br>
+<br>
+<div id="head">Jak umieścić tekst STRINGS z powrotem w
+pliku ESP za pomocą Tes5edit.</div>
+<br>
+- Uruchom Tes5Edit<br>
+- Wczytaj swój plugin<br>
+- Kliknij na nim prawym przyciskiem i zmień język pluginu: idź do menu
+-&gt; Other -&gt; Localization -&gt; Choose language
+-&gt; (twój język) (pary plików Strings muszą znajdować się w
+katalogu Skyrim\Data\strings).<br>
+- Potem kliknij na nim prawym jeszcze raz i delokalizuj: Other
+-&gt; Localization -&gt; Delocalize.<br>
+Jeśli wszystko zostało wykonane poprawnie i program będzie potrafił
+odnaleźć pasujące pliki Strings do wybranej wersji językowej
+tłumaczonego pliku z pluginem do Skyrim, to pojawi się jeszcze
+standardowe ostrzeżenie z zapytaniem, czy aby na pewno wiesz co robisz,
+a potem okno z wyświetloną nazwą pliku pluginu do zapisania (należy je
+potwierdzić).<br>
+<br>
+<br></body></html>

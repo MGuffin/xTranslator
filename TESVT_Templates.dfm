@@ -1,0 +1,139 @@
+object Form22: TForm22
+  Left = 0
+  Top = 0
+  BorderIcons = []
+  BorderStyle = bsSingle
+  Caption = 'lbl_Templates'
+  ClientHeight = 569
+  ClientWidth = 489
+  Color = clBtnFace
+  DefaultMonitor = dmMainForm
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poOwnerFormCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 8
+    Top = 307
+    Width = 45
+    Height = 13
+    Caption = 'isEnabled'
+  end
+  object Label2: TLabel
+    Left = 167
+    Top = 307
+    Width = 47
+    Height = 13
+    Caption = 'isDisabled'
+  end
+  object Label3: TLabel
+    Left = 327
+    Top = 307
+    Width = 45
+    Height = 13
+    Caption = 'isFallback'
+  end
+  object ListBox1: TListBox
+    Left = 8
+    Top = 326
+    Width = 153
+    Height = 201
+    DragMode = dmAutomatic
+    ItemHeight = 13
+    MultiSelect = True
+    TabOrder = 0
+    OnDragDrop = ListBox1DragDrop
+    OnDragOver = ListBox1DragOver
+  end
+  object ListBox2: TListBox
+    Left = 167
+    Top = 326
+    Width = 154
+    Height = 201
+    DragMode = dmAutomatic
+    ItemHeight = 13
+    MultiSelect = True
+    TabOrder = 1
+    OnDragDrop = ListBox1DragDrop
+    OnDragOver = ListBox1DragOver
+  end
+  object ListBox3: TListBox
+    Left = 327
+    Top = 326
+    Width = 154
+    Height = 201
+    DragMode = dmAutomatic
+    ItemHeight = 13
+    MultiSelect = True
+    TabOrder = 2
+    OnDragDrop = ListBox1DragDrop
+    OnDragOver = ListBox1DragOver
+  end
+  object Button1: TButton
+    Left = 383
+    Top = 536
+    Width = 98
+    Height = 25
+    Caption = 'Ok'
+    Default = True
+    ModalResult = 1
+    TabOrder = 3
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 288
+    Top = 536
+    Width = 89
+    Height = 25
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 4
+  end
+  object Button3: TButton
+    Left = 359
+    Top = 35
+    Width = 58
+    Height = 21
+    Caption = '+'
+    TabOrder = 5
+    OnClick = Button3Click
+  end
+  object Button4: TButton
+    Left = 423
+    Top = 35
+    Width = 58
+    Height = 22
+    Caption = '-'
+    TabOrder = 6
+    OnClick = Button4Click
+  end
+  object Edit1: TEdit
+    Left = 8
+    Top = 8
+    Width = 473
+    Height = 21
+    TabOrder = 7
+    OnChange = Edit1Change
+  end
+  object ListBox4: TListBox
+    Left = 8
+    Top = 63
+    Width = 473
+    Height = 238
+    DragMode = dmAutomatic
+    ItemHeight = 13
+    TabOrder = 8
+    OnDblClick = ListBox4DblClick
+    OnDragDrop = ListBox4DragDrop
+    OnDragOver = ListBox4DragOver
+  end
+end

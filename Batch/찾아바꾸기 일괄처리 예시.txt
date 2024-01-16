@@ -1,0 +1,88 @@
+﻿#찾아바꾸기 일괄처리를 위한 규칙 세트입니다.
+#이 파일은 반드시 *** UTF8 with bom *** 인코딩으로 저장되어야 합니다.
+#각각의 규칙은 반드시 StartRule로 시작하고, EndRule로 끝나야 합니다.
+#Search= 검색될 문자열
+#Replace= 교체할 문자열
+#Pattern= 찾아바꾸기(mode) 방식이 1, 2일 경우 처리 양식 (예시: Pattern=%REPLACE% %ORIG%)
+#Select=0 ~ 3: 찾아바꾸기 대상. 0=전체 줄, 1=승인번역된 줄(흰색/파란색) 제외, 2=유사번역된 줄(+) 제외, 3=선택한 줄
+#Mode=0 ~ 2: 찾아바꾸기 방식. 0=완전교체, 1=검색된 문자열에 추가, 2=검색 없이 그냥 추가
+#casesensitive=1 : 대소문자 구분 적용
+#AllLists=1 : 모든 탭에 적용 (.Strings, .dlStrings, .ilStrings)
+
+StartRule
+Search=영주가
+Replace=족장이
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주와
+Replace=족장과
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주는
+Replace=족장은
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주를
+Replace=족장을
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주로
+Replace=족장으로
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주라
+Replace=족장이라
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주야
+Replace=족장이야
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주요
+Replace=족장이오
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주다
+Replace=족장이다
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주라
+Replace=족장이라
+select=0
+mode=0
+AllLists=1
+EndRule
+StartRule
+Search=영주
+Replace=족장
+select=0
+mode=0
+AllLists=1
+EndRule

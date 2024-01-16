@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+</head>
+<body>
+<p><strong>Tento softvÈr je pokroËil˝m n·strojom na prekladanie mÛdov Skyrim, SkyrimSE a Fallout4 z jednÈho jazyka do druhÈho.</strong><br>
+  <br>
+  <strong>Je to vlastne ten ist˝ n·stroj pre kaûd˙ hru, ale&nbsp;prich·dza s in˝m n·zvom:</strong><br>
+  -<a href="http://www.nexusmods.com/skyrim/mods/29148/?">tesvTranslator</a>&nbsp;for&nbsp;<strong>Skyrim</strong><br>
+  -<a href="http://www.nexusmods.com/skyrimspecialedition/mods/134?">sseTranslator</a>&nbsp;for&nbsp;<strong>Skyrim</strong>&nbsp;<strong>SpecialEdition</strong><br>
+  -<a href="http://www.nexusmods.com/fallout4/mods/215?">fallout4Translator</a>&nbsp;for&nbsp;<strong>Fallout4</strong><br>
+  -falloutNVTranslator for&nbsp;<strong>FalloutNV<br>
+  MÙûete si vybraù a zmeniù hern˝ pracovn˝ priestor za behu, takûe nie je nutnÈ, aby ste chodili po vöetk˝ch str·nkach.</strong><br>
+  <br>
+  <br>
+  <strong>Domovsk· str·nka pre tento n·stroj je&nbsp;<a href="http://www.nexusmods.com/">Nexus</a>, je roben· vo voænom Ëase a prÌstup je zdarma. <u>ProsÌm, nenahr·vajte ho inde.<br>
+  </u></strong></p>
+<p>----------------------------------------------------------------------------------------<br>
+  <strong>FAQ</strong>: <a href="http://www.nexusmods.com/fallout4/articles/35/">http://www.nexusmods.com/fallout4/articles/35/</a><br>
+  Ako r˝chlo aktualizovaù starÈ inötal·cie prekladaËa:<a href="http://www.nexusmods.com/skyrimspecialedition/articles/50/"> http://www.nexusmods.com/skyrimspecialedition/articles/50/</a><br>
+  <strong>Z·kladn· v˝uka</strong> pre jednoduchÈ slovnÌky, cache a prvÈ r˝chle kroky: <a href="http://www.nexusmods.com/fallout4/articles/23/">http://www.nexusmods.com/fallout4/articles/23/<br>
+</a>⁄prava podobn˝ch reùazcov pomocou heuristickÈho n·vrhu:&nbsp;<a href="http://www.nexusmods.com/fallout4/articles/23/">http://www.nexusmods.com/skyrimspecialedition/articles/176/</a><br>
+  Prevod esp/reùazec, kÛdovanie: <a href="http://www.nexusmods.com/skyrimspecialedition/articles/32/">http://www.nexusmods.com/skyrimspecialedition/articles/32/<br>
+  </a>AddHeader /Tags - DefUI/defHUD helpers tools:&nbsp;<a href="http://www.nexusmods.com/skyrimspecialedition/articles/32/">http://www.nexusmods.com/fallout4/articles/447/</a><br>
+  Loading a set of old Skyrim Strings, or use espCompare to update SSE version of a mod: <a href="http://www.nexusmods.com/skyrimspecialedition/articles/5/">http://www.nexusmods.com/skyrimspecialedition/articles/5/</a><br>
+  How to make advanced dictionaries and use internal FORMID for translation: <a href="http://www.nexusmods.com/fallout4/articles/88/">http://www.nexusmods.com/fallout4/articles/88/</a><br>
+  A tutorial/Howto use the <strong>OldDialogStyle</strong> tool for the <em><strong>NewDialog</strong></em> Mod: <a href="http://www.nexusmods.com/fallout4/articles/11/">http://www.nexusmods.com/fallout4/articles/11/</a><br>
+  Translate Item Sorting mods with regEX: <a href="http://www.nexusmods.com/fallout4/articles/41/">http://www.nexusmods.com/fallout4/articles/41/</a><br>
+  Hints/tips/tricks: <a href="http://www.nexusmods.com/fallout4/articles/89/">http://www.nexusmods.com/fallout4/articles/89/</a><br>
+  Using RegEx: <a href="http://www.nexusmods.com/fallout4/articles/199/">http://www.nexusmods.com/fallout4/articles/199/</a><br>
+  Copy Paste &amp; Quick Numerics replacement <a href="http://www.nexusmods.com/fallout4/articles/215/?">http://www.nexusmods.com/fallout4/articles/215/?</a><br>
+  Using a <strong>SpellChecker</strong> in Fallout4Translator: <a href="http://www.nexusmods.com/fallout4/articles/255/?">http://www.nexusmods.com/fallout4/articles/255/?</a><br> 
+  Importing NpcMap from xEdit: <a href="http://www.nexusmods.com/skyrimspecialedition/articles/78/">http://www.nexusmods.com/skyrimspecialedition/articles/78/<br>
+  </a>How to use and get credentials keys for <strong>Online TranslatorAPI</strong>s: <a href="http://www.nexusmods.com/skyrimspecialedition/articles/62/?">http://www.nexusmods.com/skyrimspecialedition/articles/62/?</a></p>
+<div id="head">Features of the tool</div>
+<p><strong>Edition Modes :</strong><br>
+  1)*Esp mode* can load esp/esm file and perform direct translation<br>
+  2)*Strings mode* can perform translation on strings files that come with localized esp (STRINGS, DLSTRINGS, ILSTRINGS). This mode does not alter esp/esm (updated and functionnal). This mode is DEPRECATED, use the HybridMode instead that allows much more flexibility.<br>
+  3)*Hybrid Mode*: load a localized Esp as a Records/fields layout for editing Strings files. (The esp doesn't have to be in the Skyrim directory, but the Strings files must be in a .\strings folder just next to the esp) <br>
+  4)*MCM/Translate*: Those files are used by addons that support MCM menu (SkyUI), but also by vanilla skyrim. They contains all UI strings.<br>
+  5)*PapyrusPex*: The tool includes a papyrus pex decompiler that allows to translate pex files. Internals vars will be locked as non-editable.  
+<p><strong>Functionalities:</strong><br>
+  -Build dictionaries of strings pairs from existing *.Strings files<br>
+  -EspCompare tool: build string pairs directly between 2 esps with different languages.<br>
+  -Direct strings Search<br>
+  -Fuz Mapping and Fuz Player<br>
+  -Heuristic strings search with translation suggestions on the fly<br>
+  -SpellCheck for your language inline with MSWORD or Hunspell/OpenOffice Dics<br>
+  -RegEx search/replace/translation<br>
+  -Tools for various operations like OldDialog, .String files compare, Chinese Traditional/Simplfied conversion etc...<br>
+  -Diff-viewer, that shows difference between original/updated source-strings<br>
+  -Support all known encoding for Skyrim/Fallout4<br>
+  -Alias Tool Check: verify alias integrity between source string and its translation.<br>
+  -Special DialogList for DIAL/INFO/QUST data<br>
+  -Search and replace tool with batch support<br>
+  -Custom dictionary<br>
+  -Undo<br>
+  -XML import/export<br>
+  -Extracts files from BSA/BA2 archives<br>
+-Inline dictionary, built on the fly with the existing string pairs.(for latin/english language)<br>
+-Support for some Online translators: YandexAPI <a href="(https://translate.yandex.com/">(https://translate.yandex.com/</a>) Powered by Yandex / MsTranslator <a href="(http://www.bing.com/translator">(http://www.bing.com/translator</a>) Powered by Microsoft<br>
+  -The UI has been localized and can be easily translated (Ressources can be found in the \res folder, just create a new folder with the desired language. The 'res.ini' file contains all strings used by TESVT. If you are using extended charset, I suggest to save it in utf-8 with BOM, so there will be no codepage issue)<br>
+Important: Fallout4Translator is *not* a tool for to localize/delocalize *.esp/*.esm file. </p>
+<p><br>
+  <br>
+  <strong>Important: This tool is *not* a tool for to localize/delocalize *.esp/*.esm file. Use xEdit to perform this kind of task.</strong><br>
+<p><br>
+<div id="head">Notes & CrÈdits: </div>
+<p><br>
+  UIlocalization: (Inherited from TesvTranslator)<br>
+  -Japanese by Vivanon &amp; Kuroko137 (Up to date)<br>
+  -German by Slavovitsh, nnw &amp; Scharesoft (Partial)<br>
+  -Polish by TomBrightblade (Partial)<br>
+  -Chinese Simplified &amp; Chinese Traditional by Ruinelec, Windkenlu, Rebya &amp; 0xb160d1c5 (Up to date)<br>
+  -Spanish by Fiama (Partial)<br>
+  -Portuguese by Vulthoryu (Partial)<br>
+  -Russian by Iclinet (Partial)<br>
+  -Korean by -Ren- (Up to date)<br>
+  -Italian by alfx3 (Up to date)<br>
+  <br>
+  <strong>Special thanks to&nbsp;</strong><br>
+  Bethesda<br>
+  Tes5edit team for their work<br>
+  Alexander Blade for the last fallout4 OpCode in Pex<br>
+Internet for the gigantic ressource ^^</p>
+<div id="head">Note on extra Components used by this Tool:</div>
+  <p><br>
+    -SynEdit:&nbsp;<a href="https://github.com/SynEdit/SynEdit">https://github.com/SynEdit/SynEdit</a><br>
+    -VirtualStringTree: written by Mike Lischke&nbsp;<a href="http://www.soft-gems.net/">(www.soft-gems.net</a>).<br>
+    -Diff: Search Heuristic compare is using the Diff Unit&nbsp;<a href="http://www.angusj.com/delphi/textdiff.html">http://www.angusj.com/delphi/textdiff.html</a>&nbsp;credit to Angus Johnson<br>
+    -HtmlViewer:&nbsp;<a href="https://github.com/BerndGabriel/HtmlViewer">https://github.com/BerndGabriel/HtmlViewer</a><br>
+    -ZLibex: 1.2.3&nbsp;<a href="http://www.dellapasqua.com/">http://www.dellapasqua.com</a>&nbsp;and xEdit&nbsp;<a href="https://github.com/TES5Edit">https://github.com/TES5Edit</a><br>
+    -LZ4&nbsp;<a href="https://github.com/atelierw/LZ4Delphi">https://github.com/atelierw/LZ4Delphi</a>&nbsp;and xEdit&nbsp;<a href="https://github.com/TES5Edit">https://github.com/TES5Edit</a><br>
+    -Part of the code for Bsa/ba2/Stream loading from xEdit &nbsp;<a href="https://github.com/TES5Edit">https://github.com/TES5Edit</a><br>
+    -OmniXML:&nbsp;<a href="https://github.com/mremec/omnixml">https://github.com/mremec/omnixml</a><br>
+    -PCRE Regex library:&nbsp;<a href="http://www.regular-expressions.info/delphi.html">http://www.regular-expressions.info/delphi.html</a>&nbsp;(unicode version)<br>
+    -Hunspell Module is distributed under the Mozilla Public License Version 1.1&nbsp;<a href="https://github.com/hunspell/hunspell/releases">https://github.com/hunspell/hunspell/releases</a><br>
+-xmw to wav converter: xWMAEncode.exe from directX SDK/microsoft<br>
+-Madshi exception handler [non commercial version] (<a href="http://www.madshi.net/">http://www.madshi.net/</a>) </p>
+<p>Online translation support, the tool can also use: <br>
+YandexAPI (<a href="https://translate.yandex.com/">https://translate.yandex.com/</a>) Powered by Yandex<br>
+MsTranslator (<a href="http://www.bing.com/translator">http://www.bing.com/translator</a>) Powered by Microsoft<br>
+GoogleTranslate (<a href="https://translate.google.com/">https://translate.google.com/</a>) Powered by Google<br>
+</p>
+<p>&nbsp;</p>
+<div id="history">
+  <p><a name="HistoryList"></a>
+  History</p>
+  <p><strong>version 1.0.3 (release)</strong><br>
+    -TranslationAPI: Added lite support for googletranslate API (based on chrome, free, no key required). Works only in the edit windows.<br>
+    -TranslationAPI: The msTranslationAPI key has been reset. The credential protocol has changed (https://blogs.msdn.microsoft.com/translation/2017/04/10/). The changes have been applied in xTranslator but are untested since I didn't update my azure account.<br>
+    -TranslationAPI: Disabled the freeAPI, since the service is not available anymore<br>
+    -UI: Improved Recent Menu aspect<br>
+    -UI: Ctrl-C/Ctrl-V now also work in the edit window records list<br>
+    -UI: Fix for a potential crash if the user tries to retrieve heuristic suggestions while saving dictionary.<br>
+  -Advanced Search tool regex: (contextual menu in the advanced search panel) You can extract one regex backref from source field  and one regex backref from dest field then compare the two backrefs. This allow to filter only strings that match the same backref (=), or a different one (!=). (Useful to check consistency for numeric values or pattern type strings between original and translated data)</p>
+  <p><strong>version 1.0.2b (release)</strong><br>
+    -Tool DefUI Component Generator: The selection option now works correctly. Also the tag is now cleaned for items with no scrap material.<br>
+    -UI: You can Drag&amp;Drop multiple files at once into xTranslator<br>
+    -Updated Italian UI (credits and thx to alfx3)<br>
+  -Updated Japanese UI (credit and thx to Kuroko137)</p>
+  <p><strong>version 1.0.2a (release)</strong><br>
+    -ToolBox: (List Context menu on selection) Add Header. Quick Access: Ctrl-D. For to quickly add/change Headers (like DefUI/sorting tags) before the selected strings. You can add any header you need in the list and also automatically import the DEFUItags xml if it's installed from the .\Fallout 4\Data\Interface\DEF_CONFDEF_INV_TAGS.xml. (Data path must be configured for this to work)<br>
+  -ToolBox: (List Context menu on selection) Trim String (to remove extra space char before of after the string)</p>
+  <p><strong>version 1.0.2 (release)</strong><br>
+    -Tool: Added (Menu Tool) a DefUI Component Generator for Fallout4. <br>
+    This tool adds the relevant components to MISC item with the DefUI formatting. (By default: '{{{c1, c2, ...}}}', based on internal registered data for each eligible Item. The tool only works if both source and dest languages are the same. You can also choose to clean up both component string and item string (delete the current {{{...}}} data) before applying a new one and you can adjust the used RegEx for those both tasks if needed. (Default settings work 'as is' by default for most situations.). You might also need to load all relevant master esm for this to fully work.<br>
+    -Minor UI fixes<br>
+  -Updated Simplified Chinese UI (credit and thx to Rebya &amp; 0xb160d1c5)</p>
+  <p><strong>version 1.0.1c </strong><strong>(release)</strong><br>
+    -UI:The main form now regains focus correctly after editing string if the advanced search windows is opened<br>
+    -UI/Search: Fixed an issue where non translated strings tagged with a collabID would stay hidden after a dictionary save<br>
+    -Internal: The derived strings are now correctly generated again after saving a dictionary<br>
+  -Corrected Japanese UI (credit and thx to Kuroko137)</p>
+  <p><strong>version 1.0.1b (release)</strong><br>
+    -Minor UI fix<br>
+  -Updated Japanese UI (credit and thx to Kuroko137)</p>
+  <p><strong>version 1.0.1 (release)</strong><br>
+  Note: Each time I think I am done for a while, I get a bunch of new needs, ideas and fixes, so here it is... :)<br>
+  -Export/Finalize: Added an option to use a fixed folder for finalizing an esp/esm. That way, you can store your untranslated esp/esm in a given folder then export, even a partially translated mod (for testing purpose) always in another defined folder (like, for example, the game data folder) more easily. The &quot;export as...&quot; folder is also retained between sessions.<br>
+    -Added Copy/Paste context menus in the edit window record/dialog list (note: ctrl-C/ctrl-V are disable for this menu to avoid conflicts with ctrl-C/ctrl-V used in the textbox.)<br>
+    -Added Advanced Search, that allows MultiField search, with Normal or regEx patterns (case sensitive or not). It's also possible to save search template between sessions. <br>
+    -You can now open and edit more than open SST at once, by multiselecting them in the vocabulary tab. (Multiselect also work for creating reverse SST)<br>
+    -Opened SST dictionaries are now automatically closed if you change source/dest languages on the fly (to avoid mismatch vocabulary).<br>
+    -Added a new Regex Mode: 'Search in source and add in dest'. Useful to add some patterns. Example you have a bunch of strings like '[variousHeaders] sourceText' -&gt; 'destText'. Use: '^([\[\(\{\|].+?[\|\]\}\)])'  then replace with '#1 %d' to get '[variousHeaders] destText'.<br>
+    -Added KeyWord data for INNR records (in edit windows, top text info) so it's easier to see to what data an instance naming (INNR) is related. You need to load all masters for the edited mod for this to fully work. <br>
+    -Added a menu command to load all masters for the current loaded esp/esm. (tool -&gt; load all masters)<br>
+    -Added a context menu command to automatically filter all strings from the current edited Record in the main list.<br>
+    -Small fixes and tweaks for Derived Strings computing and UI.<br>
+    -Added some old missing UI strings in the ressource file.<br>
+  -Updated Japanese UI (credit and thx to Kuroko137)</p>
+  <p><strong>version 1.0.0 (release)</strong><br>
+    -UI/Tool: Added a toolbox (main strings list, context menu -&gt; selection: toolBox). Available tools: Uppercase All, LowerCase All, UpperCase First Char First Word, UpperCase First Char All Words <br>
+    -UI/Tool: Added a menu entry (main strings list, context menu -&gt; focus:Send to custom dictionary) for to send the focused entry to the personal dictionary <br>
+    -Vocabulary: Improved derived strings cache. Also added options to customize derived strings generation. This feature is enabled by default.<br>
+    -Fuz: Fixed an issue when playing dialog/voice associated with multiple fuz files in edit window<br>
+  -BSA: the bsa browser now correctly shows the file size inside BA2 archive</p>
+  <p>======================================================</p>
+  <p>version 1.0beta22<br>
+    -Misc/Fix: pressing F1 in some situations should not try to call the external help (hopefully).<br>
+    -Misc/XML: Added support for XML translation from EspTranslator. (menu file -&gt; Import/XML)<br>
+    -Misc: Improved exception handlers options.<br>
+  -Internal: some optimizations.</p>
+  <p>version 1.0beta21e<br>
+    -Internal: Another (bigs) optimizations when drawing Treeview and computing big strings.<br>
+  -Updated Italian UI (credits and thanks to alfx3)<br>
+  <br>
+    version 1.0beta21d<br>
+    -Misc/UI: using arrowkeys works again to browse the INFO:NAM1 list in the main window<br>
+    -Misc/UI: improved progressbar feedback when generating fuzMap and opening BSA/BA2<br>
+    -Internal: Some optimizations when drawing Treeview.<br>
+    -Internal: Updated few components (VirtualTreeView  and SynEdit)<br>
+    -Misc: Updated Madshi exception handler settings. In case of errors, the log can be found in the xTranslator Folder (xTranslator_bugreport.txt).<br>
+    -Updated Chinese and Japanese UI (credits and thanks to Rebya and Kuroko137)<br>
+  -Added Italian UI (credits and thanks to alfx3)</p>
+  <p>version 1.0beta21c<br>
+  -Fixed Minor issue with npc/fuzMap tab</p>
+  <p>version 1.0beta21b<br>
+    -NPCmap/FUzMap: Merged FuzMap and NPCmap panels. Note: you can still load masters on demand and regenerate NPCMap if needed.<br>
+    -SST: In the vocabulary tab it's possible to generate a &quot;reverse&quot; sst dictionary (en-&gt;fr to fr-&gt;en  for example). Note: only fully validated strings are taken in account.<br>
+    -Misc: Reduced the default Undo count limit and added an option for to raise it. (Note: some mass operations are always limited for faster workflow)<br>
+    -Misc: Added a quick memory audit: while in the main windows, hit Ctrl-shift-F12 to print a memory feedback in the log. (note: the process memory represent the memory blocks allocation)<br>
+  -Misc: Added Madshi exception handler [non commercial version] (<a href="http://www.madshi.net/">http://www.madshi.net/</a>) </p>
+  <p>version 1.0beta21a<br>
+    -NPCMap: Added Dynamic ObjReferences detection (REFR) (Found a way to deal with this against a reasonable amount of memory).<br>
+    -NPCMap: Added a NPClist in the NPCMap panel to see the Speaker(s) for the selected dialog while navigating in the main list. <br>
+    -NPCMap: Improved accuracy detection and analysis<br>
+    -NPCMap: Fixed issue with override data references<br>
+    -LoadMaster: Fixed an issue where a master could be loaded again if it has been manually loaded before.<br>
+  -Updated the Japanese UI (credits to Kuroko137)</p>
+  <p>version 1.0beta21<br>
+    -NPCMap: the NPC map can be generated on the fly. Just click the Orange Button and get the map in a snap ;). <br>
+    Almost all dialogs/NPC are mapped, there are few limitations: Dynamic REFR and conditional KYWD references are skipped for now. 99% of the time, they are not really needed (since they are usually not specific NPC, but faction or situational). Also when loading esp with master, partial QUST form are not supported yet. <br>
+    Usually the fuz map + npc map are covering everything, but you can still load a map from the xEdit scripts alike before, if you really need the missing data. <br>
+    -Master Support: Added a function to load all masters esm for the current mod ([game]\data folder is the default path).<br>
+    -FuzMap: Some optimizations.<br>
+    -Misc:You can use Escape to abort big esm/esp loading <br>
+    -Misc: Internal data analysis framework greatly optimized<br>
+  -Misc: Optimization when loading esp/esm (up to 15% faster)</p>
+  <p>Version 1.0beta20c<br>
+    -TranslatorAPIs: fixed some minors issues.<br>
+    -Added NPCmap import from xEdit: Most NPC data are already available through the fuzMap/VoiceType filter which is generated on the fly. You can also now import a npcMap from xEdit to be able to filter dialog by NPC. Please read this article (<a href="http://www.nexusmods.com/skyrimspecialedition/articles/78/">http://www.nexusmods.com/skyrimspecialedition/articles/78/</a>) on nexus for more information. It's mainly a workaround for those who asked me for Npc support, until I can find the time to adapt the framework to do this internally on the fly.<br>
+  -Updated UI and some icons</p>
+  <p>version 1.0beta20b<br>
+    -TranslatorAPIs: It's now possible to use the TranslateAPI on the main list. You can send up to 200 selected lines in a row (for a grant total of ~10000 characters with Yandex / MSTranslate only).<br>
+    -TranslatorAPIs: Redesigned the options pages for Api, so it's much more streamlined for eventual additions in the future. Enter your key values next to the relevant KeyNames for the Api you want to use.<br>
+    -TranslatorAPIs: Added support for Yandao and Baidu Api, also added the completely free &quot;Transltr&quot; Api, which is really raw but can help on some short sentences<br>
+    -TranslatorAPIs: In the edit window, if no text is selected then the whole text is sent to the translationAPI, otherwise only the selected section will be sent (and replaced). Moved the api access from the context menu to a more efficient UI.<br>
+    -TranslatorAPIs: Some internal optimization/improvements<br>
+    -SpellCheck: The underline process has been optimized to avoid lag with big texts full of spelling mistakes<br>
+  -Codepage/Language: Added mirror menu for language preset in the main toolbar (next to the Force codepage button).</p>
+  <p>version 1.0beta20a<br>
+    -TranslatorAPIs: Added an option to set the MStranslate TimeOut session (max/default 540s = 9mn), set to 0 to force credentials query at each translation request (but this is slower)<br>
+    -TranslatorAPIs: Added a visual feedback when the Api Translation process is running and the correct Api credit is now shown properly as it should.<br>
+    -TranslatorAPIs: The menu now also shows the used languages [source-&gt;dest].</p>
+  <p><br>
+    version 1.0beta20<br>
+    -TranslatorAPIs: (by request) Added support on some online Translator. MsTranslator (<a href="http://www.bing.com/translator">http://www.bing.com/translator</a>) and Yandex: (<a href="https://translate.yandex.com/">https://translate.yandex.com/</a>). You can get free authKey for those services, and set those key in xtranslator Options -&gt; TranslatorAPIS, then call translation via the context menu in the edit window. Please read the article on nexus to know how to get authkeys.<br>
+    Note1: the used translation languages (sources/dest) are the ones set in xTranslator<br>
+    Note2: some relevant data can be found in the file named 'ApiTranslator.txt' in xTranslator\misc folder.<br>
+    -Added an icon in the main bar for quick access to the force codepage settings.</p>
+  <p>version 1.0beta19<br>
+    -UI/Codepage:Added a new comboList in the main bar that allows to adjust the codepage on the fly for a loaded Esp/Esm, without having to reload it, so you can quickly adjust the right source codepage if it's necessary.<br>
+    -Workflow improvement: It's now possible to change the languages source and/or dest on the fly, without the need of reloading the currently loaded mods. If the source language is changed, all source strings will also be automatically updated with the default codepage used by the new source language (for esp/esm). This works with the language presets too.<br>
+    -Workflow improvement: Added some options to skip some warnings (VMAD, Wrong WorkSpace, Codepage warning on export)<br>
+    -UI: added a button in option to reset the recent list.<br>
+    -FuzMap/UI: it's possible to set a data folder specifically for the fuz map in advanced options. (by default it's the game data folder)<br>
+  -UI: Added a way to adjust BSA definition and BSA Alias for strings in archive. Default values should work as they are without editing. I just wanted to not have this hardcoded, just in case.</p>
+  <p>version 1.0beta18e<br>
+    -sseTranslator now allows the possibility to open a mod in a workspace it doesn't belong to (Like Skyrim mod in SkyrimSE workspace). This should help with the codepage confusion. <br>
+    When an esp is loaded in a wrong workspace, you will have to enter the codepage to use on load (please refer to the codepage used in the legit workspace. If you get weird characters you probably didnt choose the right codepage, so close and reload the mod). Also, the listview borders will be colored in green to remind you that you are not using the right workspace.<br>
+  -EspCompare: Default encoding is now based on the default Destination encoding (instead of source)</p>
+  <p>version 1.0beta18d<br>
+    -Menu Options-&gt;ForceCodepage: The Utf8 menu has been replaced by a ForceCodepage setting, that allows to force a given codepage on load and/or save. This can be used to easily convert the codepage of a mod. <br>
+    For example, to convert a French esp from ansi1252 to utf8, set your source and dest language as French, then set the force codepage to 1252 (source) and utf8 (dest), then load your esp, and finalize it.). Since these settings are mostly situational it's not recommended to save them between sessions (but you can). <br>
+    -SkyrimSE: new BSA injection in now working for pexfile (Beta)<br>
+    -SkyrimSE: Added a formVersion consistency check for SE mods<br>
+    -XMLImport: forced default encoding to utf8 for XML, so old xml dictionaries without codepage data can be loaded correctly<br>
+    -EditWindow/Search: Added a button to search only in the current mod vocabulary (Toggle shortCut: F8 while in the edit window)<br>
+    -EditWindow/Search: Fixed the sorting by ID in the search result<br>
+  -Updated Japanese UI. Credits to Kuroko137</p>
+  <p>version 1.0beta18c<br>
+    -Fixed an issue where some files could not be found in the new BSA while using directHash check.<br>
+  -Updated Chinese UI credit to Rebya </p>
+  <p>version 1.0beta18b<br>
+    -Added an option in EspCompare Tool and Load StringAsdest Tool, for to choose a different codepage for the compared esp/Strings.<br>
+  That allows the possibility to compare esp and import strings from different games (like Skyrim vs SkyrimSE) where the codepage is different for the same language.</p>
+  <p>version 1.0beta18a<br>
+    -SkyrimSE: fixed default path for embedded strings for the game masters esm<br>
+    -SkyrimSE:  changed default encoding to utf8 for all languages, since this seems to be the default used codepage, at least for the european release.. (Known Isssue: EspCompare may not use the correct encoding if you try to compare a SkyrimSE mod to a Skyrim mod. This will be fixed later) <br>
+  -SkyrimSE: fixed an issue when playing fuz file from the new BSA archives.</p>
+  <p>version 1.0beta18<br>
+    -renamed the main executable with a generic name (xTranslator.exe)<br>
+    -Added SkyrimSE Game support<br>
+    -Added SkyrimSE BSA support (injection is not ready yet)<br>
+    -Espcompare is now not strict to a specific game, so it's possible to compare skyrimSE with Skyrim mods for example.<br>
+    -Updated OmniXML component, fixed an issue with empty/spacechar strings in XML<br>
+    -When exporting XML, it's now possible to include FuzData if the fuzmap has been generated.<br>
+    -Minor fix/improvements in UI<br>
+  -Updated Japanese UI/Tutorial/manual: Credit to Kuroko137</p>
+  <p>version 1.0beta17<br>
+    -BSA/BA2 reintegration (Beta): Updated, and also works for BSA now. When exporting a Translated Pex file that was opened in a BSA/BA2, you can choose to export it directly in its belonging archive. You can also choose to inject all opened PEX files that belong to the same BSA/BA2 *and* are translated (meaning: without red/pink string). <br>
+    -UI: A lot of improvements, fixes and optimizations in various places.<br>
+    -UI: Added some feedbacks and UI captions that were missing.<br>
+    -UI: Using f1/f2/f3/ctrl-Up/Down to switch items in the edit windows has been streamlined.<br>
+    -Quest list: Fixed for FalloutNV. (known issue: some NewVegas mods/dlc have some discrepancies with more than one DIAL subtree in their database, the quest list will not be handled correctly in that case)<br>
+  -Updated Korean and Chinese UI (credits to -Ren- &amp; Rebya)</p>
+  <p>version 1.0beta16e<br>
+    -Added a voicetype list in the Fuzmap panel. You can filter INFO records and only show those whom are used by a given voice. (Requires a fuzMap)<br>
+    -Added Tag/Id toggle (via contextMenu) directly from the Dialog List in the Edit window.<br>
+  -Added support for .wav files (as fuz files), since some mods are using this format.</p>
+  <p>version 1.0beta16c/d<br>
+    -QuestList: More optimizations. Also, the quests and dialogs entries without editable strings are not added to the list.<br>
+    -QuestList: The Quest/Dialog lists are now not redrawn when it's unnecessary, and keep the current dialog topic on track correctly<br>
+    -QuestList: Added Data informations to Quest &amp; Dialog entries (name,category/subtype/KeyWord when relevant).<br>
+    -QuestList: Added a new DialSubType data file in the fallout4translator\data\[game] folder. <br>
+    -QuestList: If master esm/esp are also loaded, the relevant Quests and Data informations (like KeyWord/Name) will be used from Masters if necessary.<br>
+    -OldDialogStyle: the tool now uses override data in priority.<br>
+    -The Tag/Id filter now correctly sorts Strings with no tag when the Selected tag list is empty.<br>
+    -Added Strings Status/Tag operation in edit windows through Context Menu, for both Dialog and Record List.<br>
+    -Updated Chinese UI (credit to Rebya)<br>
+  </p>
+  <p>version 1.0beta16b<br>
+    -QuestList: Some optimizations for to avoid lag on very big quests</p>
+  <p>version 1.0beta16<br>
+    -Added a Quests panel in the lower section of the main window, to edit specific quests dialogs. Dbl-click to edit the given quest<br>
+    -Added a Dialog SubList related to the parent quest in the dialog panel. Dbl-click to edit the given dialog.<br>
+    -Added filter by Tag/Id: Use Left-Click to change the filter status and Right-click to change the selected Tag/Id.<br>
+    -Added an option to all functions that use a selection of items to restrict the field of application to visible items only (through the current applied search/filter). So you can combine any tags with string status.<br>
+    -Added an option to import only Tag/Id from SSTimport.<br>
+    -Added some derived text suggestions (for example: [TestString] will automatically add: TestString (without bracket) in suggestion list)<br>
+    -Changed the &quot;search in&quot; (source/dest etc.) group buttons to a single dropDown, for clarity.<br>
+    -Added Zoom+/zoom-/Restore option menus to resize Font in List. (Note: the font name can be edited in the commonPrefs.ini file, if needed)<br>
+    -Added an option for to use only strings files from the \strings folder (as loose files) instead of trying to extract them from bsa/ba2 archives while generating dictionaries.<br>
+    -Fix: Manually applying direct translation does not reset tag/ID anymore<br>
+    -Improved/Fixed various minor UI stuff.</p>
+  <p>version 1.0beta15c<br>
+    -Added a warning to the oldDialogStyle tool if the process requires a master file loaded.<br>
+    -Added more Tag/ID entries (1-88) to collaborative framework. Also, tags that have been already set at least once to an item are shown in the Apply Tag Dialogbox.<br>
+  -Just a typo but I changed 'CollabId' to 'Tag/Id'.</p>
+  <p>version 1.0beta15b<br>
+    -Fix for OldDialStyle tool: The tool can now load DNAM references strings from master files, as long as all relevant esp/esm are loaded together.<br>
+    If you want to generate some .strings for New Dialog/FullDialog Interface for example, for Nuka World, Far Harbor or UFO4P (or other mods using dialogs), some references need to be pulled from masters esm. So now, if you load NukaWorld.esm *and* its master Fallout4.esm in Fallout4translator *at the same time*, the strings will be generated with NukaWorld *and* Fallout4 references. This considerably reduces the amount of the remaining short strings in DLCs.</p>
+  <p>version 1.0beta15a<br>
+    -Fixed an issue with the personal dictionary.</p>
+  <p>version 1.0beta15<br>
+    -New feature: first step on collaborative framework for big translation (this has been requested since a long time)<br>
+    Select some strings, then tag them with some 'Collab ID' (context menu -&gt; define Collab ID / or shortcut F9) to define which part belong to which participant, then you export your SST (or split it by ID). The dictionaries will retain ID and can be distributed.<br>
+    You can also use the ID to flag some strings for a given purpose.<br>
+    Note1: Not translated items are saved in SST when they have CollabID. This can be a trick to save all datas, if needed.<br>
+    Note2: For the moment only SST files are handling the Collab Framework. I plan to extend this to XML as well in the future.<br>
+    -Because of the collaborative Framework, the sst file format has slightly changed. (the newer version can't be opened by older version of the tool)<br>
+    -Added new menu files section with import / export. Xml import/export has moved here. Also added SST import/export entries, with some options, so it's more convenient to share SST outside the userDictionaries folder). <br>
+    Note: The default SST saving is still a mandatory if you want to use your dictionary automatically and extend your dictionary cache.<br>
+    -Added selection options to the direct translation.<br>
+    -The closing file behavior has been improved when more than one file are opened<br>
+    -Fixed minor UI issues</p>
+  <p>version 1.0.0beta14<br>
+    -Added an advanced options panel. Some options has been moved there.<br>
+    -Added custom pattern for the FuzMap builder in advanced options:<br>
+    For to build the fuzMap, relevant BSA/BA2 archives (ie: containing fuz files) must match a specific template. Add one regEX pattern per line without the file extension.<br>
+    The tag %BASENAME% is replaced by the addon name on runtime. You can also add patterns without %basename% reference to force some specific BSA/BA2.<br>
+    For example, if you want to translate Enderal, add the line 'EEN - SoundVoice' in the pattern text box, so the 'EEN - SoundVoice.bsa' will be used to build the fuzmap.<br>
+    -Added a 'Save SST as...' menu so it's possible to define a custom name for a dictionary (note: in that case, if the BaseName is not the same than the esp BaseName, the dictionary will not be applied automatically on load)<br>
+    -Added a Search in Record/Field feature for searching items by Header Signature  (like QUST:FULL etc...)<br>
+    -Parent DIAL topics should now be shown correctly in the Dialog Edit Tab<br>
+    -Loading an esp using Utf8 should not show a warning if the 'forceUtf8OnLoad' option is checked.<br>
+    -VMAD items can now be sorted/filtered properly<br>
+  -Added some new icons</p>
+  <p>version 1.0.0beta13<br>
+    -Added VMAD (script property) analysis. This option is in Beta, and disabled by default (go in option to enable it). Please report any issue.<br>
+    <strong>WARNING:</strong> editing wrong strings can break your mod, so use with caution. Auto-translations tools are disabled for such strings.<br>
+    They appear in yellow (locked) with a specific icon after each loading and you have to unlock them (with F1, F2 or F4, depending on what you want) to use tools on them. Also, only strings that are *not* in Yellow (locked) are updated in the esp when exported. <br>
+    When you edit a VMAD string, you can see in the edit window which script and property it belongs to.<br>
+    If you want to reimport a translation saved in a dictionary on VMAD strings: select the string you want to translate, hit F2 to tag them in purple, then use the applySST tool with &quot;string only&quot; on &quot;Partial String&quot;, once it's done, validate them (F1) after controlling everything is OK.<br>
+    <strong>NOTE:</strong> VMAD analysis only works on delocalized esp.<br>
+    -If an esp requires another workspace (ie: the current game workspace is not the right one), and if there are no other files loaded at that moment, then you can choose to restart the tool automatically for the right workspace. The esp will be loaded directly.<br>
+    -Updated UI for Chinese &amp; Japanese (credit to Rebya &amp; Kuroko137)</p>
+  <p>version 1.0.0beta12<br>
+    -Full unification between Fallout4Translator and TesvTranslator. It's not necessary to rename the executable anymore.<br>
+    -Added support for FalloutNewVegas. (BETA, Experimental!). Please report any issue. Note: Fuz (ogg) mapping doesn't not work for FalloutNV yet.<br>
+    -Fallout4 beta 1.7 strings files can now be properly extracted from ba2 while loading Fallout4.esm and generating dictionaries<br>
+    -Added a menu to restart the tool for alternate games and to set the startup behavior <br>
+    -Changing the UI language will automatically restart the tool when closing preferences.<br>
+    -Improved the utf8detection check to get rid of false-positives.<br>
+    -Search results are now sorted by string length by default to improve readability.<br>
+    -The null filter is now working again properly.<br>
+  -Fixed an (harmless) UI error when the last file opened was closed.</p>
+  <p><strong>IMPORTANT</strong>:<br>
+    -SST Dictionaries folder and Preferences folder have changed. Please, read the _Beta12_UpdateNotice.txt in falloutTranslator Folder to restore your parameters and dictionaries properly<br>
+  -Also, renaming the executable is not a mandatory anymore, but it's still an option if you want to go this way and keep things separated. Check the option menu -&gt; options -&gt; Startup -&gt; &quot;Use Executable Name&quot;, and rename you executable accordingly: Fallout4Translator, TesvTranslator or FalloutNVTranslator.</p>
+  <p>version 1.0.0beta11<br>
+    -Unified datas between Fallout4Transtator/TESVTranslator.<br>
+    For the time being, simply rename the program (exe) name from 'Fallout4Translator' to 'TESVTranslator'  (include the .exe, if you see file extension in Windows). <br>
+  -Updated Chinese UI by Rebya</p>
+  <p>Version 1.0.0beta10<br>
+    -Added a fuzMap panel in the main windows. The fuz file can be played with the 'play' button, shortcut: f11 or by double-clicking an item on the list.<br>
+    -The regEx tool has been reworked. The test UI and selections have been streamlined. Also, the current regEx template can be saved through the list-contextMenu on the right. Double-Click on a list item to load the saved setting, drag and drop items to sort the list.<br>
+    -Fixed an issue with Undo not being properly applied after regEx.<br>
+    -Various internal minor changes/optimizations.<br>
+  </p>
+  <p>version 1.0.0beta9c<br>
+    -FuzMap now supports fuz in loose files. Looses files are listed in priority in fuzList<br>
+    -The fuzMap is now correctly reset when closing the esp/esm it's belonging to<br>
+    -The Fuz_ComboList turns Red when the sound can't be played<br>
+    -DirectTranslation and Heuristic now take in account the analogy of the format of both source and dest strings.<br>
+    -Improved RegEx warning results<br>
+  -Increased the playSound call timeOut for Fuz file. (this can also be manually adjusted in the prefs.ini, by editing the iPlayTimeOut value (default: 30): each digit means 100ms.</p>
+  <p>version 1.0.0beta9b<br>
+    -The 'generate fuz map' button has been removed: The Fuz map in now automatically generated the first time you click on the Play fuz audio button for a given loaded esp/esm. <br>
+    -TopicINFO with missing fuz file are now flagged (they can be filtered with the 'warning' filter)<br>
+    -Fixed an issue where fuz files could be associated to a string if they both share the same Base formId but not the same MasterID.<br>
+    -Added an icon to female NPC_<br>
+    -Added emote info to the topicINFO comment section<br>
+    -Updated strings warning datas<br>
+  -Various optimizations in the fuz map generation</p>
+  <p>version 1.0.0beta9a<br>
+    -Added Fuz Map support for Skyrim (to use Fallout4translator for Skyrim please follow the instructions on the TesvTranslator mainpage on Nexus)<br>
+    -Added full inherited fuz support: The fuz map is now generated with all Master dependencies of the current loaded esp/esm. The folder for data is the same as the one used for dictionary cache (default .\fallout\data\).<br>
+    -Added a button to copy the fuz list for the current edited record in the clipboard<br>
+    -Added F11 as a shortcut to play fuz file.<br>
+    -Some fuz UI polish and fix, added new icons.<br>
+  -Archive direct access optimization when loading files from a generated map.</p>
+  <p>version 1.0.0beta9<br>
+    New feature: Fuz generation map / and audio.<br>
+    While translating an esp/esm, you can generate a fuz map for the given loaded mod, if relevant. <br>
+  Then you can see for each dialog which are the linked .Fuz files, and you can play them (Audio).</p>
+  <p>-Load an esm with some recorded dialog<br>
+    -Edit a dialog<br>
+    -go to the last Tab of edit window called 'dialog and topic'<br>
+    -at the bottom of the topic list, click on the button 'generate fuz map'. <br>
+    -now you can see the associated fuz, and you can click on the '&gt;' (play) button to listen it.</p>
+  <p>Notes: <br>
+    -this is limited to mod for fallout4 only ATM. The Skyrim Fuz support will be added later.<br>
+    -the table is limited for the current edited mod only. Meaning, for the moment, there are no cross mod fuz maps (this will come later)<br>
+    -the fuz map may not work well on its current state for mods that have inherited fuz from different masters. (This will be fixed later)</p>
+  <p>version 1.0.0beta8b<br>
+  -Fixed an issue where some words could be inverted in .strings files in rare cases for some languages (Chinese/japanese)</p>
+  <p>version 1.0.0beta8<br>
+    -Translation state widgets are now refreshed correctly when switching between files.<br>
+    -Few UI polish, added a new menu entry to directly access to Options or Languages, added few hints.<br>
+    -The 'hide null string' filter now hides only strict null .strings (but not strings with invisible char like CR, LF, TAB etc...)<br>
+    -ApplySST over .strings files now correctly uses internal StringID<br>
+    -Added Experimental features for RTL languages and Unicode flag for RTL strings.<br>
+    -Fixed LineBreak for Xml import over scriptPex strings.<br>
+    -Fixed/Optimized few internal stuffs</p>
+  <p>version 1.0.0beta7<br>
+    -Revamped the dictionaries options, and added an advanced dictionary cache generator for the game files. It's taking a bit more time to generate (10-30 sec depending of your system) but, it's highly recommanded to use them and skip the old cache files system.<br>
+    -Added an option to load delocalized esp/esm in a single list view (*Off* by default).<br>
+    -Added a button toggle in the main toolbar to switch on the fly between the single-list and the three-lists view.<br>
+    -Added widgets in the listViewHeaders that show the state of the current translation<br>
+    -Because it's confusing, the GlobalSpellCheck doesn't switch the search filter itself.<br>
+    -Added the response ID and the internal Dialog commentary in the DIAL and Topic tab in the Edit Windows<br>
+    -Added an option to auto switch between DIAL and Record Tab while editing, (*On* by default)<br>
+    -Added options to choose which strings to use when launching a global heuristic translation<br>
+    -The cache builder now tries to use strings from BSA/BA2 in first place.<br>
+    -Improved heuristic suggestions for shorts strings.<br>
+    -Improved the startup initialization.<br>
+    -The spellChecker is now not enabled by default.<br>
+  -Updated few Hint texts for clarification.</p>
+  <p>version 1.0.0beta6<br>
+    -User Dictionaries now also hold datas that may have been deleted in newer version of a given esp. In that way, a dictionary retains translation for esp/esm with same name but different content. (That situation occurs mainly when a mod comes with optionals esp with the same name but various content) 
+    The advanced dictionary save method (with esp checksum) is not necessary anymore (However the option is still there, as a legacy, in case people still want to use it)<br>
+    -It is now possible to open and edit SST dictionaries (via contextMenu in the vocabulary list -&gt; edit SST)<br>
+    -Shorcuts for moving through records while in the editing windows have changed to ctrl-arrow_up/ctrl-arrow_down. (f1/f2 still work for that too)<br>
+    -when an unchecked user dictionary sst is automatically applied, it is also properly added to the cache.<br>
+    -added an option in the vocabulary tab to not load an 'unchecked' user dictionary automatically with its esp/esm. (this option is situational only and is not saved)<br>
+  -Fixed an issue with the heuristic suggestions list sorting.</p>
+  <p>version 1.0.0beta5<br>
+    -added a regex search option: click on the magnifying glass icon on the search field to bring switch the search mode (Note: the search is 'case insensitive')<br>
+    -updated and reactivated the personal dictionary (a direct access has also been added in the main file menu). If the personal dictionary does not exist, then it is created. Use Ctrl-T to add a new entry, then you can edit both source and dest strings. Adding common entries in this dictionary improve all tools that use direct or heuristic word to word translation (like regEx, word-to-word suggestions while editing etc...) <br>
+    -you can now get strings directly by opening a Bsa/Ba2 archive. You can also select a Bsa/Ba2 when using the 'LoadStringAsTranslation' tool.<br>
+    -improved the spellchecker words splitter accuracy, and added some options for to ignore some kind of words.<br>
+    -added a globalSpellCheck tool that can check the whole opened file, and tag strings with spotted spellcheck errors. Note: If you intent to use the globalSpellCheck tool often, especially on big files, I strongly suggest to use the Hunspell API, because the MSWord API is really (I mean REALLY) slow to perform this kind of task. <br>
+    -added a basic, cross language ignore list for the spell checker (stored in utf8, in the .\spellchecker folder). You can ignore words by using the editor context menu.<br>
+    -moved  spellChecker options in the options menu. (you also can still find it in the editor window toolbar) <br>
+    -when right-clicking on a filter button, you can select only that filter.<br>
+    -added a case sensitive option to the regEx tool<br>
+    -fixed an issue with 'Close All' where a dictionary could be closed without checking if it was modified before.<br>
+  -some tools/buttons have new icons.<br>
+  <br>
+    version 1.0.0beta4<br>
+    -Updated the SpellCheck, improved 'underline' visual, and added Hunspell  API support that uses the free OpenOfice/mozilla dictionaries(please refer to the article: <a href="http://www.nexusmods.com/fallout4/articles/255/?">http://www.nexusmods.com/fallout4/articles/255/?</a>)<br>
+  -Fixed some minor stuff in the UI</p>
+  <p>version 1.0.0beta3<br>
+  -Fixed a nasty issue where fallout4Translator would have crashed if MSword is not found on the system (for SpellCheck). Thx to pokara06 for the report ^^</p>
+  <p>version 1.0.0beta2<br>
+    -Improved the BSA/BA2 browser with faster list support, and quick filter<br>
+    -Fixed an access violation error: the PexData viewer content is now correctly discarded when closing all pex files.<br>
+  -Minor UI improvements<br>
+  <br>
+    version 1.0.0beta1 : <br>
+  Big changes in this version and a lot of internal code refactoring. This version is in BETA. Any feedback welcome!</p>
+  <p>Main Feature:<br>
+    Fallout4translator can now open more than one file at a time. This is opening some big new perpectives.<br>
+    -You can now copy paste text between files/check a whole folder(the only limit is the system memory ;) )<br>
+    -You can select more than one files in the loading files dialog or in the  bsa/ba2 browser. Very effective when looking for scripts to translate in a complete archive, (by default, script without text to translate are discarded). <br>
+    -When exporting a Translated Pex file in a BA2 (BSA injection still in Todo list), you can choose to also inject all opened PEX files that belong to the same BA2 *and* are translated (meaning: without red/pink string)<br>
+    -You can navigate between files by using the top right ComboList or the shortcuts: Ctrl-Tab/Ctrl-shif-Tab. <br>
+    -Improved Undo: each file has it's own undo.<br>
+    -Improved internal heuristic caching, which is now generated on the fly. <br>
+    -Added a reverse String tool (menu tool-&gt;language specific) for testing purpose (farsi/arabic).<br>
+    -A lot of small fixes/improvement in various modules.</p>
+  <p>&nbsp;</p>
+  <p>version 0.9.9a<br>
+    -The Translate/MCM menu is available again, as well as the MCM compare tool.<br>
+    -It's now possible to select an archive bsa/ba2 to open a script(Pex) or a Translate/MCM(Txt). This open a quick browser with the relevant files selection if there are any. <br>
+    -When finalizing a Script/Pex translation, you can choose to reintegrate the PEX inside the original archive (Work only for BA2, for now), or if you want to export it in loose file in the relevant subfolder next to the archive. <br>
+    -Added an option to prompt a dialog on what to do when loading a localized esp/esm (load .strings by defaut, in bsa first or choose them manually)<br>
+    -Added a prefixe in the recent menu to see which kind of file is opened.<br>
+    -Deleted some deprecated options<br>
+    -Improved XML export speed<br>
+    <br>
+    version 0.9.9<br>
+    -Added a new tag for strings, for to indicate strings that don't need translation (Yellow/ hotkey: F3). Like the WorkInProgress (Pink/F2) tag, those strings are not added to the cache. <br>
+    -When editing a string, you can now use F1, F2, arrow keys up and down, to validate changes and navigate through fields of the current record.<br>
+    -Added some XML export options <br>
+    -Updated import XML, SST, espCompare options. <br>
+    -Updated XML version export (with backward compatibility) for to fix some of the new XML import options. Legacy (default) options are not changed and work as before.<br>
+    -Updated general performance and decreasing memory usage while loading big files<br>
+    -oldDialogStyle: new option to add the original text as prefixe for all strings<br>
+    -oldDialogStyle: when using prefixe it's now possible to set a different replacing string: for example, use: Sarcastic=Sarcasm to search for Sarcastic and replace by Sarcasm. (not a mandatory, you can keep only one word). Note: the search is case sensitive.<br>
+    -Updated some internal code</p>
+  <p>version 0.9.8c.<br>
+    -Added an utf8 check on delocalized esp load. If an esp encoded in utf8 is loaded when the source language is not set as utf8, a prompt will ask you what to do [force utf8] or [load anyway with the encoding defined by the source setting]. (in the last case, you may need to change the source language in fallout4translator options, then reload the esp <br>
+    -Recent regEx definitions are now saved through sessions<br>
+    -Changed some regEx behaviors: <br>
+    Now you can use different syntaxes for backReferences calls to adjust how the regEx replacement must work for a given backreference, so you can mix part that should not be translated with other parts.<br>
+    <strong>#1</strong><em>: do not translate the backreference and keep it &quot;as is&quot;.<br>
+    </em><strong>%1</strong><em>: try to translate the backreference by using strict match (direct translation)<br>
+    </em><strong>$1</strong><em>: try translate the backreference using heuristic match (heuristic threshold can still be adjusted)<br>
+    ex:<br>
+    (Note) My Special Demo Note<br>
+    ^([\[\(\{\|].+?[\|\]\}\)]) (.+)<br>
+    #1 %2<br>
+  The regEx will not try to translate the part '(Note)' but will try to do a direct translate on the 2nd part 'My Special Demo Note'.</em></p>
+  <p>version 0.9.8b<br>
+    -Fixed an issue with the word-splitter heuristic<br>
+    -Added Undo/CtrlZ. All direct operations can be 'undone' except global functions. Undo/Ctrl-Z can be called more that once in a row.<br>
+    Undo works on: direct translations, validation, copy paste, heuristic search, search and replace, regex, value fixes etc...<br>
+    Undo doesn't work on: Full reset, Compare, new dialog or AddId tool can't be undone<br>
+    -Streamlined options in SST and XML import with different scenarii/cases<br>
+  -Updated SST format a slightly. New SST can't be used in previous version of fallout4translator</p>
+  <p>version 0.9.8<br>
+    -Greatly improved the heuristic speed, threshold and results.<br>
+    -Translations validated in the edit windows are now dynamically added to the current vocabulary without the need to save/reload the cache.<br>
+    -Added options to XML import.<br>
+    -Applying changes to &quot;selection&quot; only is now restricted to the current list view<br>
+    -Updated default regEx for fixNumber/Alias.<br>
+  -Added vocabulary entry cache for the upcoming new DLC</p>
+  <p>version 0.9.7b<br>
+    -FixAlias now works the same way than FixNumbers <br>
+    -regEx pattern for FixAlias and FixNumber can be changed in options. (By default the regEx for Fixnumber should now match any (+-)integer or decimal numbers)<br>
+    -Added an item in the heuristic validation menu to automatically validate a string and fixNumber for it on the fly.<br>
+    -HeuristicSearch now matches strings without caring about %numbers% or &lt;alias&gt;<br>
+    -Heuristic threshold increased.<br>
+  -Fixed some debug code and a pointer exception.</p>
+  <p>version 0.9.7a<br>
+    -Added a copy/paste directly through the lists. (Ctrl-C, Ctrl-V). (see <a href="http://www.nexusmods.com/fallout4/articles/215/?">article</a> on Nexus)<br>
+    -Added a Quick Numeric Regex Replace function. (Ctrl-N, or context menu): numbers from source strings will automatically replace numbers in destination string (in same order) (see <a href="http://www.nexusmods.com/fallout4/articles/215/?">article</a> on Nexus)<br>
+    -SpellCheck is now enabled by default if MSWord is found on the system.<br>
+    -Added an option to keep the ForceUtf8 on Load/Save. (Not recommanded however, it's better to set the right codepage in the codepage.txt file and use the right source/dest languages to avoid translation mixup)<br>
+  -XML export when using same language as source and dest now ignores strings that have the same source and dest content. That way you can export same language corrections more easily.</p>
+  <p>version 0.9.6ab<br>
+    -String status is now reset when applying an SST on the fly<br>
+    -Autotrim string function is 'not disabled' by default<br>
+    -RegEx now works with multilines entries<br>
+    -Xml export now excludes blank and null strings<br>
+    <br>
+    version 0.9.6<br>
+    -New tool:RegEx Translation. It's now possible to use RegEx to translate or transform strings. <br>
+    -Added .Ba2 support. .Strings files will be automatically pulled from ba2 archives if relevant.<br>
+    -SpellCheck optimization.<br>
+    -Added Korean Ressources (credits to -Ren-)<br>
+    -Fixed an issue when .strings files are flagged as ReadOnly<br>
+  -Various improvements and fixes.</p>
+  <p>version 0.9.5b<br>
+    -Backward compatibility fix for XmlImport</p>
+  <p>version 0.9.5<br>
+    -Added a spellCheck in the edit windows. This must be enabled in fallout4translator Options. Right click on a mispelled word will update the context menu with a list of suggestion.<br> 
+    Important: The spellCheck relies on MSWord, so you need to have it installed for this to work, and it uses the parameters/language set in MSWord.<br>
+    Note: this option is experimental. It will probably not work well with non occidental language. You can restrict the spellcheck to work only on the current selected word (with the context menu). In that case mispelled words are not underlined.<br>
+    -Fixed an issue with XML import when a record have some same enumerated subrecords, with same source text but different translations (very rare). (xml must be exported again for this to work)<br>
+    -Added StringID to XML export when it's relevant <br>
+    -Various improvements and fixes.<br>
+  </p>
+  <p>version 0.9.4<br>
+    -New option (menu options, 2nd tab): when loading a localized esp/esm that requires .strings, you can now set an option to prompt for a filedialog, so you can choose which strings should be loaded (The strings must match the addon name and the source language set in Fallout4translator, but they can be placed anywhere rather than in a string folder next to the esp/esm)<br>
+    -New tool: .Strings files comparison. Works only with source and dest language are the same. (You can use this to merge .strings together by flagging strings that match or not). <br>
+  -Fixed an issue with some options/preferences default save.</p>
+  <p>version 0.9.3<br>
+    -Added an option to force the strings view to use one line only per string. This should help some languages to maintain a fluid display<br>
+    -Added an option to disable the autotranslation on load. (Autotranslation is still available on demand through the menu or Ctrl-H)<br>
+    -XML import now behaves the same way than SST, and look for EDID matches.<br>
+    -Greatly optimized the Add DIAL ID option in AddIDtoString tool<br>
+    -Internal changes to prepare the future unification with TesvTranslator.<br>
+    <br>
+    version 0.9.2<br>
+    -Updated Chinese UI translations. Thanks &amp; Credits to Rebya.<br>
+    -Apply SST tool improved. (vocabulary tab -&gt; contextmenu on a dictionary). It now possible to define which strings selection is replaced and if the match must check for EDID references only, or EDID+SourceString.<br>
+    -Streamlined options between EspCompare tool and ApplySST tool.<br>
+    -Changed some heuristic thresholds.<br>
+    -Updated CompareText routine.<br>
+    -Various fix, improvements and optimizations</p>
+  <p>version 0.9.1<br>
+    -Added an option in &quot;search and replace&quot; to search in all 3 lists (.strings, .dlStrings, .ilStrings). The keywords &quot;alllists&quot; has been added to the batch command.<br>
+    -Fix for a case where the UI could stay locked after a load.<br>
+  -Fixed an issue in EspCompare tool where some warnings were incorrectly set.<br>
+  <br>
+    Version 0.9<br>
+    -LookupFail in .Strings are now automatically fixed when loading .string with Esp/esm. Check in the log to see which record. The text '&lt;PlaceHolder_Lookup&gt;' is set as placeholder for fixed strings, so you can search for those terms to find the strings easily. (Default TraditionalChinese .strings come such buggys lookup failed)<br>
+    -Some minor fix and optimization.<br>
+    -Major core changes on how SSTDictionaries are saved and loaded. This will allow more functionalities and flexibility. Old SST can be loaded with restricted functionalities.<br>
+    -Due to those major changes, saving dictionary in pure STRING mode is now deprecated and disabled. Strings must be loaded in Esp+Strings Hybrid mode to ensure forward compatibility.<br>
+    <br>
+    Version 0.8.2<br>
+    -New tool: &quot;Batch search and replace&quot;: Allows to do mass search and replace based rules.<br>
+    -By request, Added beta version of converter for Traditional Chinese &lt;-&gt; Simplified Chinese.<br>
+    -&quot;Load .Strings as Translation&quot; also now work in .Strings mode.<br>
+    <br>
+    Version 0.8.1<br>
+    -New tool: &quot;Load .Strings as Translation&quot; to bypass the default translation mecanism when editing/translating .strings files. This can help the translation of mods that change the default .Strings files.<br>
+  -Streamlined some Feedback/status. </p>
+  <p>Version 0.8<br>
+    -SST dictionary format change. Fallout4translator 0.8 can load the previous format but previous version of the tool will not be able to open 0.8+ files.<br>
+    -SST dictionnary now can apply directly all similar sources strings with different translation in esp, string or hybrid mode.<br>
+    -OldDialogTool: New option to copy original source for &lt;Alias/global&gt;<br>
+    -OldDialogTool: The prefixe list is now saved by language. Tip: to not loose the list, if you want to disable an element, just add a char to it instead of deleting the line (for example: sarcastic*). <br>
+  -Search and replace: added a pattern system to the replace output.</p>
+  <p>Version 0.7b<br>
+    -FormID search. Use &quot;search in: EDID&quot;, and type the formID in hexadecimal.<br>
+  -By Request: AddIdTool  option to add DIAL Id to INFO datas.<br>
+  -Minor code changes and Some internal optimizations</p>
+  <p>Version 0.7a<br>
+    -Fixed some typo, and minor code changes&nbsp;<br>
+    -OldDialogTool: Prefixes tab is now showing at first<br>
+    <br>
+    Version0.7<br>
+    -OldDialogStyle tool. Added a recursive search so RNAM INFO data can be updated with the full dialog, even if it's not linked in the same record. Result will be flagged with a small light bulb for extra checking. This means that almost 100% strings can now been automagically converted. This works if all relevant datas are in the same esp/esm.<br>
+    -OldDialogStyle tool : added some info in the tool window.<br>
+    -Some internal optimizations again</p>
+  <p>Version0.6<br>
+    -Added some advanced options to the OldDialogStyle tool.<br>
+  -Some internal optimizations<br>
+  </p>
+  <p>Version0.5b<br>
+    -Updated the Fields reference file to match Fallout4 stats.<br>
+    -OldDiaoglStyle Improvements:<br>
+    -Added an option to cut the size of a strings if it's too long (The cut try to find the end of the closest word. Might not work well in chinese or japanese)<br>
+    -Some internal optimizations<br>
+  </p>
+  <p>Version 0.5a<br>
+    -OldDialogStyle Improvements:&nbsp;<br>
+      -Added an option to skip strings that are too long for the screen&nbsp;<br>
+      -Added an option to add the relevant Prefixe (such as Flirt, Romance, Barter etc.)<br>
+  </p>
+  <p>Version 0.5<br>
+    -New tool: OldDialogStyle that generates Strings to use with the &quot;Full Dialogs&quot; mods found on Nexus <a href="http://www.nexusmods.com/fallout4/mods/1235">here</a> or <a href="http://www.nexusmods.com/fallout4/mods/619/?">here</a><br>
+    <br>
+    Version 0.4<br>
+    -Greatly improved XMLImport/Export. <br>
+    -Since it was asked many times, XmlExport also indicate record/EDID. Note: importXML does not use Record/EDID references to build back translation, but only strings pairs.<br>
+    -By request: Added a tool to add EDID/StringID to strings for translation reference in game.<br>
+    -By request: Added a toggle to not popup the 'replace all similar strings' (The option can be found in the vertical icon bar of the edit windows, so it can be toggled on the fly if needed)<br>
+    -English string are back to codepage 1252. Other stays to UTF8.<br>
+    -Force UTF8 menu is back.<br>
+    -Added some languages data<br>
+    <br>
+    Version 0.3alpha<br>
+    -Added some languages data<br>
+    -Some UI cleanup.</p>
+  <p>Version 0.2 alpha<br>
+  -utf8 is now the default (and fallback) encoding. Other encoding are still available, but are probably not needed in regular process.<br>
+  -all strings references are now decoded: 100% of strings are correctly applied when loading fallout.esm.<br>
+    -few cleanup<br>
+  </p>
+  <p>Version 0.1 alpha<br>
+  First release for Fallout4<br>
+  -Inherited code from <a href="http://www.nexusmods.com/skyrim/mods/29148/?">TesvTranslator</a><br>
+  -Some Cleanup<br>
+  -Fixed DIAL/INFO/QUST records for Fallout4<br>
+  -Updated Pex decompiler (New opcode feedback is still a work in progress)<br>
+  <br>
+  </p>
+  <p><br>
+    <br>
+  </p>
+</div>
+</body></html>

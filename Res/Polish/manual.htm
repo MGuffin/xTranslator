@@ -1,0 +1,67 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head></head>
+<body>
+Wersja bardzo wstępna....<br>
+Kilka informacji na temat programu:<br>
+<br>
+<br>
+<div id="head">Kolorowe flagi rekordów z tekstem</div>
+<br>Podczas tłumaczenia rekordy z tekstem można oznaczać flagami (automatycznie bądź ręcznie), posiadającymi różne kolory.<br>
+Każdy taki kolor ma inne znaczenie:<br>
+<br>
+<img style="width: 544px; height: 213px;" alt="Flags" src="../common/sstflags.gif"><br>
+<br>
+- <b>Przetłumaczony</b> [<b>kolor biały</b> - automatyczna]: Rekordy z tekstem przetłumaczone automatycznie poprzez zapisy z pamięci programu posiadają takie oznaczenie.<br>
+<br>
+- <b>Zatwierdzony jako gotowe tłumaczenie</b> [<b><font color="4339ff">kolor granatowy</font></b> - ręcznie]: (klawisz skrótu: F1) To rekordy oznaczone przez użytkownika jako przetłumaczone. Zostaną one dodane do słownika w pamięci programu, gdy użytkownik zapisze słownik SSTStrings za pomocą menu "Plik" lub podczas zamykania programu.<br>
+<br>
+- <b>Zatwierdzony jako częściowe tłumaczenie</b> [<b><font color="c932d7">kolor fioletowy</font></b> - automatycznie lub ręcznie]: (klawisz skrótu: F2). Użytkownik może oznaczyć dany rekord z tekstem jako przetłumaczony tylko częściowo. Dzięki tej fladze wie, że na dany tekst trzeba zwrócić uwagę w przyszłości, sprawdzić, poprawić go lub dokończyć tłumaczenie.<br>
+Teksty z takich rekordów są zapisywane w pamięci słownika SSTStrings, ale tylko dla danego pluginu, a nie w pamięci globalnej.<br>
+Niektóre używane w programie narzędzia, takie jak "Wyszukaj i zastąp", ustawiają to oznaczenie automatycznie.<br>
+<br>
+- <b>Dopasowany heurystycznie</b> [<b><font color="319b31">kolor zielony</font></b> albo <b><font color="ff0000">kolor czerwony</font></b> - automatyczna]: Można automatycznie wyszukiwać podobne ciągi tekstu z pamięci programu i użyć ich jako tłumaczenia. Po wczytaniu źródłowego tekstu do tłumaczenia, użyj menu "Tłumaczenie", skrótu CTRL-H albo CTRL-ALT-H, aby przeprowadzić tłumaczenie heurystyczne na podstawie wyszukiwania podobieństw między tekstem, nad którym pracujesz, a tym, który został zapisany w słowniku w pamięci globalnej. Rekordy, których tekst będzie tylko nieznacznie różnić się od tego z pamięci, otrzymają kolor zielony. Rekordy z większą ilością różnic otrzymają kolor czerwony. W kolumnie "LD" (Levenstein Distance) zostanie podana liczba odpowiadająca stopniowi dopasowania tekstów. Wszystkie zielone i czerwone teksty nie zostaną zapisane w pamięci globalnej słownika.
+<br>
+Jeśli zaznaczysz pojedynczy rekord z dopasowaniem heurystycznym, to w zakładce "AutoTłumaczenie" otrzymasz podgląd z pamięci globalnej słownika, gdzie posortowane zostaną tłumaczenia danego tekstu począwszy od tego, które heurystycznie pasuje najlepiej. Im większa liczba w kolumnie LD, tym więcej jest liter lub innych znaków, które różnią teksty.<br>
+<br>
+- <b>Nie przetłumaczony</b> [<b><font color="ff0000">kolor czerwony</font></b>, bez liczby w kolumnie LD, automatyczny lub ręczny]: Użytkownik może zaznaczyć dowolny rekord z tekstem jako nie przetłumaczony, zaznaczając go i naciskając F4 lub klikając prawym przyciskiem myszy i wybierając odpowiednią opcję. Tak oznaczane są teksty, które w ogóle nie zostały przetłumaczone, ani częściowo, ani heurystycznie. Nie zostaną zapisane do słownika SSTStrings, nie znajdą się w globalnym słowniku w pamięci programu.<br>
+<br>
+- <b>Ostrzeżenie dotyczące aliasu</b> [<b><font color="edb43b">kolor żółty</font></b> - automatyczne]: Rekordy oznaczone kolorem żółtym to ostrzeżenie, iż alias w tekście źródłowym nie pasuje do aliasu w tekście wynikowym (albo odwrotnie). W oknie edytowania pojedynczego rekordu z tekstem jest zakładka "SprawdźAlias", która pomaga naprawiać takie niedopasowania.<br>
+Żółta flaga ma priorytet ponad wszystkimi pozostałymi. Jeśli mimo ostrzeżenia użytkownik zatwierdzi dany rekord z tekstem jako gotowe tłumaczenie, to będzie ono zapisane w słowniku SSTStrings i dodane do globalnego słownika w pamięci.<br>
+<br>
+<br>
+<div id="head">Główne okno</div>
+<br>
+Poniższy przykład to widok po przeprowadzonym tłumaczeniu heurystycznym jednego z modów do Skyrim.<br>
+<br>
+<img style="width: 761px; height: 480px;" alt="Flags" src="../Polish/img_main.png"><br>
+<br>
+- W polu filtra (tuż pod głównym górnym menu) wpisany jest tekst "dwarven arrow" i po prawej wybrana jest ikonka filtru dla tekstu oryginalnego (fioletowa ikonka ze strzałką w lewo). Dzięki temu można dowolnie filtrować tekst w głównym oknie.<br>
+<br>
+- Możesz też zmieniać tryb filtra, klikając na jedną z innych ikonek po prawej (gdy najedziesz na nią myszką, to po chwili pojawi się opis ikonki).Przykładowo, jeśli chcesz widzieć tylko tekst do przetłumaczenia, a ten już przetłumaczony (biały kolor) ukryć, to odznacz ikonkę z białą tabelą (trzecia od lewej).<br>
+<br>
+- Tekst "Dwarven Arrow" w głównym oknie, w kolumnie "Oryginalny", jest oznaczony ikonką lupy. To sygnał, że w słowniku w pamięci translatora są co najmniej dwa różne tłumaczenia, które dokładnie pasują do danego angielskiego tekstu.<br>
+<br>
+- W zakładce "AutoTłumaczenie" są podane wszystkie dopasowania tekstów. Widać tutaj np. że zaznaczony tekst oryginalny "Dwarven Arrow" ma dwa różne tłumaczenia w słowniku: "Strzała krasnoludzka" oraz "Krasnoludzka strzała" - dlatego został oznaczony ikonką lupy (aby zweryfikować tłumaczenie i ewentualnie wybrać odpowiednie). W pierwszej kolumnie jest nawet podane z jakiego słownika (przetłumaczonego moda do Skyrim) pochodzi dane tłumaczenie.<br>
+<br>
+- Pamiętaj, że są <b>TRZY ZAKŁADKI</b>: STRINGS, DLSTRINGS, ILSTRINGS. Każda zawiera inny rodzaj tekstu i każdą trzeba sprawdzić, zanim ukończysz tłumaczenie pluginu do Skyrim. Najbardziej "popularna" jest zakładka STRINGS, bowiem w niej są np. nazwy wszelkich obiektów ze świata gry oraz wypowiedzi postaci kierowanej przez gracza.<br>
+<br>
+<br>
+<div id="head">Okno edytowania</div>
+<br>
+<img style="width: 685px; height: 480px;" alt="Flags" src="../Polish/img_edit.png"><br>
+<br>
+Zwróć uwagę na kilka bardzo przydatnych podczas pracy funkcji:<br>
+<br>
+- W zakładce "Podgląd różnic" możesz zobaczyć czym dokładnie różni się tekst ze słownika od tesktu, nad którym pracujesz, po wykonaniu tłumaczenia heurystycznego.<br>
+<br>
+- Jeśli podwójnie klikniesz na wybrane słowo, to w słowniku z pamięci zostanie wyszukane tłumaczenie tego słowa i w razie znalezienia - w oknie edytowania tekstu tłumaczenia, na dole pojawi się jedna lub kilka propozycji tłumaczeń. Tak jak na powyższym obrazku: Po wybraniu słowa "Arrow" program znalazł w pamięci tłumaczenie tego słowa i podał je: "1. strzała" w dolnej części okna. Możesz teraz nacisnąć CTRL+1, aby dodać to słowo "strzała" w miejscu gdzie stoi kursor albo podwójnie na nie kliknąć.<br>
+<br>
+- Dla takich pojedynczych słów możesz stworzyć swój własny słownik, z górnego menu głównego okna wybierając "Słowniki" i "Słownik użytkownika".<br>
+<br>
+- W zakładce "Wyszukaj" możesz używać filtra do przeszukiwania słownika. Nawet nie trzeba wtedy ręcznie wpisywać tekstu w polu filtra - wystarczy, że zaznaczysz tekst z pola z oryginalnym (angielskim) tekstem. Przykładowo, jeśli tłumaczysz tekst "Dwarven Arrow of Frost", to gdy zaznaczysz "Dwarven Arrow", to tekst ten automatycznie pojawi się w polu filtra.<br>
+<br>
+- W zakładce "Wyszukaj" pole "Restricted Search" oznacza dokładne dopasowanie tekstu. Jeśli usuniesz zaznaczenie z tego pola, na ogół otrzymasz o wiele więcej przykładów użycia i tłumaczenia danego tekstu.<br>
+
+<br>
+[Ciąg dalszy nastąpi...]<br>
+</body></html>

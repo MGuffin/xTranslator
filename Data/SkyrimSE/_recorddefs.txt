@@ -1,0 +1,34 @@
+#WARNING: do not modify this file, unless you know what you are doing.
+#Bad editing can  result in corrupted Esp.
+#FieldId=RecordID=List (0: strings, 1: dlStrings, 2: ilStrings
+#CharCase must match
+#(*) indicate the string can't be null (needs at least one space).
+#-proc1, -proc2 refer to internal procedures that defines some conditions for reading the data
+Def_:DNAM=MGEF=0
+Def_:NAM1=INFO=2*
+Def_:SHRT=NPC_=0
+Def_:CNAM=QUST=1
+Def_:CNAM=BOOK=1
+Def_:TNAM=WOOP=0
+Def_:NNAM=QUST=0
+Def_:ITXT=MESG=0
+Def_:RDMP=REGN=0
+Def_:RNAM=ACTI=0
+Def_:RNAM=FLOR=0
+Def_:RNAM=INFO=0*
+Def_:BPTN=BPTD=0
+Def_:MNAM=FACT=0
+Def_:FNAM=FACT=0
+Def_:DESC=LSCR=0
+Def_:DATA=GMST=0-proc1
+Def_:EPFD=PERK=0-proc2
+Def_:EPF2=PERK=0-proc4
+#the two next fields must remain at the end of the section since they are fallback.
+Def_:FULL=****=0
+Def_:DESC=****=1
+#Warning Field: known enumerated entries (field=record)
+Warn:ITXT=MESG
+Warn:NNAM=QUST
+Warn:NAM1=INFO
+Warn:CNAM=QUST
+

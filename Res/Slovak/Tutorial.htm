@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+
+</head>
+<body>
+<div id="head">Tvorba slovníka:</div>
+<br>
+Najlepší spôsob použitia SST je ako prvé vytvoriť slovníky zdrojového jazyka a cieľového jazyka.<br>
+<br>
+Ďalej, najvhodnejší zdrojový jazyk je 'English', pretože takmer všetky módy sú vyrobené v tomto jazyku. Takže budete potrebovať všetky 3 súbory skyrim_english.(S,DL,IL). Súbory reťazcov sú v adresári Skyrim\data\Strings\. Mali by ste ich mať predvolené pri inštalácii Skyrim. Ak tie súbory nemáte, stačí si ich stiahnuť vo voliteľnej sekcii SST na  Nexus stránkach.<br>
+<br>
+Akonáhle budete mať všetky tieto súbory správne nainštalované, môžete spustiť
+SkyrimStringTranslator, vyberte "Slovníky a jazyk" v ponuke Menu. Potom nastavte zdrojový jazyk/jazyk prekladu, a stlačte tlačidlo "vytvoriť slovníky". Proces by mal trvať niekoľko sekúnd.<br>
+<br>
+<br>
+<div id="head">ESP Režim:</div>
+<br>
+Nahrať *.esp/*.ems, preložiť, uložiť *.esp/*.ems. je jednoduché.<br>
+Je to lepšie ak si predtým vygenerujete slovník, pozrite si túto časť
+nižšie  v Režime reťazcov.<br>
+<br>
+Pritom môžete upraviť reťazec, kde dostanete, (v editačnom okne - espRecord panel) 
+zoznam všetkých polí, ktoré sú v rovnakom zázname. Môžete prepínať medzi
+záznamami dvojitým kliknutím. Všetky funkcie fungujú ako v Režime reťazcov.<br>
+<br>
+Poznámka: možno som zabudol zachytiť niektoré polia
+prekladu, takže ak zistíte, že sú v hre niektoré nepreložené dáta, prosím zašlite
+správu s názvom módu, potom to môžem bezpečne skontrolovať.<br>
+Môžete tiež pridať v "records.txt" súbor, ale som múdry ;)<br>
+<br>
+Poznámka 2:
+Esp sú načítané veľmi jednoduchou metódou. Očakáva, že uvidí záznamy tam kde by mali byť a nesnaží sa to podviesť.<br>
+To znamená, že ak vaše pôvodne nepreložené esp má niektoré poškodené údaje (môže to byť prípad esp, ktoré boli upravené s niektorými starými SST) pravdepodobne odmietne načítať. Pred tým, než si budete sťažovať, že máte tento problém, nezabudnite skontrolovať integritu originálnych esp najprv v tes5edit<br>
+<br>
+<br>
+<div id="head">ESP Porovnávanie:</div>
+<br>
+Pomocou tohto nástroja môžete priamo vytvoriť páry reťazcov z jedného esp do ďalšieho.<br>
+Poznámka: kódovanie je nastavené na cieľový jazyk.<br>
+<br>
+Príklad:<br>
+Povedzme, že máte mód v angličtine a predchádzajúcu verziu toho istého módu už preloženú. <br>
+Otvorte
+v angličtine esp obvyklým spôsobom a potom otvorte preloženú verziu v ponuke "esp porovnanie". Všetky páry reťazcov, ktoré zodpovedajú rovnakému formátu ID budú automaticky vygenerované.<br>
+Existujú určité obmedzenia tohto procesu, ktorých si musíte byť vedomý:<br>
+Niektoré reťazce nie sú priamo spojené s konkrétnou identifikáciou formID, ale iba s
+číslami vo vnútorných záznamoch. To znamená, že ak autor módu niečo pridá alebo odstráni niektoré položky v danom vyčíslení, reťazce nemusia byť preložené so 100% presnosťou.<br>
+Všetky nahradené páry sa nastavia ako "čiastočne preložené" a reťazce párov, ktoré majú vysoké riziko ,že sú zlé majú malú "svetlú" ikonu vpravo.<br>
+- ak SVIETI, potom je riziko výskytu vysoké, pretože v skutočnosti existuje viac ako
+jedno vyčíslené pole v aktuálnom zázname ... V takomto prípade vyhodnotenie esp porovnávania v okne úprav obsahuje všetky nájdené enum-polia, takže môžete ľahko opraviť reťazce, ktoré sa nezhodujú.<br>
+-v prípade, že NESVIETI: jednoducho to indikuje, že aktuálny záznam obsahuje iba jedno enum-pole.<br>
+<br>
+Poznámka: Ak svieti reťazec s ikonou "upozornenie" používateľovi sa obsah neukladá do cache, kým to neovplyvníte ručne.<br>
+<br>
+<br>
+<div id="head">Režim reťazcov:</div>
+<br>
+Poznámka: používateľské rozhranie je stále trochu drsné a je potrebné ho vylepšiť. Je však plne funkčné.<br>
+Predpokladám, že máte súbory reťazcov skyrim_english nastavené ako váš rodný jazyk Skyrim, ako som už povedal<br>
+Pre môj príklad povedzme, že chcete preložiť Unofficial Skyrim Patch z angličtiny do francúzštiny (som Francúz, môžete si všimnúť moju zlú angličtinu;))<br>
+<br>
+Najprv je potrebné preložiť Unofficial Skyrim Patch ( <a href="http://skyrim.nexusmods.com/mods/19">http://skyrim.nexusmods.com/mods/19
+</a>)<br>
+Najlepšie je získať súbory reťazcov pre akýkoľvek mód použitím Tes5Edit 
+(<a href="http://skyrim.nexusmods.com/mods/25859/">http://skyrim.nexusmods.com/mods/25859/ </a>)<br>
+<br>
+Použitie Tes5edit<br>
+- Nahrajte Unofficial Skyrim Patch.esp<br>
+- Po jeho načítaní kliknite pravým tlačidlom myši na názov esp vľavo v okne, z kontextovej ponuke ponuky vyberte možnosť Iné-&gt;Lokalizácia, skontrolujte, či je položka 'Jazyk' nastavená na angličtinu, potom vyberte položku - &gt;lokalizovať - &gt;ANO - &gt; bez kontroly, potom uložte súbory.<br>
+<br>Teraz máte delokalizovaný Unofficial Skyrim Patch.esp a 3 súbory reťazcov v adresári "Strings" s názvom: 
+- Unofficial Skyrim Patch_English.STRINGS <br>
+- Unofficial Skyrim Patch.Esp_English.DLSTRINGS <br>
+- Unofficial Skyrim Patch.Esp_English.ILSTRINGS <br>
+(Pamätajte, že ak sa pokúsite spustiť Skyrim v tomto bode: zlyhá, pretože esp teraz už nemá vložené reťazce a nemáte súvisiace súbory STRINGS vo našom rodnom jazyku Skyrim)<br>
+SST vám pomôže preložiť tieto súbory a tiež pomôcť vám aktualizovať ďalšie verzie tohto módu.<br>
+<br>
+<br>
+<div id="head">Nahratie reťazcov:</div>
+<br>
+Teraz môžete nahrať na preklad súbor Unofficial Skyrim Patch_English.STRINGS.<br>
+- V menu vyberte súbor - & gt; Nahrať a potom vybrať Unofficial Skyrim Patch_English.STRINGS.<br>
+- Po načítaní prejdite do ponuky prekladu a potom vyberte TranslateExactMatch (Ctrl-T).<br> 
+- Všetky reťazce s presnou anglickou zhodou budú priamo preložené do tvojho jazyka.<br> Nepreložené reťazce majú teraz červené pozadie.<br> 
+- V tomto okamihu sa môžete rozhodnúť priamo preložiť červený reťazec ručne (vyberte riadok, stlačte Enter, upravte, stlačte Ctrl-Enter na uplatnenie zmien) alebo sa pokúste urobiť heuristický preklad.<br>
+- V menu vyberte heuristický preklad (Ctrl-H): SST vyhľadá podobné reťazce a pokúsi sa nájsť najlepšiu zhodu.<br>
+Poznámka: Trvá to dlhšie (v závislosti od módu a typu reťazca -zvyčajne je to trochu pomalšie pre ILSTRINGS) heuristický preklad prebieha iba pre aktuálne viditeľné záznamy.<br> 
+Akonáhle je dokončený, budete mať aktualizovaný prehľad: Najlepšia zhoda je v zelenom, nezhody sú označené červenou.<br>
+<br>
+Keď kliknete na zhodu, uvidíte aj všetky alternatívne zhody (sú označené značkou + vedľa čísla zhody v LD stĺpeci) kde si môžete vybrať tú najvhodnejšiu.<br>
+Ak si myslíte, že reťazec je úplne zle, môžete na neho kliknúť pravým tlačidlom a nastaviť "zrušiť preklad". Ale ak si myslíte, že je to dobré, môžete si vybrať "overenie prekladu" (skratka S) , riadok sa zmení na modrý alebo na úpravu ručne. V tomto bode môže byť tento reťazec zahrnutý do súboru užívateľská cache (vyberte uložiť užívateľskú cache) kde sa tieto reťazce budú uchovávať pre všetky budúce aktualizácie.<br>
+<br>
+The Unofficial Skyrim Patch je veľký mód s veľa reťazcami na kontrolu, takže to môže trvať nejaký čas, ak nemôžete dokončiť úlohu, ale uložíte si používateľskú cache, môžete znova načítať Unofficial Skyrim Patch_English.STRINGS kedykoľvek a pokračovať v práci bez toho, aby ste stratili prehľad toho čo ešte nie je hotové ... <br>
+<br>
+Akonáhle je to v poriadku, stačí vybrať uložiť a SST uloží všetky súbory vo vašom cieľovom jazyku pod správnym kódovaním. (Kódovanie pravdepodobne bude potrebovať nejaké testovanie v iných jazykoch). <br>
+<br>
+<div id="head">Opätovne vloženie reťazcov do esp s Tes5edit.</div>
+<br>
+- Otvorte Tes5Edit<br>
+- Nahrajte addon<br>
+- choďte do menu -&gt; iné -&gt;lokalizácia -&gt; zvoliť jazyk
+- &gt;môj jazyk (Za predpokladu, že súbor Skyrim_Language.strings + vášmod_Language.strings sa nachádza v priečinku skyrim \ data \ strings).<br>
+- Teraz vyberte iné-&gt; Lokalizácia - &gt;delokalizácia.<br>
+Ak je všetko urobené správne, TesVedit vám jednoducho navrhne uložiť esp a žiadne ďalšie okná by sa nemali zobrazovať - (s výnimkou jedného upozornenia).<br>
+<br>
+</body></html>

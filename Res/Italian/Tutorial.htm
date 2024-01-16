@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title></title>
+
+</head>
+<body>
+<div id="head">Buiding a Dictionary:</div>
+<br>
+The best way to use SST, is at first to build a dictionary with a
+source language and a dest language.<br>
+So
+far, the most convenient language source is 'English', because almost
+all mods are made in this language. So you will need all 3
+skyrim_english.(S,DL,IL)Strings files in your Skyrim\data\Strings\
+folder next to the ones for your language (you should have them
+already, it's in the default Skyrim installation). (If you don’t have
+those file, just download them in the optional section of the SST nexus
+page.<br>
+Once you have all these files correctly installed, you can run
+SkyrimStringTranslator, and then choose "set Vocabulary and Cache" in
+the file menu. Then set the source/dest languages, and check the option
+"build cache". The process should take few seconds.<br>
+<br>
+<br>
+<div id="head">ESP Mode:</div>
+<br>
+load an *.esp/*.esm and translate, save the *.esp/*.esm. simple as that.<br>
+However, it's better if you generate a dictionary before, see this part
+below, in the Strings Mode section.<br>
+<br>
+When
+you edit a String, you get, (in the edit window - espRecord panel) the
+list of all fields that are in the same record. You can switch between
+records with a double click. All functionalities work exactly like in
+STRINGS MODE.<br>
+<br>
+Note: I may have forget to catch some fields to
+translate, so If you find some untranslated datas in your game, please
+report with the name of the mod, then I can safely check.<br>
+You can also add them in the "records.txt" file, but do this wisely ;)<br>
+<br>
+Note2:
+Esp are loaded in a very straightforward method. It expects to see
+records when they should be, and doesn't try to cheat on that.<br>
+This
+means that if your original-untranslated esp have some corrupted datas
+(which can be the case with esp that have been edited with some old
+tools), SST will probably refuse to load it. Before complaining if you
+get this issue, be sure to check the original esp integrity first with
+tes5edit<br>
+<br>
+<br>
+<div id="head">ESP Compare:</div>
+<br>
+With this tool you can directly build the string pairs from an esp to
+another one.<br>
+Note: the encoding is set to the destination language.<br>
+<br>
+Example:<br>
+Let say you have a mod in English, and a previous version of the same
+mod already translated.<br>
+Open
+the English esp in the usual way, and then open the translated version
+in the "esp compare" menu. All strings Pairs that match the same FormID
+will be automatically generated.<br>
+There are some limitations to this process that you must be aware of:<br>
+Some
+strings are not directly associated by a specific formID, but only with
+enumeration inside records. This means that if the mod author adds or
+remove some entries in the given enumeration, the strings pairs can't
+be built with 100% accuracy.<br>
+All replaced pair will be set with the
+"partial translation flag", and strings pairs that have a High risk of
+being wrong have a small 'light' icon on the right.<br>
+-if the light is
+on then the risk of issue is high because there are actually more than
+one enumerated Fields in the actual record... In that case, the
+espCompareResult panel in the edit window contains all the enum-field
+found, so you can easily fix the strings that don't match.<br>
+-if the light is OFF: that simply indicate known enum-fields but the
+actual record only have one enum-field.<br>
+<br>
+Note: string with the "light ON warning" icon will not be saved in user
+cache until you validate them manually.<br>
+<br>
+<br>
+<div id="head">STRINGS Mode:</div>
+<br>
+Note: The UI is still a bit rough and needs to be improved. However
+it's already functional.<br>
+I assume the fact you have both batch of skyrim_english Strings files
+next to your native Skyrim language, as I said before.<br>
+<br>
+For
+my example let say you want to translate the Unofficial Skyrim Patch,
+from English to French (I am French, you may have notice my bad English
+;))<br>
+<br>
+First you need to delocalize the Unofficial Skyrim Patch ( <a href="http://skyrim.nexusmods.com/mods/19">http://skyrim.nexusmods.com/mods/19
+</a>)<br>
+The best way to get the strings files for any add-on, is to use
+Tes5Edit (<a href="http://skyrim.nexusmods.com/mods/25859/">
+http://skyrim.nexusmods.com/mods/25859/ </a>)<br>
+<br>
+With TesVedit<br>
+-Load the Unofficial Skyrim Patch.Esp<br>
+-once
+it's loaded, Right Click on the name of the esp to the left, in the
+menu context menu, choose Other-&gt;Localization, check if
+'Language'
+is set to English, then Choose -&gt;localize -&gt;YES -&gt;
+don’t check
+anything, then Save the files.<br>
+<br>
+you now have a delocalized Unofficial Skyrim Patch.Esp and 3 Strings
+files in the Strings folder named<br>
+-Unofficial Skyrim Patch_English.STRINGS<br>
+-Unofficial Skyrim Patch_English.DLSTRINGS<br>
+-Unofficial Skyrim Patch_English.ILSTRINGS<br>
+(note,
+if you try to launch Skyrim at this point: it will crash, because the
+esp now doesn't have strings embedded anymore and you don't have the
+related STRINGS files with our native Skyrim language)<br>
+<br>
+SST will help us to translate those files, and also help you to update
+the next versions of this mod.<br>
+<br>
+<br>
+<div id="head">Loading STRINGS:</div>
+<br>
+Now you can load the Unofficial Skyrim Patch_English.STRINGS you want
+to translate.<br>
+- In the menu, choose file -&gt; load, then pick up Unofficial
+Skyrim Patch_English.STRINGS.<br>
+- Once it's loaded, go to translation menu then choose
+TranslateExactMatch (Ctrl-T).<br>
+-
+All strings with exact English match will be directly translated in
+your language. Untranslated strings now have a red background<br>
+- At
+this point, you can choose to directly translate the red string
+manually (select a line, press enter, edit, press ctrl-enter to valid),
+or try to do a heuristic translation.<br>
+- In the menu choose heuristic translation (Ctrl-H): SST will search
+through similar strings and try to find the best match.<br>
+Note:
+since it takes more time, (depending of the add-on, and the type of
+strings - it's usually a little slower for the ILSTRINGS) the heuristic
+translation only performs for the current visible list.<br>
+Once it's done you get some control: Best match are in green, and
+not-so-good matches are going to the red.<br>
+<br>
+When
+you click on a match you can also get all alternative matches (if there
+are some, it's indicated but the + tag next to the match number in the
+LD column), and you can select the more appropriate one.<br>
+If you
+think the string is completely wrong you can right click on it and set
+'Cancel translation'. But if you think it’s good, you can choose
+'Validate translation' (shortcuts S) and the line turns blue, or edit
+it manually. At this point, this string can be included in the
+userCache (choose save userCache), and these Strings will be kept for
+any future updates.<br>
+<br>
+The Unofficial Skyrim Patch is a big mod
+with a lot a strings to check, so that can take time a before you can
+finish the task, but if you save your user cache, you now can reload
+Unofficial Skyrim Patch_English.STRINGS at any time, and resume your
+work without losing track of what is not done yet...<br>
+<br>
+Once it's
+ok, just choose Save, and SST will save all files in your destination
+language and proper encoding. (Encoding probably needs some testing in
+some language).<br>
+<br>
+<div id="head">Re-embed translated STRINGS in the esp with
+Tes5edit.</div>
+<br>
+-Open Tes5Edit<br>
+-Load your add-on<br>
+-Go
+to the menu -&gt; other -&gt;localization -&gt; choose
+language
+-&gt;your language (assuming the Skyrim_Language.strings file +
+yourmod_Language.strings are in the skyrim\data\strings folder).<br>
+-Then Choose other-&gt; Localization -&gt;delocalize.<br>
+If
+everything has been done correctly, TesVedit will simply propose you to
+save the esp and no extra windows should popup - (except the warning
+one).<br>
+<br>
+</body></html>

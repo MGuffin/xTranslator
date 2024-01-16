@@ -1,0 +1,16 @@
+#codepage correspondance
+#add the one you may need (actually supported: 932,1250, 1251, 1252, 1253, 1254, 1256, Utf8)
+#note 65001 = utf8
+en=1252
+fr=1252
+pl=1250
+cs=1250
+de=1252
+it=1252
+ja=utf8
+ptbr=1252
+es=1252
+ru=1251
+cn=utf8
+ko=utf8
+th=utf8

@@ -1,0 +1,8 @@
+-Copy the english folder, rename it with your language
+-Translate the res.ini file
+(you also can translate -even expand- readme/manual: everything in this folder will be used by the current UI language)
+I just ask you to not remove the nexus Link from the header.
+
+If you are using extended charset, I suggest to save the res.ini file in utf-8 *with* BOM, so there will be no codepage issue 
+
+Note the SSTReadMe.htm will be replaced in english at each new version. it contains main update infos and history.

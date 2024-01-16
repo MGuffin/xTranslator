@@ -1,0 +1,10 @@
+﻿*tip: use Search=Replace
+*ex: Sarcastique=Sarcasme
+Sarcastique
+Courtiser
+Troquer
+Relation
+Flirter
+Marchander
+Mentir
+(Mentir)=Mentir
