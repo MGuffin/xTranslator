@@ -2726,6 +2726,7 @@ begin
     dofeedback(format('CompressedSizeGain: %.2f Mb', [iCompressedGain / 1000000]), false);
   if (debugError > 0) or (iCompressedRecords > 0) or (iCompressedGain > 0) then
     dofeedback(strSeparator);
+    Memolog.Repaint;
   // ---------------
   Application.ProcessMessages;
 end;

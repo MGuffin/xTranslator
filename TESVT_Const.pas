@@ -102,7 +102,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.0';
+  aPROG_CURRENTVERSION = 'v1.5.1';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -2450,9 +2450,9 @@ begin
     result := 2
   else if iVersion = 44 then // SSE
     result := 3
-  else if inrange(iVersion, 182, 199) then // f76
+  else if inrange(iVersion, 182, 200) then // f76
     result := 4
-  else if inrange(iVersion, 552, 555) then // Starfield
+  else if inrange(iVersion, 552, 556) then // Starfield
     result := 5
   else
   begin

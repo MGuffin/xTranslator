@@ -598,7 +598,7 @@ object Form1: TForm1
       Top = 0
       Width = 1266
       Height = 340
-      ActivePage = TabSheet11
+      ActivePage = TabSheet2
       Align = alClient
       Images = ImageList1
       TabOrder = 0

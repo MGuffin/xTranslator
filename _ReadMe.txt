@@ -35,7 +35,7 @@ Functionalities:
 -Alias Tool Check: verify alias integrity between source string and its translation.
 -Special DialogList for DIAL/INFO/QUST data
 -Search and replace tool with batch support
--Support for some Online translators (YandexAPI (https://translate.yandex.com/) Powered by Yandex / MsTranslator (http://www.bing.com/translator) Powered by Microsoft
+-Support for some Online ApiTranslation
 -Custom dictionary
 
 -Undo
@@ -99,6 +99,10 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.1 Maintenance update:
+Starfield: Updated new header info version
+F76: Updated new header info version 
+
 version 1.5.0:
 UI/DialogAnalysis: Added a new data analysis to show conditions on dialog line when relevant. 
 Internal: Fixed an crash that could occur when trying to generate a npcMap on 2 different versions of the same esp/esm loaded at the same time.
