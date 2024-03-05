@@ -3476,7 +3476,6 @@ begin
       begin
         Image1.canvas.Brush.Color := cWidgetColor[i];
         Image1.canvas.FillRect(Rect(oldpos, 0, oldpos + newPos, Image1.Height));
-
       end;
       oldpos := oldpos + newPos;
     end;

@@ -56,10 +56,10 @@ Important: This translator is *not* a tool for to localize/delocalize *.esp/*.es
 Notes & Crédits: 
 UIlocalization: Inherited from TesvTranslator & fallout4translator (some Translations are not up to date)
 -Japanese by Vivanon, Kuroko137 & BowmoreLover (Up to date)
--German by Slavovitsh, nnw,Scharesoft & X00LA
+-German by Slavovitsh, nnw,Scharesoft & X00LA (Partial)
 -Polish by TomBrightblade (Partial)
 -Chinese Simplified & Chinese Traditional by Ruinelec, Windkenlu, Rebya & 0xb160d1c5 (Partial)
--Spanish by Fiama & Pashalsta (Partial)
+-Spanish by Fiama & Pashalsta (Up to Date)
 -Portuguese by Vulthoryu (Partial)
 -Russian by Iclinet (Partial)
 -Korean by -Ren- (Partial)
@@ -99,6 +99,10 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.2 Maintenance update:
+Starfield: Updated new header info version
+UI: updated Spanish UI translation, credit and thanks to Pashalsta.
+
 version 1.5.1 Maintenance update:
 Starfield: Updated new header info version
 F76: Updated new header info version 

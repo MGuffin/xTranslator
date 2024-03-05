@@ -307,6 +307,8 @@ begin
   result := true;
 end;
 
+
+
 function isLoaderHasVMAD(loader: tTranslatorLoader): boolean;
 begin
   result := assigned(loader) and loader.bVMADAllowed;

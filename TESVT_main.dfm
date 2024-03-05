@@ -1300,7 +1300,6 @@ object Form1: TForm1
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitWidth = 1254
           object Panel13: TPanel
             Left = 0
             Top = 0
@@ -1309,7 +1308,6 @@ object Form1: TForm1
             Align = alTop
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitWidth = 1254
             object Edit1: TEdit
               Left = 0
               Top = 0
@@ -1324,7 +1322,6 @@ object Form1: TForm1
               ParentFont = False
               ReadOnly = True
               TabOrder = 0
-              ExplicitWidth = 1150
             end
             object Panel14: TPanel
               Left = 1162
@@ -1334,7 +1331,6 @@ object Form1: TForm1
               Align = alRight
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitLeft = 1158
               object ToolBar4: TToolBar
                 Left = 0
                 Top = 0
@@ -1372,7 +1368,6 @@ object Form1: TForm1
               Align = alRight
               BevelOuter = bvNone
               TabOrder = 2
-              ExplicitLeft = 1150
             end
           end
           object Panel20: TPanel
@@ -1383,7 +1378,6 @@ object Form1: TForm1
             Align = alBottom
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitWidth = 1254
             object Panel21: TPanel
               Left = 0
               Top = 0
@@ -1473,7 +1467,6 @@ object Form1: TForm1
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 2
-              ExplicitWidth = 757
             end
           end
         end
@@ -1486,7 +1479,6 @@ object Form1: TForm1
           BevelOuter = bvNone
           Caption = 'Panel25'
           TabOrder = 1
-          ExplicitWidth = 1254
           object Splitter2: TSplitter
             Left = 365
             Top = 0
@@ -1592,7 +1584,6 @@ object Form1: TForm1
             TabOrder = 1
             OnDblClick = ListBox1DblClick
             OnDrawItem = ListBox1DrawItem
-            ExplicitWidth = 884
           end
         end
       end
@@ -1723,6 +1714,7 @@ object Form1: TForm1
           BevelOuter = bvNone
           Caption = 'Panel32'
           TabOrder = 0
+          ExplicitWidth = 1254
           object MemoLog: TRichEdit
             Left = 0
             Top = 0
@@ -1744,6 +1736,7 @@ object Form1: TForm1
             ScrollBars = ssVertical
             TabOrder = 0
             StyleElements = []
+            ExplicitWidth = 1254
           end
         end
       end
@@ -1789,7 +1782,7 @@ object Form1: TForm1
       Top = 0
       Width = 1266
       Height = 203
-      ActivePage = TabSheet4
+      ActivePage = TabSheet1
       Align = alClient
       Images = ImageList1
       TabOrder = 0
@@ -2092,7 +2085,10 @@ object Form1: TForm1
       Top = 6
       Width = 540
       Height = 7
+      Hint = 'TEST'
       Align = alCustom
+      ParentShowHint = False
+      ShowHint = True
     end
   end
   object MainMenu1: TMainMenu
