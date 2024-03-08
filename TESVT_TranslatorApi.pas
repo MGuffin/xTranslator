@@ -1093,8 +1093,8 @@ begin
   // Set up request data
   RESTRequest.Params.Clear;
   RESTRequest.Params.AddHeader('Content-Type', 'application/json');
-  RESTRequest.Params.AddHeader('Authorization', 'Bearer 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');
-  RESTRequest.Params.AddHeader('OpenAI-Organization', 'org-ZVxALvw8rY9atihswAVn920R');
+  RESTRequest.Params.AddHeader('Authorization', 'Bearer openAIKey'); //removed old deprecated key
+  RESTRequest.Params.AddHeader('OpenAI-Organization', 'openAIOrg');
 
   requestData := TJSONObject.Create;
   try
