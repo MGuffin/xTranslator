@@ -932,19 +932,18 @@ object Form2: TForm2
       TabOrder = 1
       ExplicitWidth = 1225
       object Panel8: TPanel
-        Left = 889
+        Left = 856
         Top = 0
-        Width = 340
+        Width = 373
         Height = 36
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 885
         DesignSize = (
-          340
+          373
           36)
         object Label1: TLabel
-          Left = 85
+          Left = 119
           Top = 6
           Width = 55
           Height = 13
@@ -958,7 +957,7 @@ object Form2: TForm2
           ParentFont = False
         end
         object Label3: TLabel
-          Left = 120
+          Left = 154
           Top = 20
           Width = 19
           Height = 11
@@ -972,7 +971,7 @@ object Form2: TForm2
           ParentFont = False
         end
         object Button2: TButton
-          Left = 146
+          Left = 179
           Top = 6
           Width = 79
           Height = 27
@@ -981,9 +980,10 @@ object Form2: TForm2
           Caption = 'Cancel'
           TabOrder = 1
           OnClick = Button2Click
+          ExplicitLeft = 146
         end
         object Button1: TButton
-          Left = 231
+          Left = 264
           Top = 6
           Width = 109
           Height = 27
@@ -991,6 +991,7 @@ object Form2: TForm2
           Caption = 'Ok_(Ctrl-Enter)'
           TabOrder = 0
           OnClick = Button1Click
+          ExplicitLeft = 231
         end
       end
       object Panel19: TPanel
@@ -1021,7 +1022,7 @@ object Form2: TForm2
       object Panel20: TPanel
         Left = 233
         Top = 0
-        Width = 656
+        Width = 623
         Height = 36
         Align = alClient
         BevelOuter = bvNone
@@ -1031,7 +1032,7 @@ object Form2: TForm2
         object StaticText1: TStaticText
           Left = 10
           Top = 10
-          Width = 636
+          Width = 603
           Height = 16
           Align = alClient
           Alignment = taCenter

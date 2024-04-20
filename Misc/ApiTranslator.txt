@@ -2,6 +2,7 @@
 #ApiTranslatorAvailabily. (yandex/freeapi are not supported anymore)
 #----------------------------------------------------------
 Google_enabled=true
+OpenAI_enabled=true
 Yandex_enabled=false
 MsTranslate_enabled=true
 freeApi_enabled=false
@@ -13,6 +14,7 @@ DeepL_enabled=true
 #----------------------------------------------------------
 Google_Label=Google (Free/Slow)
 Yandex_Label=Yandex
+OpenAI_Label=OpenAI/ChatGpt
 MsTranslate_Label=Azure/MsTranslate
 freeApi_Label=TransltrApi
 Baidu_Label=Baidu
@@ -22,6 +24,7 @@ DeepL_Label=DeepL
 #Data Limit per query - changing these values can cause a server error
 #----------------------------------------------------------
 Google_CharLimit=7500
+OpenAI_CharLimit=7500
 MsTranslate_CharLimit=9999
 Yandex_CharLimit=0
 freeApi_CharLimit=0
@@ -32,6 +35,7 @@ DeepL_CharLimit=9000
 #Data Limit per query - changing these values can cause a server error
 #----------------------------------------------------------
 Google_ArrayLimit=99
+OpenAI_ArrayLimit=49
 MsTranslate_ArrayLimit=49
 Yandex_ArrayLimit=0
 freeApi_ArrayLimit=0
@@ -42,6 +46,7 @@ DeepL_ArrayLimit=49
 #PauseTime Between array query (in second) - changing these values can cause a server error
 #----------------------------------------------------------
 Google_ArrayTimePause=4
+OpenAI_ArrayTimePause=4
 MsTranslate_ArrayTimePause=2
 Yandex_ArrayTimePause=0
 freeApi_ArrayTimePause=0
@@ -52,6 +57,7 @@ DeepL_ArrayTimePause=2
 #Max Chars sent per minute - changing these values can cause a server error
 #----------------------------------------------------------
 Google_ArrayMaxCharPerMin=30000
+OpenAI_ArrayMaxCharPerMin=30000
 MsTranslate_ArrayMaxCharPerMin=30000
 Yandex_ArrayMaxCharPerMin=0
 freeApi_ArrayMaxCharPerMin=0
@@ -62,6 +68,7 @@ DeepL_ArrayMaxCharPerMin=30000
 #PauseTime Between single query (in second) - changing these values can cause a server error
 #----------------------------------------------------------
 Google_SingleTimePause=4
+OpenAI_SingleTimePause=2
 MsTranslate_SingleTimePause=1
 Yandex_SingleTimePause=1
 freeApi_SingleTimePause=1
@@ -79,6 +86,11 @@ Youdao_ApiUrl=http://openapi.youdao.com/api?appKey=%s&q=%s&from=%s&to=%s&sign=%s
 Google_ApiUrl=https://translate.googleapis.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s 
 DeepL_ApiUrl=https://api-free.deepl.com/v2/translate?auth_key=%s&split_sentences=1&source_lang=%s&target_lang=%s{text}
 DeepL_ProApiUrl=https://api.deepl.com/v2/translate?auth_key=%s&split_sentences=1&source_lang=%s&target_lang=%s{text}
+OpenAI_ApiUrl=https://api.openai.com/v1/chat/completions
+OpenAI_DefaultQuery=Translate the following text to %lang_dest%, the text structure must be exactly the same, also keep the <tags> and numbers intact and keep the linebreaks strictly as they are without new ones:
+#up to 10 default model (0-9)
+OpenAI_Model0=gpt-3.5-turbo
+OpenAI_Model1=gpt-4
 #----------------------------------------------------------
 #PoweredCredit
 #----------------------------------------------------------
@@ -96,9 +108,55 @@ Youdao_Powered=Translation powered by Youdao
 Youdao_PoweredUrl=http://fanyi.youdao.com/openapi
 DeepL_Powered=Translation powered by DeepL
 DeepL_PoweredUrl=https://www.deepl.com/translator
+OpenAI_Powered=Translation powered by OpenAI
+OpenAI_PoweredUrl=https://chat.openai.com/
 #----------------------------------------------------------
 ##ApiTranslatorLanguageEquivalences.
 #---------------------------------------------------------
+OpenAI_english=english
+OpenAI_french=french
+OpenAI_polish=polish
+OpenAI_czech=czech
+OpenAI_danish=danish
+OpenAI_finnish=finnish
+OpenAI_german=german
+OpenAI_greek=greek
+OpenAI_italian=italian
+OpenAI_japanese=japanese
+OpenAI_norwegian=norwegian
+OpenAI_portuguese=portuguese
+OpenAI_spanish=spanish
+OpenAI_swedish=swedish
+OpenAI_turkish=turkish
+OpenAI_russian=russian
+OpenAI_chinese=chinese
+OpenAI_hungarian=hungarian
+OpenAI_arabic=arabic
+OpenAI_korean=korean
+OpenAI_estonian=estonian
+OpenAI_en=english
+OpenAI_fr=french
+OpenAI_es=spanish
+OpenAI_fi=finnish
+OpenAI_esmx=spanish
+OpenAI_de=german
+OpenAI_it=italian
+OpenAI_pl=polish
+OpenAI_ptbr=portuguese
+OpenAI_ru=russian
+OpenAI_cn=chinese
+OpenAI_ja=japanese
+OpenAI_hu=hungarian
+OpenAI_cs=czech
+OpenAI_ko=korean
+OpenAI_ar=arabic
+OpenAI_no=norwegian
+OpenAI_sv=swedish
+OpenAI_uk=ukrainian
+OpenAI_et=estonian
+OpenAI_est=estonian
+OpenAI_zhhans=chinese
+
 MsTranslate_english=en
 MsTranslate_french=fr
 MsTranslate_polish=pl

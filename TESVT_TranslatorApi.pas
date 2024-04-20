@@ -34,7 +34,7 @@ uses windows, math, Classes, SysUtils, TESVT_CustomList, TESVT_Ressources, TESVT
   REST.Client, REST.types, System.JSON, System.JSON.Readers, System.JSON.types, System.hash, Generics.Collections, IdURI, TESVT_RegexUtils;
 
 Const
-  MaxApiCount = 6; // (0..6)  6= deepL
+  MaxApiCount = 7; // (0..7)  6= deepL 7= OpenAI
 
 type
   tapiBaseTranslation = function(var Text: string; var apiId: integer): boolean;
@@ -95,6 +95,16 @@ type
     procedure SetCredentials(const secretId: string);
   end;
 
+  TOpenAITranslator = class(TGenericTranslator)
+  private
+    fClientSecret: string;
+    function parseJSon(content: TJSONValue): string;
+  public
+    constructor Create(AOwner: Tcomponent); overload;
+    function Translate(Text: string; const source, dest: String; var charCount: integer): string;
+    procedure SetCredentials(const secretId: string);
+  end;
+
   TDeepLTranslator = class(TGenericTranslator)
   private
     fClientSecret: string;
@@ -133,11 +143,14 @@ type
 function msTranslationArray(l: tstringlist): integer;
 function DeeplTranslationArray(l: tstringlist): integer;
 function GoogleTranslationArray(l: tstringlist): integer;
+function OpenAITranslationArray(l: tstringlist): integer;
+
 function msTranslation(var Text: string; var apiId: integer): boolean;
 function DeepLTranslation(var Text: string; var apiId: integer): boolean;
 function youdaoApiTranslation(var Text: string; var apiId: integer): boolean;
 function baiduApiTranslation(var Text: string; var apiId: integer): boolean;
 function googleTranslation(var Text: string; var apiId: integer): boolean;
+function OpenAITranslation(var Text: string; var apiId: integer): boolean;
 
 // deprecated --->
 function freeApiTranslation(var Text: string; var apiId: integer): boolean;
@@ -149,7 +162,6 @@ function isStringMultiLines(s: string): boolean;
 function isAuthForArray(s: string): boolean;
 function clearCRLF(s: string; bAllow: boolean = true): string;
 function restoreCRLF(s: string; bAllow: boolean = true): string;
-procedure testOpenAI;
 
 var
   apiData: tApiPersistentData;
@@ -161,16 +173,16 @@ Const
   USERAPIPREFS_FILE = 'commonApiPrefs.ini';
   OcpApimSubscriptionKeyHeader = 'Ocp-Apim-Subscription-Key';
   DeepLSubscriptionKeyHeader = 'DeepL-Auth-Key';
-  aApiBaseName: array [0 .. MaxApiCount] of string = ('MsTranslate_', 'Yandex_', 'Baidu_', 'Youdao_', 'freeApi_', 'Google_', 'DeepL_');
-  aApiBaseNameArraySleepDefault: array [0 .. MaxApiCount] of integer = (3, 0, 0, 0, 0, 4, 3);
-  aApiBaseNameSleepDefault: array [0 .. MaxApiCount] of integer = (1, 1, 1, 1, 1, 4, 1);
-  aApiBaseNameMaxCharPerMinDefault: array [0 .. MaxApiCount] of integer = (30000, 0, 0, 0, 0, 30000, 30000);
-  aApiBaseuseFakeArray: array [0 .. MaxApiCount] of boolean = (false, false, false, false, false, true, false);
-  aApiBaseArrayFunc: array [0 .. MaxApiCount] of tapiBaseTranslationArray = (msTranslationArray, nil, nil, nil, nil, GoogleTranslationArray, DeeplTranslationArray);
-  aApiBaseFunc: array [0 .. MaxApiCount] of tapiBaseTranslation = (msTranslation, yandexTranslation, baiduApiTranslation, youdaoApiTranslation, freeApiTranslation, googleTranslation,
-    DeepLTranslation);
+  aApiBaseName: array [0 .. MaxApiCount] of string = ('MsTranslate_', 'Yandex_', 'Baidu_', 'Youdao_', 'freeApi_', 'Google_', 'DeepL_', 'OpenAI_');
+  aApiBaseNameArraySleepDefault: array [0 .. MaxApiCount] of integer = (3, 0, 0, 0, 0, 4, 3, 5);
+  aApiBaseNameSleepDefault: array [0 .. MaxApiCount] of integer = (1, 1, 1, 1, 1, 4, 1, 1);
+  aApiBaseNameMaxCharPerMinDefault: array [0 .. MaxApiCount] of integer = (30000, 0, 0, 0, 0, 30000, 30000, 30000);
+  aApiBaseuseFakeArray: array [0 .. MaxApiCount] of boolean = (false, false, false, false, false, true, false, true);
+  aApiBaseArrayFunc: array [0 .. MaxApiCount] of tapiBaseTranslationArray = (msTranslationArray, nil, nil, nil, nil, GoogleTranslationArray, DeeplTranslationArray, OpenAITranslationArray);
+  aApiBaseFunc: array [0 .. MaxApiCount] of tapiBaseTranslation = (msTranslation, yandexTranslation, baiduApiTranslation, youdaoApiTranslation, freeApiTranslation, googleTranslation, DeepLTranslation,
+    OpenAITranslation);
 
-  aDefaultPreferenceList: array [0 .. 19] of string = (
+  aDefaultPreferenceList: array [0 .. 25] of string = (
     // Google
     'Google_RequestCount=0', 'Google_CharCount=0',
     // MsTranslator
@@ -181,6 +193,8 @@ Const
     'Youdao_AppID=', 'Youdao_SecretKey=', 'Youdao_RequestCount=0', 'Youdao_CharCount=0',
     // Baidu
     'Baidu_AppId=', 'Baidu_Key=', 'Baidu_RequestCount=0', 'Baidu_CharCount=0',
+    // OpenAI
+    'OpenAI_Key=', 'OpenAI_URL=', 'OpenAI_Model=', 'OpenAI_Query=', 'OpenAI_RequestCount=0', 'OpenAI_CharCount=0',
     // Proxy
     'Proxy_Server=', 'Proxy_Port=', 'Proxy_Username=', 'Proxy_Password=');
 
@@ -188,7 +202,7 @@ Const
   CRLFchars = [#13, #10];
   CRLFtag = '<L_F>';
   CRLFuntilSize = 3500;
-  CRLFPattern = '\r\n';
+  CRLFPattern = '\r\n|\n';
   URISpecialChar: array [0 .. 1] of array [0 .. 1] of string = (('&', '%26'), (';', '%3B'));
 
 implementation
@@ -233,9 +247,9 @@ function clearCRLF(s: string; bAllow: boolean = true): string;
 begin
   if bAllow then
   begin
-    result := stringReplace(s, sstLineBreak, CRLFtag, [rfReplaceALL]);
-    result := stringReplace(result, #13, '', [rfReplaceALL]); // extracheck
-    result := stringReplace(result, #10, CRLFtag, [rfReplaceALL]); // extracheck
+    result := StringReplace(s, sstLineBreak, CRLFtag, [rfReplaceAll]);
+    result := StringReplace(result, #13, '', [rfReplaceAll]); // extracheck
+    result := StringReplace(result, #10, CRLFtag, [rfReplaceAll]); // extracheck
   end
   else
     result := s;
@@ -244,7 +258,7 @@ end;
 function restoreCRLF(s: string; bAllow: boolean = true): string;
 begin
   if bAllow then
-    result := stringReplace(s, CRLFtag, sstLineBreak, [rfReplaceALL])
+    result := StringReplace(s, CRLFtag, sstLineBreak, [rfReplaceAll])
   else
     result := s;
 end;
@@ -255,7 +269,16 @@ var
 begin
   result := TIdURI.ParamsEncode(s);
   for i := 0 to high(URISpecialChar) do
-    result := stringReplace(result, URISpecialChar[i, 0], URISpecialChar[i, 1], [rfReplaceALL]);
+    result := StringReplace(result, URISpecialChar[i, 0], URISpecialChar[i, 1], [rfReplaceAll]);
+end;
+
+function paramDecodeEx(const s: string): string;
+var
+  i: integer;
+begin
+  result := TIdURI.URLDecode(s);
+  for i := 0 to high(URISpecialChar) do
+    result := StringReplace(result, URISpecialChar[i, 1], URISpecialChar[i, 0], [rfReplaceAll]);
 end;
 
 function MD5Stream(sStream: TStringStream): string;
@@ -288,7 +311,7 @@ begin
   RESTRequest.Client := RESTClient;
   RESTRequest.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
   RESTRequest.AcceptCharset := 'utf-8, *;q=0.8';
-  RESTRequest.Timeout := 30000;
+  RESTRequest.Timeout := 45000;
   RESTRequest.HandleRedirects := true;
 
   apiData.setProxyREST(RESTClient);
@@ -487,6 +510,7 @@ begin
   apiEnabled[2] := apiEnabled[2] and (aPreferencesApi.Values['Baidu_AppId'] <> '') and (aPreferencesApi.Values['Baidu_Key'] <> '');
   apiEnabled[3] := apiEnabled[3] and (aPreferencesApi.Values['Youdao_AppId'] <> '') and (aPreferencesApi.Values['Youdao_SecretKey'] <> '');
   apiEnabled[6] := apiEnabled[6] and (aPreferencesApi.Values['DeepL_Key'] <> '');
+  apiEnabled[7] := apiEnabled[7] and (aPreferencesApi.Values['OpenAI_Key'] <> '');
   for i := 0 to MaxApiCount do
     apiEnabled[i] := apiEnabled[i] and getApiLanguages(sourceLanguage, DestLanguage, i);
 end;
@@ -752,7 +776,7 @@ begin
     charCount := charCount + length(l[i]);
   end;
 
-  URL := stringReplace(URL, '{text}', TextQuery, [rfReplaceALL, rfIgnoreCase]);
+  URL := StringReplace(URL, '{text}', TextQuery, [rfReplaceAll, rfIgnoreCase]);
   RESTClient.BaseURL := URL;
 
   try
@@ -901,6 +925,64 @@ begin
   result := false;
 end;
 
+// -----------OpenAI
+function OpenAITranslationArray(l: tstringlist): integer;
+var
+  charCount, i: integer;
+  OpenAI: TOpenAITranslator;
+  textOut, TextIn: string;
+begin
+  // result = -1, nomatch error
+  // result =0, api error
+  // result =1, ok
+
+  result := 0;
+  if l.count = 0 then
+    exit;
+
+  textOut := '';
+  if l.count = 1 then
+    textOut := l[0]
+  else
+  begin
+    for i := 0 to l.count - 2 do
+      textOut := textOut + l[i] + sstLineBreak;
+    textOut := textOut + l[l.count - 1];
+    // add latest line without linebreak;
+  end;
+
+  OpenAI := TOpenAITranslator.Create(nil);
+  OpenAI.SetCredentials(apiData.aPreferencesApi.Values['OpenAI_Key']);
+  try
+    TextIn := OpenAI.Translate(textOut, apiData.source[OpenAI.apiId], apiData.dest[OpenAI.apiId], charCount);
+    if not OpenAI.bError then
+    begin
+      apiData.aPreferencesApi.valueIntAdd('OpenAI_RequestCount', 1);
+      apiData.aPreferencesApi.valueIntAdd('OpenAI_CharCount', charCount);
+      if l.count = 1 then
+      begin
+        l[0] := TextIn;
+        result := 1;
+      end
+      else
+      begin
+        if ExtractArrayStrings(TextIn, CRLFPattern, l) then
+          result := 1
+        else
+        begin
+          dofeedback(getRes('Fbk_VirtualArrayNoMatch'));
+          result := -1;
+        end;
+        doFeedbackForAPI('TxtOut', 'TxtIn', textOut, TextIn);
+      end;
+    end
+    else
+      dofeedback(OpenAI.sLastError, true, [askPanel]);
+  finally
+    OpenAI.free;
+  end;
+end;
+
 // --------------Simple translate-----------
 
 function msTranslation(var Text: string; var apiId: integer): boolean;
@@ -991,6 +1073,33 @@ begin
   end;
 end;
 
+function OpenAITranslation(var Text: string; var apiId: integer): boolean;
+var
+  charCount: integer;
+  OpenAI: TOpenAITranslator;
+begin
+  result := false;
+  apiId := 7;
+  if not apiData.validateApiTranslation(Text, apiId) then
+    exit;
+  OpenAI := TOpenAITranslator.Create(nil);
+  OpenAI.SetCredentials(apiData.aPreferencesApi.Values['OpenAI_Key']);
+  try
+    Text := OpenAI.Translate(Text, apiData.source[OpenAI.apiId], apiData.dest[OpenAI.apiId], charCount);
+
+    if not OpenAI.bError then
+    begin
+      apiData.aPreferencesApi.valueIntAdd('OpenAI_RequestCount', 1);
+      apiData.aPreferencesApi.valueIntAdd('OpenAI_CharCount', charCount);
+      result := true;
+    end
+    else
+      dofeedback(OpenAI.sLastError, true, [askAuto]);
+  finally
+    OpenAI.free;
+  end;
+end;
+
 function youdaoApiTranslation(var Text: string; var apiId: integer): boolean;
 var
   charCount: integer;
@@ -1058,55 +1167,113 @@ begin
   apiId := 1;
 end;
 
-procedure testOpenAI;
-var
-  URL: string;
-  requestData: TJSONObject;
-  RESTClient: tRestClient;
-  RESTRequest: TRESTRequest;
-  RESTResponse: TRESTResponse;
+// ===================================
+// OPENAI class
+// ===================================
+constructor TOpenAITranslator.Create(AOwner: Tcomponent);
 begin
-  RESTClient := tRestClient.Create(nil);
-  RESTClient.ContentType := 'application/json';
-  RESTClient.AcceptCharset := 'utf-8, *;q=0.8';
-  RESTClient.HandleRedirects := true;
-  RESTClient.RaiseExceptionOn500 := false;
+  inherited;
+  apiId := 7;
+end;
 
-  RESTResponse := TRESTResponse.Create(nil);
-  RESTResponse.ContentType := 'application/json';
+procedure TOpenAITranslator.SetCredentials(const secretId: string);
+begin
+  fClientSecret := secretId;
+end;
 
-  RESTRequest := TRESTRequest.Create(nil);
-  RESTRequest.method := rmPOST;
-  RESTRequest.Response := RESTResponse;
-  RESTRequest.Client := RESTClient;
-  RESTRequest.AcceptCharset := 'utf-8, *;q=0.8';
-  RESTRequest.Timeout := 30000;
-  RESTRequest.HandleRedirects := true;
+function TOpenAITranslator.parseJSon(content: TJSONValue): string;
+var
+  LStringReader: TStringReader;
+  LJsonReader: TJsonReader;
+begin
+  result := '';
+  LStringReader := TStringReader.Create(content.tostring);
+  LJsonReader := TJsonTextReader.Create(LStringReader);
+  try
+    try
+      while LJsonReader.read do
+        if LJsonReader.path = 'choices[0].message.content' then
+        begin
+          result := content.GetValue<string>(LJsonReader.path);
+          break;
+        end;
+    except
+    end;
+  finally
+    LStringReader.free;
+    LJsonReader.free;
+  end;
+end;
 
-  URL := 'https://api.openai.com/v1/chat/completions';
+function TOpenAITranslator.Translate(Text: string; const source, dest: String; var charCount: integer): string;
+var
+  altParam, URL, sModel, sQuery: string;
+  param: TRESTRequestParameter;
 
-  // Set up REST client and request
-  RESTClient.BaseURL := URL;
+  JSONObject, MessageObj: TJSONObject;
+  JSONArray: TJSONArray;
+begin
+  result := '';
+  charCount := length(Text);
 
+  // Url
+  altParam := trim(apiData.aPreferencesApi.Values['OpenAI_Url']);
+  if altParam <> '' then
+    URL := altParam
+  else
+    URL := apiData.Urldata.Values['OpenAI_ApiURL'];
+
+  // Model
+  altParam := trim(apiData.aPreferencesApi.Values['OpenAI_Model']);
+  if altParam <> '' then
+    sModel := altParam
+  else
+    sModel := apiData.Urldata.Values['OpenAI_Model0'];
+
+  // Query
+  altParam := trim(apiData.aPreferencesApi.Values['OpenAI_Query']);
+  if altParam <> '' then
+    sQuery := altParam
+  else
+    sQuery := apiData.Urldata.Values['OpenAI_DefaultQuery'];
+
+  sQuery := StringReplace(sQuery, '%lang_dest%', dest, [rfReplaceAll]);
+  sQuery := StringReplace(sQuery, '%lang_source%', source, [rfReplaceAll]);
+
+  RESTRequest.Params.Clear;
   RESTRequest.Body.ClearBody;
   RESTRequest.method := rmPOST;
-  // Set up request data
-  RESTRequest.Params.Clear;
-  RESTRequest.Params.AddHeader('Content-Type', 'application/json');
-  RESTRequest.Params.AddHeader('Authorization', 'Bearer openAIKey'); //removed old deprecated key
-  RESTRequest.Params.AddHeader('OpenAI-Organization', 'openAIOrg');
+  RESTClient.BaseURL := URL;
 
-  requestData := TJSONObject.Create;
+  param := RESTRequest.Params.AddHeader('Authorization', 'Bearer ' + fClientSecret);
+  param.Options := [poDoNotEncode];
+
+  // build Json query
+  JSONObject := TJSONObject.Create;
+  MessageObj := TJSONObject.Create;
+  JSONArray := TJSONArray.Create;
   try
-    requestData.AddPair('model', 'gpt-3.5-turbo');
-    requestData.AddPair('prompt', 'Translate the following English text to French: ''Hello, how are you?''');
-    requestData.AddPair('temperature', '0.7');
-    requestData.AddPair('max_tokens', '150');
-    RESTRequest.AddBody(requestData.tostring, ctAPPLICATION_JSON);
-    RESTRequest.Execute;
-    dofeedback(RESTResponse.content);
+    JSONObject.AddPair('model', sModel);
+    MessageObj.AddPair('role', 'user');
+    MessageObj.AddPair('content', sQuery + sstLineBreak + Text);
+    JSONArray.add(MessageObj);
+    JSONObject.AddPair('messages', JSONArray);
+
+    RESTRequest.Params.AddBody(JSONObject.tostring, TRESTContentType.ctAPPLICATION_JSON);
   finally
-    requestData.free;
+    JSONObject.free;
+  end;
+
+  try
+    RESTRequest.Execute;
+    doFeedbackForAPI('Header', 'JSON', RESTResponse.headers.Text, RESTResponse.content);
+    if (RESTResponse.content = '') or (RESTResponse.StatusCode <> 200) then
+      setError(bError, '[error:' + inttostr(RESTResponse.StatusCode) + ']' + #13 + RESTResponse.content)
+    else
+      result := parseJSon(RESTResponse.JSONValue);
+  except
+    on E: exception do
+      setError(bError, getRes('HTTPError') + #13 + E.Message);
   end;
 end;
 

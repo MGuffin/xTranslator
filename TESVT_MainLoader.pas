@@ -198,6 +198,7 @@ function isAlreadyLoaded(filename: string; var index: integer): boolean;
 function isAlreadyLoadedBSA(bsaName, filename: string; var index: integer): boolean;
 function isLoaderOneList(loader: tTranslatorLoader): boolean;
 function getMainLoaderStats(var bEditdata: boolean; bForceOneTree: boolean = true): boolean;
+function MainLoaderStatsOutputRaw(id: integer): integer;
 function isFuzRequired(loader: tTranslatorLoader; current: cardinal): boolean;
 function isFuzLoaded(loader: tTranslatorLoader; current: cardinal): boolean;
 function isFuzCompatible(loader: tTranslatorLoader): boolean;
@@ -210,6 +211,7 @@ function isLoaderUseVMAD(loader: tTranslatorLoader): boolean;
 var
   loaderList: tComboBox;
   MainLoader: tTranslatorLoader;
+  mainLoaderStatRaw: array [0 .. 2] of array [1 .. 6] of integer;
   mainLoaderStat: array [0 .. 2] of array [1 .. 6] of double;
 
 implementation
@@ -237,6 +239,12 @@ begin
     result := -1;
 end;
 
+
+function MainLoaderStatsOutputRaw(id: integer): integer;
+begin
+   result:=mainLoaderStatRaw[0][id]+ mainLoaderStatRaw[1][id]+mainLoaderStatRaw[2][id];
+end;
+
 function getMainLoaderStats(var bEditdata: boolean; bForceOneTree: boolean = true): boolean;
 var
   i, j, k, z: integer;
@@ -252,6 +260,7 @@ begin
     exit;
 
   MainLoader.bStatsAuto := false;
+  fillchar(mainLoaderStatRaw, sizeof(mainLoaderStatRaw), 0);
   fillchar(mainLoaderStat, sizeof(mainLoaderStat), 0);
   fillchar(aTotal, sizeof(aTotal), 0);
 
@@ -275,17 +284,17 @@ begin
       // 2=blue
       // 1=white
       if lockedTrans in tSkyStr(MainLoader.listarray[j][i]).sparams then
-        mainLoaderStat[k][6] := mainLoaderStat[k][6] + 1.0
+       inc(mainLoaderStatRaw[k][6])
       else if inrange(ceil(tSkyStr(MainLoader.listarray[j][i]).LDResult), 1, 25) then
-        mainLoaderStat[k][4] := mainLoaderStat[k][4] + 1.0
+        inc(mainLoaderStatRaw[k][4])
       else if tSkyStr(MainLoader.listarray[j][i]).sparams * [translated .. validated] = [] then
-        mainLoaderStat[k][5] := mainLoaderStat[k][5] + 1.0
+        inc(mainLoaderStatRaw[k][5])
       else if incompleteTrans in tSkyStr(MainLoader.listarray[j][i]).sparams then
-        mainLoaderStat[k][3] := mainLoaderStat[k][3] + 1.0
+        inc(mainLoaderStatRaw[k][3])
       else if validated in tSkyStr(MainLoader.listarray[j][i]).sparams then
-        mainLoaderStat[k][2] := mainLoaderStat[k][2] + 1.0
+        inc(mainLoaderStatRaw[k][2])
       else if translated in tSkyStr(MainLoader.listarray[j][i]).sparams then
-        mainLoaderStat[k][1] := mainLoaderStat[k][1] + 1.0;
+        inc(mainLoaderStatRaw[k][1]);
     end;
   end;
   MainLoader.bStatsUpdated := true;
@@ -298,9 +307,9 @@ begin
   for j := 0 to z do
     for k := 1 to 6 do
     begin
-      if (k > 1) and (mainLoaderStat[j][k] > 0) then
+      if (k > 1) and (mainLoaderStatRaw[j][k] > 0) then
         MainLoader.bStatsAuto := true;
-      mainLoaderStat[j][k] := divide(mainLoaderStat[j][k], aTotal[j]) * 100;
+      mainLoaderStat[j][k] := divide(mainLoaderStatRaw[j][k], aTotal[j]) * 100;
     end;
 
   bEditdata := MainLoader.bStatsAuto;

@@ -93,12 +93,17 @@ Online translation support, the tool can also use:
 
 DeepL: https://www.deepl.com/translator
 MsTranslator: http://www.bing.com/translator
+OpenAI: https://api.openai.com/
 GoogleTranslate(web end point only): https://translate.google.com/ 
 Youdao: https://translate.youdao.com/
 Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.3:
+-Translation API: Added OpenAI support. You need to set the key in the Translation Apis options. You can also adjust the prompt if necessary, the model, and eventually the url. Note: OpenAI limits the number of requests/token per day. 
+-UI: when hovering the translation meter widget you can see a tooltip with the raw numbers of translated/untranslated items.
+
 version 1.5.2 Maintenance update:
 Starfield: Updated new header info version
 UI: updated Spanish UI translation, credit and thanks to Pashalsta.

@@ -2599,10 +2599,6 @@ object Form1: TForm1
           Visible = False
           OnClick = UsageAudit1Click
         end
-        object estOpenAI1: TMenuItem
-          Caption = 'TestOpenAI'
-          OnClick = estOpenAI1Click
-        end
         object FixTES4SNAM1: TMenuItem
           Caption = 'tag_TES4_SNAM'
           OnClick = FixTES4SNAM1Click

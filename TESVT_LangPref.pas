@@ -257,8 +257,7 @@ end;
 
 function TForm3.checkLang: Boolean;
 begin
-  result := (ansilowercase(ComboBox1.Items[ComboBox1.ItemIndex]) <> ansilowercase(sourcelanguage)) or
-    (ansilowercase(ComboBox2.Items[ComboBox2.ItemIndex]) <> ansilowercase(destlanguage));
+  result := (ansilowercase(ComboBox1.Items[ComboBox1.ItemIndex]) <> ansilowercase(sourcelanguage)) or (ansilowercase(ComboBox2.Items[ComboBox2.ItemIndex]) <> ansilowercase(destlanguage));
 end;
 
 procedure TForm3.resetTimer;
@@ -522,7 +521,7 @@ end;
 
 procedure TForm3.Button19Click(Sender: TObject);
 begin
-    Edit13.Text := rxPatternWord;
+  Edit13.Text := rxPatternWord;
 end;
 
 procedure TForm3.Button6Click(Sender: TObject);
@@ -604,8 +603,7 @@ begin
 
     addinfoLine(fbk_Details);
     for j := 0 to 2 do
-      addinfoLine(format('  %s: %s [%s] %s [%s] : %s', [tmpstr, slang, resfoundTag[bfile[j, 0]], dlang, resfoundTag[bfile[j, 1]], resgenTag[ord(b)]]),
-        ord(b) + 1);
+      addinfoLine(format('  %s: %s [%s] %s [%s] : %s', [tmpstr, slang, resfoundTag[bfile[j, 0]], dlang, resfoundTag[bfile[j, 1]], resgenTag[ord(b)]]), ord(b) + 1);
     addinfoLine('');
   finally
     freeStreamArchive(bStream);
@@ -661,5 +659,6 @@ procedure TForm3.Button17Click(Sender: TObject);
 begin
   Memo8.Text := lRulesNoTransListOutDefault;
 end;
+
 
 end.

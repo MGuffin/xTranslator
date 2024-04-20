@@ -4,7 +4,7 @@ object Form3: TForm3
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Set_Options'
-  ClientHeight = 658
+  ClientHeight = 667
   ClientWidth = 665
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,7 +20,7 @@ object Form3: TForm3
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 617
+    Top = 626
     Width = 665
     Height = 41
     Align = alBottom
@@ -84,8 +84,8 @@ object Form3: TForm3
     Left = 0
     Top = 0
     Width = 665
-    Height = 617
-    ActivePage = TabSheet3
+    Height = 626
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 1
     OnChange = PageControl1Change
@@ -1140,7 +1140,7 @@ object Form3: TForm3
       end
       object Label15: TLabel
         Left = 3
-        Top = 280
+        Top = 312
         Width = 255
         Height = 26
         AutoSize = False
@@ -1151,7 +1151,7 @@ object Form3: TForm3
         Left = 3
         Top = 23
         Width = 651
-        Height = 251
+        Height = 283
         Strings.Strings = (
           '=')
         TabOrder = 0
@@ -1168,9 +1168,9 @@ object Form3: TForm3
       end
       object ValueListEditor2: TValueListEditor
         Left = 3
-        Top = 312
+        Top = 360
         Width = 255
-        Height = 265
+        Height = 217
         Strings.Strings = (
           '=')
         TabOrder = 1
@@ -1187,9 +1187,9 @@ object Form3: TForm3
       end
       object Panel5: TPanel
         Left = 264
-        Top = 280
+        Top = 312
         Width = 390
-        Height = 297
+        Height = 265
         BevelOuter = bvLowered
         Caption = 'Panel3'
         TabOrder = 2
@@ -1197,7 +1197,7 @@ object Form3: TForm3
           Left = 1
           Top = 1
           Width = 388
-          Height = 295
+          Height = 263
           BorderStyle = htNone
           DefBackground = clWhite
           DefFontColor = clBlack
@@ -1221,6 +1221,7 @@ object Form3: TForm3
           TabOrder = 0
           Touch.InteractiveGestures = [igPan]
           Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
+          ExplicitHeight = 295
         end
       end
     end

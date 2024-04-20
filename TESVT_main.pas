@@ -409,7 +409,6 @@ type
     MenuCollapseAll1: TMenuItem;
     ApiTransMenu: TMenuItem;
     ToolButton49: TToolButton;
-    estOpenAI1: TMenuItem;
     Panel32: TPanel;
     MemoLog: TRichEdit;
     TimerVocabSearch: TTimer;
@@ -649,7 +648,6 @@ type
     procedure MenuExpandAll1Click(Sender: TObject);
     procedure ApiTransMenuClick(Sender: TObject);
     procedure ToolButton49Click(Sender: TObject);
-    procedure estOpenAI1Click(Sender: TObject);
     procedure TimerVocabSearchTimer(Sender: TObject);
   protected
     procedure WMCommand(var Msg: TMessage); message WM_COMMAND;
@@ -2118,9 +2116,9 @@ end;
 
 procedure TForm1.OpenOptions(tTab: integer);
 var
-  i: integer;
+  i, j: integer;
   bUpdateRes: boolean;
-  oldLangRes: string;
+  oldLangRes, tmpStr: string;
   bUpdateTree: boolean;
   bUpdatederived: boolean;
   bRestartNoPrefs: boolean;
@@ -2170,7 +2168,35 @@ begin
 
   for i := 0 to pred(apiData.aPreferencesApi.count) do
     if pos('Count=', apiData.aPreferencesApi[i]) = 0 then
-      form3.ValueListEditor1.strings.add(apiData.aPreferencesApi[i])
+    begin
+      form3.ValueListEditor1.strings.add(apiData.aPreferencesApi[i]);
+      if pos('OpenAI_Model', apiData.aPreferencesApi[i]) = 1 then
+      begin
+        if trim(form3.ValueListEditor1.Values['OpenAI_Model']) = '' then
+          form3.ValueListEditor1.Values['OpenAI_Model'] := apiData.Urldata.Values['OpenAI_Model0'];
+        form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].EditStyle := esPickList;
+        for j := 0 to 9 do
+        begin
+          tmpStr := apiData.Urldata.Values['OpenAI_Model' + IntToStr(j)];
+          if tmpStr <> '' then
+            form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].PickList.add(tmpStr);
+        end;
+      end
+      else if pos('OpenAI_Query', apiData.aPreferencesApi[i]) = 1 then
+      begin
+        if trim(form3.ValueListEditor1.Values['OpenAI_Query']) = '' then
+          form3.ValueListEditor1.Values['OpenAI_Query'] := apiData.Urldata.Values['OpenAI_DefaultQuery'];
+        form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].EditStyle := esPickList;
+        form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].PickList.add(apiData.Urldata.Values['OpenAI_DefaultQuery']);
+      end
+      else if pos('OpenAI_URL', apiData.aPreferencesApi[i]) = 1 then
+      begin
+        if trim(form3.ValueListEditor1.Values['OpenAI_URL']) = '' then
+          form3.ValueListEditor1.Values['OpenAI_URL'] := apiData.Urldata.Values['OpenAI_ApiURL'];
+        form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].EditStyle := esPickList;
+        form3.ValueListEditor1.ItemProps[form3.ValueListEditor1.strings.count - 1].PickList.add(apiData.Urldata.Values['OpenAI_ApiURL']);
+      end;
+    end
     else
     begin
       form3.ValueListEditor2.strings.add(apiData.aPreferencesApi[i]);
@@ -2726,7 +2752,7 @@ begin
     dofeedback(format('CompressedSizeGain: %.2f Mb', [iCompressedGain / 1000000]), false);
   if (debugError > 0) or (iCompressedRecords > 0) or (iCompressedGain > 0) then
     dofeedback(strSeparator);
-    Memolog.Repaint;
+  MemoLog.Repaint;
   // ---------------
   Application.ProcessMessages;
 end;
@@ -3019,7 +3045,9 @@ begin
   vocabBaselist.free;
   LocalVocabBaseList.free;
   derivedParseList.free;
-
+  lRulesNoTransListIn.free;
+  lRulesNoTransListOut.free;
+  regExUtil.free;
   ClearTmpFiles;
   fuz.free;
   lRegEx_RegEx.free;
@@ -3494,7 +3522,15 @@ begin
     Image1.canvas.lineto(round(i * ((Image1.Width - 1) / 4)), Image1.Height);
   end;
   Image1.canvas.framerect(Rect(0, 0, Image1.Width, Image1.Height));
+
+  image1.Hint:=formatres('hint_statTranslated', [MainLoaderStatsOutputRaw(1)+ MainLoaderStatsOutputRaw(2),
+                                                 MainLoaderStatsOutputRaw(6),
+                                                 MainLoaderStatsOutputRaw(3),
+                                                 MainLoaderStatsOutputRaw(4)+MainLoaderStatsOutputRaw(5)]);
 end;
+
+
+
 
 procedure TForm1.PageControl1Change(Sender: TObject);
 begin
@@ -5936,11 +5972,6 @@ begin
     sMaster: TargetCanvas.Font.Style := [fsBold];
   end;
 
-end;
-
-procedure TForm1.estOpenAI1Click(Sender: TObject);
-begin
-  testOpenAI;
 end;
 
 function getSkID(sk: tskystr): integer;
@@ -10449,7 +10480,7 @@ begin
 
   ilastUsedApiArray := iApiNumber;
   openlog;
-  startStuff(apiData.urlData.Values[aApiBaseName[iApiNumber] + 'Label']);
+  startStuff(apiData.Urldata.Values[aApiBaseName[iApiNumber] + 'Label']);
   chrCount := 0;
   bStringTooLong := false;
 
@@ -13138,7 +13169,7 @@ procedure TForm1.runCommands(rCom: rCommandData; slcommand: tstringlist);
 var
   filename: string;
   cacheResult: tstringlist;
-  tmpstr: string;
+  tmpStr: string;
   s: TStringArray;
   i, j, ApiId: integer;
   bApiNoTrans: boolean;
@@ -13204,9 +13235,9 @@ begin
       try
         for j := 0 to vocabFiles.count - 1 do
         begin
-          tmpstr := ansilowercase(trim(vocabFiles.strings[j]));
-          tmpstr := copy(tmpstr, 9, maxInt);
-          s := Split(tmpstr, '.', 2);
+          tmpStr := ansilowercase(trim(vocabFiles.strings[j]));
+          tmpStr := copy(tmpStr, 9, maxInt);
+          s := Split(tmpStr, '.', 2);
           cacheResult.add(s[0]);
         end;
         LaunchBuildAdvancedCache(cacheResult, true);
