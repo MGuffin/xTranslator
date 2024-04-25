@@ -58,6 +58,7 @@ const
   { https://github.com/jonwd7/bae/blob/master/src/bsa.h }
   BA2HEADER_VERSION_FO4 = $01; // Fallout 4
   BA2HEADER_VERSION_SF = $02; // Fallout 4
+  BA2HEADER_VERSION_FO4B= $08; // Fallout 4
 
 type
   TDynStrings = array of string;
@@ -921,7 +922,7 @@ begin
   if bfStream.ReadSignature <> 'BTDX' then
     raise Exception.Create(bfFileName + ' is not a valid BA2 file');
   bfVersion:= bfStream.ReadCardinal;
-  if not((bfVersion = BA2HEADER_VERSION_FO4) or (bfVersion = BA2HEADER_VERSION_SF)) then
+  if not((bfVersion = BA2HEADER_VERSION_FO4) or (bfVersion = BA2HEADER_VERSION_SF) or (bfVersion = BA2HEADER_VERSION_FO4B)) then
     raise Exception.Create(bfFileName + ' has unknown version: ' + IntToStr(bfVersion));
 
   bfType:= bfStream.ReadSignature;
@@ -1030,7 +1031,7 @@ begin
     raise Exception.Create(bfFileName + ' is not a valid BA2 file');
 
   bfVersion:= bfStream.ReadCardinal;
-  if not((bfVersion = BA2HEADER_VERSION_FO4) or (bfVersion = BA2HEADER_VERSION_SF)) then
+  if not((bfVersion = BA2HEADER_VERSION_FO4) or (bfVersion = BA2HEADER_VERSION_SF) or (bfVersion = BA2HEADER_VERSION_FO4B)) then
     raise Exception.Create(bfFileName + ' has unknown version: ' + IntToStr(bfVersion));
 
   bfType:= bfStream.ReadSignature;

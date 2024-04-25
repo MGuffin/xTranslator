@@ -220,6 +220,7 @@ Google_russian=ru
 Google_chinese=zh-CN
 Google_hungarian=hu
 Google_arabic=ar
+Google_ar=ar
 Google_korean=ko
 Google_thai=th
 Google_en=en

@@ -100,6 +100,10 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.4 quick Maintenance update:
+-fix for the new Fallout4 ba2 archive header.
+-Added the free CreationClub mods in vocabulary list.
+
 version 1.5.3:
 -Translation API: Added OpenAI support. You need to set the key in the Translation Apis options. You can also adjust the prompt if necessary, the model, and eventually the url. Note: OpenAI limits the number of requests/token per day. 
 -UI: when hovering the translation meter widget you can see a tooltip with the raw numbers of translated/untranslated items.
