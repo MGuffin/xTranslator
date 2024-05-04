@@ -2109,7 +2109,7 @@ object Form1: TForm1
         OnClick = Load1Click
       end
       object loadMCMmenu1: TMenuItem
-        Caption = 'Load_MCMmenu'
+        Caption = 'Load_MCMmenu2'
         ImageIndex = 9
         OnClick = loadMCMmenu1Click
       end

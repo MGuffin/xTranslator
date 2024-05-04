@@ -100,6 +100,13 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.5:
+-Custom txt import:Text importing has been rewritten to allow importing custom text files as long as their string definitions are handled on single lines. This applies to Mcm/translate default files, as well as rftp, Skyrim Desc files, and so on. The parsing definition is located in [xTranslator\misc\customTxtDefinition.txt] and can be edited as needed.
+-Starfield: Added new REC:FIELD definitions 
+-Starfield: Added new game esm in the vocabulary list 
+-Fallout76: Added new REC:FIELD definitions
+-UI: Fix for high resolution scaling > 100%.
+
 version 1.5.4 quick Maintenance update:
 -fix for the new Fallout4 ba2 archive header.
 -Added the free CreationClub mods in vocabulary list.

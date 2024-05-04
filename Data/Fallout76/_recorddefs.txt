@@ -48,6 +48,16 @@ Def_:SNAM=CNCY=0
 Def_:ONAM=LVLN=0
 Def_:NNAM=COEN=0
 Def_:LSST=LSCR=0
+
+Def_:PEWR=QUST=0
+Def_:QRWT=QUST=0
+Def_:PBLT=QUST=0
+Def_:PBRT=QUST=0
+Def_:MNAM=CHAL=0
+Def_:NAM0=LOUT=0
+Def_:QMOT=QMDL=0
+
+
 Def_:FULL=IMAD=0?(ignored)
 #
 Def_:DATA=GMST=0-proc1

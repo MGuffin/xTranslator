@@ -30,9 +30,10 @@ unit TESVT_MainLoader;
 
 interface
 
-uses Classes, Controls, sysUtils, Dialogs, StdCtrls, VirtualTrees, comCtrls, math, windows, TESVT_fstreamsave, TESVT_Const,
-  TESVT_Ressources, TESVT_Streams, TESVT_SSTFunc, TESVT_typedef,
-  TESVT_espDefinition, TESVT_FastSearch, TESVT_scriptPex, TESVT_Undo, TESVT_TranslateFunc, TESVT_VMAD, TESVT_QustCTDAUtils;
+uses Classes, Controls, sysUtils, math, Dialogs, StdCtrls, VirtualTrees, comCtrls, windows, TESVT_fstreamsave, TESVT_Const,
+  TESVT_Ressources, TESVT_Streams, TESVT_SSTFunc, TESVT_typedef, TESVT_Utils,
+  TESVT_espDefinition, TESVT_FastSearch, TESVT_scriptPex, TESVT_Undo, TESVT_TranslateFunc, TESVT_VMAD, TESVT_QustCTDAUtils,
+  regularexpressions, regularexpressionscore, RegularExpressionsConsts;
 
 Type
   sLoaderType = (sLoaderTypeNone, sLoaderTypeEsp, sLoaderTypePex, sLoaderTypeStr, sLoaderTypeMCM, sLoaderTypeSST);
@@ -64,6 +65,7 @@ Type
     addon_BSAName: string;
     addon_Folder: string;
     addon_Lang: string;
+    addon_Ext: string;
     addon_Hash: integer;
     addon_inBsa: boolean;
     customSSTName: string;
@@ -101,8 +103,12 @@ Type
     sharedIdList: tlist;
     PexDecompiler: tPexDecompiler;
     EspLoader: tEspLoader;
+    // mcm
     MCMheaderList: tstringlist;
     MCMheaderListCompare: tstringlist;
+    customTextNormalizedList: tstringlist;
+    McmIdType: integer;
+    // -------
     QuestsList: tstringlist;
     LDResultList: tstringlist;
     unusedSSTList: tlist;
@@ -160,6 +166,7 @@ Type
     property usercacheUpdated: boolean read fUserCacheUpdated write setusercacheUpdated;
     function savePex(filename: string; injectList: tstringlist = nil): boolean;
     function saveMCM(filename: string; tlistInject: tstringlist = nil): boolean;
+    function getModOpenTypeLabel: string;
     function testForValidBSAExport(bsaName: string): boolean;
     procedure doApplySst(sstFile: string; proc: tListSortCompare; fProc, fprocVmad, fProcVmadtrans: tCompareProc; bResetTrans, bTagOnly, bApplyStringID: boolean);
     procedure keepOldData(lEdid, lDirect: tlist);
@@ -239,10 +246,9 @@ begin
     result := -1;
 end;
 
-
 function MainLoaderStatsOutputRaw(id: integer): integer;
 begin
-   result:=mainLoaderStatRaw[0][id]+ mainLoaderStatRaw[1][id]+mainLoaderStatRaw[2][id];
+  result := mainLoaderStatRaw[0][id] + mainLoaderStatRaw[1][id] + mainLoaderStatRaw[2][id];
 end;
 
 function getMainLoaderStats(var bEditdata: boolean; bForceOneTree: boolean = true): boolean;
@@ -284,7 +290,7 @@ begin
       // 2=blue
       // 1=white
       if lockedTrans in tSkyStr(MainLoader.listarray[j][i]).sparams then
-       inc(mainLoaderStatRaw[k][6])
+        inc(mainLoaderStatRaw[k][6])
       else if inrange(ceil(tSkyStr(MainLoader.listarray[j][i]).LDResult), 1, 25) then
         inc(mainLoaderStatRaw[k][4])
       else if tSkyStr(MainLoader.listarray[j][i]).sparams * [translated .. validated] = [] then
@@ -315,8 +321,6 @@ begin
   bEditdata := MainLoader.bStatsAuto;
   result := true;
 end;
-
-
 
 function isLoaderHasVMAD(loader: tTranslatorLoader): boolean;
 begin
@@ -539,6 +543,8 @@ begin
   undoList := tlist.create;
   MCMheaderList := tstringlist.create;
   MCMheaderListCompare := tstringlist.create;
+  customTextNormalizedList := tstringlist.create;
+  McmIdType := -1;
   lColabLabel := tstringlist.create;
   fExportStream := tmemoryStream.create;
   UpdateFontSize;
@@ -789,6 +795,7 @@ begin
   lColabLabel.free;
   MCMheaderList.free;
   MCMheaderListCompare.free;
+  customTextNormalizedList.free;
   LDResultList.free;
   unusedSSTList.free;
   sharedIdList.free;
@@ -818,9 +825,9 @@ end;
 function tTranslatorLoader.GetCaption: string;
 begin
   if addon_inBsa then
-    result := format('%s[%s]%s--->%s', [sModChanged[ord(usercacheUpdated)], sModOpenType[ord(loaderType)], addon_BSAName, addon_nameinBSA])
+    result := format('%s[%s]%s--->%s', [sModChanged[ord(usercacheUpdated)], getModOpenTypeLabel, addon_BSAName, addon_nameinBSA])
   else
-    result := format('%s[%s]%s', [sModChanged[ord(usercacheUpdated)], sModOpenType[ord(loaderType)], addon_Name]);
+    result := format('%s[%s]%s', [sModChanged[ord(usercacheUpdated)], getModOpenTypeLabel, addon_Name]);
 end;
 
 // -------Undo----------------->
@@ -1080,7 +1087,7 @@ function tTranslatorLoader.getCleanAddonName(l: boolean): string;
 begin
   result := conditionalCase(RemoveFileExt(addon_Name), l);
   if (LoaderMode = sTESVMCM) then
-    result := result + mcmExt
+    result := result + '_' + CustomTxtParams.getLabel(McmIdType)
   else if (LoaderMode = sTESVPex) then
     result := result + pexExt;
 end;
@@ -1379,30 +1386,51 @@ end;
 
 procedure tTranslatorLoader.parseMCM(f: tstringlist; baselist: tlist; mcmIdList: tstringlist);
 var
-  i, j: integer;
-  tmpid, tmps: string;
+  i, j, refID: integer;
+  tmpid: string;
   sk: tSkyStr;
+  RegEx: tperlRegex;
+  NormalizedString: string;
 begin
-  for i := 0 to f.count - 1 do
-  begin
-    if length(f[i]) = 0 then
-      continue;
-    if bMcmFormat then
-    begin
-      j := pos(#9, f[i]);
-      if f[i][1] <> '$' then
-        continue;
-    end
-    else
-      j := pos(',', f[i]);
+  McmIdType := CustomTxtParams.mcmDecider(f);
+  if McmIdType = -1 then
+    exit;
 
-    if j = 0 then
-      continue;
-    tmpid := copy(f[i], 1, j - 1);
-    mcmIdList.add(tmpid);
-    tmps := copy(f[i], j + 1, maxInt);
-    sk := tSkyStr.init(0, mcmIdList.count - 1, tmps, '', 0, 0, [], [], nil, true);
-    baselist.add(sk);
+  RegEx := tperlRegex.create;
+  RegEx.RegEx := CustomTxtParams.getRegex(McmIdType);
+  refID := CustomTxtParams.getrefId(McmIdType);
+
+  try
+    for i := 0 to f.count - 1 do
+    begin
+      NormalizedString := f[i];
+      tmpid := inttohex(i, 8);
+      if length(f[i]) <> 0 then
+      begin
+        RegEx.subject := f[i];
+        if RegEx.Match then
+        begin
+          for j := RegEx.Groupcount downto 1 do
+          begin
+            if j = refID then
+              tmpid := RegEx.Groups[j]
+            else
+            begin
+              if RegEx.Groups[j] <> '' then
+              begin
+                NormalizedString := MidStrReplace(NormalizedString, '<%' + inttostr(j) + '%>', RegEx.GroupOffsets[j], RegEx.GroupLengths[j]);
+                sk := tSkyStr.init(j, i, RegEx.Groups[j], '', 0, 0, [], [], nil, true); // iId = refn lId = line
+                baselist.add(sk);
+              end;
+            end;
+          end;
+        end
+      end;
+      mcmIdList.add(tmpid);
+      customTextNormalizedList.add(NormalizedString);
+    end;
+  finally
+    RegEx.free;
   end;
 end;
 
@@ -1637,37 +1665,36 @@ end;
 
 // ---compare MCM
 
-function indexOf2(l: tstringlist; s: string): integer;
-var
-  i: integer;
-begin
-  for i := 0 to l.count - 1 do
-  begin
-    if l[i] = s then
-      exit(i);
-  end;
-  result := -1;
-end;
-
 procedure tTranslatorLoader.doCompareMCM(fProc: tCompareProc);
 var
-  i, j: integer;
+  i, j, refID: integer;
   sk, sksst: tSkyStr;
+
+  function indexOf(l: tstringlist; s: string): integer;
+  var
+    i: integer;
+  begin
+    for i := 0 to l.count - 1 do
+      if lowercase(l[i]) = lowercase(s) then
+        exit(i);
+    result := -1;
+  end;
+
 begin
   for i := 0 to LocalVocabBaseList.count - 1 do
   begin
     sksst := LocalVocabBaseList[i];
-    // j:= MCMheaderList.indexof(MCMheaderListCompare[sksst.esp.strId]);
-    j := indexOf2(MCMheaderList, MCMheaderListCompare[sksst.esp.strID]);
-    if inrange(j, 0, listarray[0].count - 1) then
-    begin
-      sk := listarray[0][j];
-      if fProc(sk) then
+    refID := indexOf(MCMheaderList, MCMheaderListCompare[sksst.stringID]);
+    if refID >= 0 then
+      for j := 0 to listarray[0].count - 1 do
       begin
-        sk.strans := sksst.s;
-        sk.resetStatus([incompleteTrans]);
-      end;
-    end;
+        sk := listarray[0][j];
+        if fProc(sk) and (integer(sk.stringID) = refID) and (sk.iId = sksst.iId) then
+        begin
+          sk.strans := sksst.s;
+          sk.resetStatus([incompleteTrans]);
+        end;
+      end
   end;
 end;
 
@@ -1813,6 +1840,14 @@ begin
   end
 end;
 
+function tTranslatorLoader.getModOpenTypeLabel: string;
+begin
+  if ord(loaderType) <> 4 then
+    result := sModOpenType[ord(loaderType)]
+  else
+    result := Uppercase(CustomTxtParams.getLabel(McmIdType));
+end;
+
 function tTranslatorLoader.saveMCM(filename: string; tlistInject: tstringlist = nil): boolean;
 var
   f: tstringlist;
@@ -1823,23 +1858,21 @@ begin
   f := tstringlist.create;
   try
     try
+      f.Assign(customTextNormalizedList);
       for i := 0 to listarray[0].count - 1 do
       begin
         sk := listarray[0][i];
-        if bMcmFormat then
-          f.add(format('%s' + #9 + '%s', [MCMheaderList[sk.esp.strID], sk.strans]))
-        else
-          f.add(format('%s,%s', [MCMheaderList[sk.esp.strID], sk.strans]));
+        f[sk.stringID] := stringreplace(f[sk.stringID], '<%' + inttostr(sk.iId) + '%>', sk.strans, []);
       end;
+
       if assigned(tlistInject) then
       begin
-        f.SaveToStream(fExportStream, TEncoding.Unicode);
+        f.SaveToStream(fExportStream, CustomTxtParams.getEncoding(McmIdType));
         tlistInject.AddObject(filename, tObject(fExportStream));
       end
-      else if bMcmFormat then
-        f.SaveToFile(filename, TEncoding.Unicode)
       else
-        f.SaveToFile(filename, TEncoding.utf8);
+        f.SaveToFile(filename, CustomTxtParams.getEncoding(McmIdType));
+
       result := true;
     except
       On E: Exception do

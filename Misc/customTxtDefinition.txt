@@ -1,0 +1,53 @@
+#CustomTypeRegex_1=(\$.+)\t(.+)		regex for parsing each line of the text file.
+#CustomTypeLabel_1=mcm				label of the txt (also used as a suffixe for dictionary
+#CustomTypeEncoding_1=Unicode		encoding for output. for now only unicode and utf8 are supported.
+#CustomTypeBackrefID_1=1			indicate the backref for the string ID (first index is 1. if 0, there is no string ID)
+#CustomTypeRestrictExt_1=.txt		not used for now
+#CustomTypeIsFallback_1=false		define if the pattern is the fallback if no pattern in the list can match.
+#CustomTypeSaveLangSuffixe_1=true	if true, rebuild the output name with the target language suffixe (ex: mcmcfile_en.txt)		
+#---------
+SupportedTxtExt=*.txt;*.ini;*.csv 
+#---------
+CustomTypeCount=5
+#---------
+CustomTypeRegex_1=^(\$.+)\t(.+)$
+CustomTypeLabel_1=mcm
+CustomTypeEncoding_1=Unicode
+CustomTypeBackrefID_1=1
+CustomTypeRestrictExt_1=.txt
+CustomTypeSaveLangSuffixe_1=true
+CustomTypeIsFallback_1=false
+#---------
+#CustomTypeRegex_2=^(?!#)(\S+?)=(.+)$
+CustomTypeRegex_2=^(?!#)(.+?)=(.+)$
+CustomTypeLabel_2=res
+CustomTypeEncoding_2=Utf8
+CustomTypeBackrefID_2=1
+CustomTypeRestrictExt_2=.ini
+CustomTypeSaveLangSuffixe_2=false
+CustomTypeIsFallback_2=false
+#---------
+CustomTypeRegex_3=^(?!#)(.+~[0-9a-fA-F]+)\|.*?name\("(.+?)"\)(?:\|.*?name\("(.+?)"\))?
+CustomTypeLabel_3=rftp
+CustomTypeEncoding_3=Utf8
+CustomTypeBackrefID_3=1
+CustomTypeRestrictExt_3=.txt
+CustomTypeSaveLangSuffixe_3=false
+CustomTypeIsFallback_3=false
+#---------
+CustomTypeRegex_4=^(0x.+~[^\|]+)\|([^\|]+)
+CustomTypeLabel_4=descfw
+CustomTypeEncoding_4=Utf8
+CustomTypeBackrefID_4=1
+CustomTypeRestrictExt_4=.txt
+CustomTypeSaveLangSuffixe_4=false
+CustomTypeIsFallback_4=false
+#-----fallback: catch each line directly--------
+CustomTypeRegex_5=^(.*)$
+CustomTypeLabel_5=Generic
+CustomTypeEncoding_5=Utf8
+CustomTypeBackrefID_5=0
+CustomTypeRestrictExt_5=*
+CustomTypeSaveLangSuffixe_5=false
+CustomTypeIsFallback_5=true
+

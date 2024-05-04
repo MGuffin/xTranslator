@@ -327,6 +327,7 @@ type
     procedure adjustData;
   end;
 
+
 var
   focusedNode: rfocusedNode;
   searchdata: rSearchData;
@@ -401,6 +402,7 @@ function getTmpDialInfo(id: Cardinal; response: integer): rDialInfo;
 implementation
 
 uses TESVT_FastSearch;
+
 
 function getDummyDialInfo: rDialInfo;
 begin

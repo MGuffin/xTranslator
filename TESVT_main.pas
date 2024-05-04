@@ -784,7 +784,7 @@ type
     procedure buildRecentmenu;
     procedure FinalizeEsp(folder, filename: string; doNotRename: boolean);
     procedure FinalizeStrings(folder, filename: string);
-    procedure FinalizeMCM(folder, filename: string; bOriginalName: boolean);
+    procedure FinalizeMCM(folder, filename: string; bOriginalName, doNotRename: boolean);
     procedure FinalizePex(folder, filename: string; doNotRename: boolean);
     procedure getStringTextDirect;
     procedure getStringText(doValid: boolean; forcedFocus: tskystr = nil; const newstring: string = '');
@@ -828,7 +828,7 @@ type
     procedure openAddonCommandLine(filename: string);
     procedure loadMCM(filename: string; savefolder: boolean);
     function doloadMCM(filename: string; savefolder: boolean): integer;
-    function loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang: string; baselist: tlist; mcmIdList: tstringlist): boolean;
+    function loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; mcmIdList: tstringlist): boolean;
     function loadAddonMCMbsa(loader: tTranslatorLoader; bsa: string; baselist: tlist; mcmIdList: tstringlist; bGetAddondata: boolean = true): boolean;
     function browseArchive(var bStream: TObject; const bsafile, fLabelParam: string; const aFolder, aExt: array of string; var filesToLoad: tstringlist; var discardPex: boolean;
       bAllowMulti: boolean = true): boolean;
@@ -1072,7 +1072,7 @@ begin
     importSSTDirect(filename)
   else if (ext = '.xml') then
     importXMLDirect(filename)
-  else if (ext = '.txt') then
+  else if CustomTxtParams.isValidTxtExt(ext) then
     loadMCM(filename, false)
   else if (ext = '.esp') or (ext = '.esm') or (ext = '.esl') then
     loadSingleEsp(filename, false, true)
@@ -1379,6 +1379,8 @@ begin
   lBSAAlias := tstringlist.create;
   lScriptdef := tstringlist.create;
   defUIoptions := tstringlist.create;
+
+  CustomTxtParams := tcustomtxt.create(loadStringList(mainpath + miscPath + customTxtDefinition, false));
 
   // prefs
   loadprefs(mainpath + CURRENT_PREFS_SUBFOLDER, mainpath + CURRENT_PREFS_SUBFOLDER + USERPREFS_FILE, false);
@@ -3085,6 +3087,7 @@ begin
   lBSAAlias.free;
   lDEFUIIgnore.free;
   defUIoptions.free;
+  CustomTxtParams.free;
   Lock.free;
   espTree.clear; // Must be at the end
   bDataClosed := true;
@@ -3456,7 +3459,7 @@ begin
     exit;
   end;
   ext := ansilowercase(extractFileExt(r.fNameFull));
-  if (ext = '.txt') then
+  if CustomTxtParams.isValidTxtExt(ext) then
     loadMCM(r.fNameFull, false)
   else if (ext = '.esp') or (ext = '.esm') or (ext = '.esl') then
     loadSingleEsp(r.fNameFull, false, true)
@@ -3523,14 +3526,9 @@ begin
   end;
   Image1.canvas.framerect(Rect(0, 0, Image1.Width, Image1.Height));
 
-  image1.Hint:=formatres('hint_statTranslated', [MainLoaderStatsOutputRaw(1)+ MainLoaderStatsOutputRaw(2),
-                                                 MainLoaderStatsOutputRaw(6),
-                                                 MainLoaderStatsOutputRaw(3),
-                                                 MainLoaderStatsOutputRaw(4)+MainLoaderStatsOutputRaw(5)]);
+  Image1.Hint := formatres('hint_statTranslated', [MainLoaderStatsOutputRaw(1) + MainLoaderStatsOutputRaw(2), MainLoaderStatsOutputRaw(6), MainLoaderStatsOutputRaw(3),
+    MainLoaderStatsOutputRaw(4) + MainLoaderStatsOutputRaw(5)]);
 end;
-
-
-
 
 procedure TForm1.PageControl1Change(Sender: TObject);
 begin
@@ -3543,7 +3541,7 @@ var
 begin
   if (currentTesvMode = sTESVMcM) then
   begin
-    filename := OpenFileDialog('', Game_EspCompareFolder, '', getRes('FilterMCM2|*.TXT; *.BSA; *.BA2'));
+    filename := OpenFileDialog('', Game_EspCompareFolder, '', formatres('FilterMCM3%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
     if (filename = '') then
       exit;
     if not FileExists(filename) then
@@ -4776,7 +4774,7 @@ begin
   end;
 end;
 
-function renameEsp(filename: string): boolean;
+function makeBackup(filename: string): boolean;
 var
   f: file;
   basename: string;
@@ -4830,10 +4828,10 @@ begin
     FinalizePex(MainLoader.addon_folder, MainLoader.addon_name, false)
   else if currentTesvMode = sTESVMcM then
   begin
-    if TESVTSameLanguage then
-      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_Filename, true)
+    if TESVTSameLanguage or (MainLoader.addon_Lang = '') or (not CustomTxtParams.useSuffixe(MainLoader.McmIdType)) then
+      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_Filename, true, false)
     else
-      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_name, false)
+      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_name, false, false)
   end
   else if TESVTmodSaveEsp then
   begin
@@ -4856,6 +4854,7 @@ procedure TForm1.Save2Click(Sender: TObject);
 var
   filename: string;
   tmpFolder, tmpFilename: string;
+  bskipSuffixe:boolean;
 begin
   // closing editWindows
   form2.valideStringChange(false, true, true, [validated]);
@@ -4873,15 +4872,16 @@ begin
   begin
     // creating the  directory if necessary
     ForceDirectories(MainLoader.addon_folder);
+    bskipSuffixe :=  TESVTSameLanguage or (MainLoader.addon_Lang = '') or (not CustomTxtParams.useSuffixe(MainLoader.McmIdType));
 
-    if TESVTSameLanguage then
+    if bskipSuffixe then
       tmpFilename := extractFileName(MainLoader.addon_Filename)
     else
       tmpFilename := MainLoader.addon_name;
 
-    filename := SaveFileDialog(getRes('Dia_SaveMCMAs'), MainLoader.addon_folder, tmpFilename, txtFilter);
+    filename := SaveFileDialog(getRes('Dia_SaveMCMAs'), MainLoader.addon_folder, tmpFilename, formatres('FilterTXT2%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
     if filename <> '' then
-      FinalizeMCM(ExtractFilePath(filename), extractFileName(filename), TESVTSameLanguage)
+      FinalizeMCM(ExtractFilePath(filename), extractFileName(filename), bskipSuffixe, true);
   end
   else if TESVTmodSaveEsp then
   begin
@@ -4974,7 +4974,7 @@ begin
   ForceDirectories(folder);
   if FileExists(folder + filename) then
     okSave := askDialog(formatres('Fbk_FinalizeConfirm', [folder + filename, tag]), Form1, 3, true, [askYes, askNo]) = mrYes;
-  if okSave and (doNotRename or renameEsp(folder + filename)) then
+  if okSave and (doNotRename or makeBackup(folder + filename)) then
   begin
     startStuff(getRes('Fbk_Saveesp'));
     MainLoader.updateAllRecords;
@@ -4986,7 +4986,7 @@ begin
   end;
 end;
 
-procedure TForm1.FinalizeMCM(folder, filename: string; bOriginalName: boolean);
+procedure TForm1.FinalizeMCM(folder, filename: string; bOriginalName, doNotRename: boolean);
 var
   okSave: boolean;
   tag: string;
@@ -4994,6 +4994,7 @@ var
 begin
   okSave := true;
   iGlobalLastError := 0;
+
   if bOriginalName then
     tmpOutput := folder + extractFileName(filename)
   else
@@ -5001,7 +5002,8 @@ begin
 
   if FileExists(tmpOutput) and not bSuspendstringwarning then
     okSave := askDialog(formatres('Fbk_FinalizeConfirm', [tmpOutput, tag]), Form1, 4, true, [askYes, askNo]) = mrYes;
-  if okSave then
+
+  if okSave and (bSuspendstringwarning or makeBackup(tmpOutput)) then
   begin
     ForceDirectories(folder); // creating the string directory if necessary
     startStuff(getRes('Fbk_SaveMCM'));
@@ -5030,7 +5032,7 @@ begin
   if FileExists(folder + filename) then
     okSave := askDialog(formatres('Fbk_FinalizeConfirm', [filename, tag]), Form1, 5, true, [askYes, askNo]) = mrYes;
 
-  if okSave and (doNotRename or renameEsp(folder + filename)) then
+  if okSave and (doNotRename or makeBackup(folder + filename)) then
   begin
     ForceDirectories(folder); // creating the string directory if necessary
     startStuff(getRes('Fbk_SavePex'));
@@ -8806,7 +8808,7 @@ procedure TForm1.loadMCMmenu1Click(Sender: TObject);
 var
   filename: string;
 begin
-  filename := OpenFileDialog('', Game_TXTFolder, '', getRes('FilterTXT|*.TXT'));
+  filename := OpenFileDialog('', Game_TXTFolder, '', formatres('FilterTXT2%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
   if (filename = '') then
     exit;
   if not FileExists(filename) then
@@ -8851,10 +8853,12 @@ begin
       r := parseFileNameData(filename);
       currentloader.addon_folder := r.fPathSlash;
       currentloader.addon_Lang := r.fLang;
+      currentloader.addon_Ext := r.fExt;
       currentloader.addon_name := r.fNameStrict;
       currentloader.addon_Fullpath := filename;
       updateStatus(currentloader.addon_name);
-      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.listArray[0], currentloader.MCMheaderList);
+      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.addon_Ext, currentloader.listArray[0],
+        currentloader.MCMheaderList);
 
     except
       On E: Exception do
@@ -8866,7 +8870,7 @@ begin
     begin
       loaderList.items.AddObject(currentloader.getcaption, currentloader);
       currentloader.fLoaderMode := sTESVMcM;
-      recentMenuUpdate(filename, 3);
+      recentMenuUpdate(filename, 1);
       if savefolder then
         Game_TXTFolder := currentloader.addon_folder;
       dofeedback(currentloader.addon_name);
@@ -8925,7 +8929,7 @@ begin
   end;
 end;
 
-function TForm1.loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang: string; baselist: tlist; mcmIdList: tstringlist): boolean;
+function TForm1.loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; mcmIdList: tstringlist): boolean;
 var
   f: tstringlist;
 begin
@@ -8933,10 +8937,10 @@ begin
   f := tstringlist.create;
   try
     try
-      if bMcmFormat then
-        f.loadfromfile(format('%s%s_%s.txt', [folder, filename, lang]))
+      if lang <> '' then
+        f.loadfromfile(format('%s%s_%s%s', [folder, filename, lang, ext]))
       else
-        f.loadfromfile(format('%s%s_%s.txt', [folder, filename, lang]), TEncoding.UTF8);
+        f.loadfromfile(format('%s%s%s', [folder, filename, ext]));
       loader.parseMCM(f, baselist, mcmIdList);
       Result := true;
     except
@@ -8967,10 +8971,10 @@ begin
       begin
         b := loadAddonMCMbsa(MainLoader, filename, LocalVocabBaseList, MainLoader.MCMheaderListCompare, false);
       end
-      else if tmpExt = '.txt' then
+      else if CustomTxtParams.isValidTxtExt(tmpExt) then
       begin
         r := parseFileNameData(filename);
-        b := loadAddonMCM(MainLoader, r.fPathSlash, r.fNameStrict, r.fLang, LocalVocabBaseList, MainLoader.MCMheaderListCompare);
+        b := loadAddonMCM(MainLoader, r.fPathSlash, r.fNameStrict, r.fLang, r.fExt, LocalVocabBaseList, MainLoader.MCMheaderListCompare);
       end;
 
       if b then

@@ -44,8 +44,7 @@ function SwapEndian32f(i, Value: single): single;
 function SwapEndian16u(i, Value: word): word;
 function Explode(const S: string; out a: sArray; separator: char): integer;
 function GetBit(const aValue: cardinal; const Bit: Byte): Boolean;
-Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean;
-  var process: cardinal): Boolean;
+Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean; var process: cardinal): Boolean;
 procedure decPositive(var i: integer);
 function GetStringProxy(gs, gTrans: string): integer;
 procedure ClearTmpFiles;
@@ -54,8 +53,14 @@ function getbyteCount(encoding: word; S: string): integer;
 function getEncodingString(encoding: word; S: tbytes): string;
 function getEncodingTBytes(encoding: word; S: string): tbytes;
 procedure RandomizeListOrder(var List: TstringList);
+function MidStrReplace(sInput, sReplace: string; iOffset, iLength: integer): string;
 
 implementation
+
+function MidStrReplace(sInput, sReplace: string; iOffset, iLength: integer): string;
+begin
+  result := copy(sInput, 1, iOffset - 1) + sReplace + copy(sInput, iOffset + iLength, length(sInput));
+end;
 
 function getEncodingTBytes(encoding: word; S: string): tbytes;
 var
@@ -143,8 +148,6 @@ begin
     i := 0;
 end;
 
-
-
 function GetBit(const aValue: cardinal; const Bit: Byte): Boolean;
 begin
   result := (aValue and (1 shl Bit)) <> 0;
@@ -180,7 +183,7 @@ begin
   begin
     if S[iStr] = separator then
     begin
-      a[result] := Copy(S, iBegin, iLen);
+      a[result] := copy(S, iBegin, iLen);
       Inc(result);
       iBegin := iStr + 1;
       iLen := 0;
@@ -190,7 +193,7 @@ begin
   end;
 
   if result < length(a) then
-    a[result] := Copy(S, iBegin, MaxInt);
+    a[result] := copy(S, iBegin, MaxInt);
 end;
 
 function AddQuotesIfNeeded(const S: String): String;
@@ -201,8 +204,7 @@ begin
     result := S;
 end;
 
-Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean;
-  var process: cardinal): Boolean;
+Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean; var process: cardinal): Boolean;
 Var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
@@ -335,11 +337,9 @@ begin
   Bytes(result)[1] := Bytes(Value)[0];
 end;
 
-
-
 procedure RandomizeListOrder(var List: TstringList);
 var
-  Index, Item: Integer;
+  Index, Item: integer;
 begin
   Randomize;
   for Index := List.Count - 1 downto 1 do
@@ -348,6 +348,5 @@ begin
     List.Exchange(Index, Item);
   end;
 end;
-
 
 end.

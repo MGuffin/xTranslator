@@ -33,7 +33,7 @@ interface
 {$I _config.inc}
 
 uses forms, classes, virtualtrees, stdCtrls, ExtCtrls, types, math, graphics, Menus, Dialogs, windows, registry, sysutils, ComCtrls, stdActns,
-  controls, TESVT_Dialog, HTMLUn2, HtmlView, regularexpressions, TESVT_Startup, TESVT_Input, FolderUtil;
+  controls, TESVT_Dialog, HTMLUn2, HtmlView, regularexpressions, RegularExpressionsCore, TESVT_Startup, TESVT_Input, FolderUtil;
 
 type
   sHeaderSig = array [0 .. 3] of AnsiChar;
@@ -93,6 +93,40 @@ type
     iCompoDataSize: integer;
   end;
 
+  rcustomTxtDefinition = record
+    sRegex: string;
+    sLabel: string;
+    eEncoding: tencoding;
+    sRestrictExt: string;
+    bRestrictExt: boolean;
+    bIsFallback: boolean;
+    iIdBackref: integer;
+    bUseSaveLangSuffixe: boolean;
+    stats: integer;
+  end;
+
+  pcustomTxtDefinition = ^rcustomTxtDefinition;
+
+  tCustomTxt = class
+  private
+    lCustomTxtParamList: tlist;
+    ifallback: integer;
+    procedure incStat(i: integer);
+    procedure resetstat;
+  public
+    sCustomExtList: string;
+    constructor Create(l: tstringList);
+    destructor Destroy; override;
+    function getRegex(i: integer): string;
+    function getrefId(i: integer): integer;
+    function getLabel(i: integer): string;
+    function getEncoding(i: integer): tencoding;
+    function mcmDecider(f: tstringList): integer;
+    function isValidTxtExt(ext: string): boolean;
+    function isFallback(i: integer): boolean;
+    function useSuffixe(i: integer): boolean;
+  end;
+
 const
   // ============================================================
   basePROG_NAME: string = 'xTranslator';
@@ -102,7 +136,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.4';
+  aPROG_CURRENTVERSION = 'v1.5.5';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -183,14 +217,14 @@ const
   bDevDontInjectAllScripts: boolean = true; // if true, don't try to inject scripts with no editable strings.
   bWarnForUnconsistentFormIDVersion: boolean = false; // if true, shows a warning if some records version doesnt match the master version.
   bAskQuickLoad: boolean = false; // true to open a quick forcecodepage on wrong workSpace
-  bMcmFormat: boolean = true; // false to use Csv parsing (devtest)
+  // bMcmFormat: boolean = true; // false to use Csv parsing (devtest)
   bReadDoFUtf8Fallback: boolean = true; // Activate the Utf8Fallback
   bTagBatchedFiles: boolean = true; // tag Esp files that have been bathced in the wizard
   bAnalyzeOrphanString = false; // set to true to activate orphan loop search (enter data in getFieldfromBuffer function in espDefinition.pas
-  cOrphanID1: cardinal = $004002; // enter here value of string ID to search. Occurence 1
-  cOrphanID2: cardinal = $0300BF; // enter here value of string ID to search. Occurence 2
-  cOrphanID3: cardinal = $00B74B; // enter here value of string ID to search. Occurence 3
-  cOrphanID4: cardinal = $00BC3F; // enter here value of string ID to search. Occurence 4
+  cOrphanID1: cardinal = $6100F297; // enter here value of string ID to search. Occurence 1
+  cOrphanID2: cardinal = $6100F298; // enter here value of string ID to search. Occurence 2
+  cOrphanID3: cardinal = $39294874; // enter here value of string ID to search. Occurence 3
+  cOrphanID4: cardinal = $610120A0; // enter here value of string ID to search. Occurence 4
   AUTH_SAME_LANGUAGE_EDITING = true; // authorize samelanguage dictionaries
 
 var
@@ -230,12 +264,21 @@ const
   HeaderWizardIni = 'HeaderWizard.ini';
   wordExceptionFile = 'ToolBox_WordExceptions.txt';
   HeaderProcessorFolder = 'HeaderProcessor\';
+  customTxtDefinition = 'customTxtDefinition.txt';
+
   // ----------------------------------
   STARTUP_INI_VALUES: array [0 .. 8] of String = ('Fallout4', 'Skyrim', 'FalloutNV', 'LastUsed', 'AskDialog', 'ExeName', 'SkyrimSE', 'Fallout76', 'Starfield');
   STARTUP_INI_VALUES_BYGAME: array [0 .. 5] of integer = (0, 1, 2, 6, 7, 8);
   CURRENT_GAME_ID_ICON: array [0 .. 5] of integer = (63, 64, 65, 70, 81, 30);
   // ----------------------------------
 
+  CustomTxtParser2: array [0 .. 3] of array [1 .. 4] of string = ( //
+    ('(\$.+)\t(.+)', 'mcm', 'Unicode', '1'), // ---
+    ('^(?!#)(.+?)=(.+)$', 'res', 'Utf8', '1'), //
+    ('^(.+~[0-9a-fA-F]+?)\|name\("(.+)"\)$', 'rftp', 'Utf8', '1'), // --
+    ('^(0x.+~[^\|]+)\|([^\|]+)', 'descfw', 'Utf8', '1')); // --
+
+  // ----------------
   sstreadme = '..\common\sstreadme.htm';
   sstDocManual = 'manual.htm';
   HTM_HEADER = 'header.tpl';
@@ -577,6 +620,9 @@ var
   iGlobalLastError: integer = 0;
   bAutocloseWithWizard: boolean = true;
 
+  // -----------------
+  CustomTxtParams: tCustomTxt;
+
   bAllowDirectEdit: boolean = true; // Allow editing directly inthe main tree view
   bAllowDirectEditCtrl: boolean = true; // Use Ctrl for direct edit in the main tree view (if false ctrl is used for opening the edit window)
   // -----------------------------
@@ -653,6 +699,7 @@ var
   lDEFUIHeader: tstringList;
   lfileusingVMAD: tstringList;
   lDEFUIIgnore: tstringList;
+
   // ---------------------------
   bHeuristicListValidated: boolean = false;
   // ----------------------------
@@ -844,9 +891,9 @@ function atleast(const value, atleast: integer): integer;
 function GetParentDirectory(path: string): string;
 function authFileAccess(filename: TFileName): boolean;
 function authFileAccessRW(filename: TFileName): boolean;
-function GetFileSize(const filename: TFileName): Int64;
-procedure writeFileVsCache(filename: string; size: Int64);
-function verifyFileVsCache(addonFullpath, filename: string; var bCanBeCached: boolean; var fSize: Int64): boolean;
+function GetFileSize(const filename: TFileName): int64;
+procedure writeFileVsCache(filename: string; size: int64);
+function verifyFileVsCache(addonFullpath, filename: string; var bCanBeCached: boolean; var fSize: int64): boolean;
 function conditionalCase(s: string; l: boolean): string;
 function doAddonHash(const addon, v: cardinal): cardinal;
 function cleanForbiddenChar(s: string): string;
@@ -961,6 +1008,183 @@ implementation
 
 uses TESVT_Ressources;
 
+constructor tCustomTxt.Create(l: tstringList);
+var
+  i, nbParam: integer;
+  strtmp: string;
+  p: pcustomTxtDefinition;
+begin
+  // ----------------
+  lCustomTxtParamList := tlist.Create;
+  sCustomExtList := (l.Values['SupportedTxtExt']);
+
+  nbParam := strtointdef(l.Values['CustomTypeCount'], 0);
+
+  for i := 1 to nbParam do
+  begin
+    new(p);
+    lCustomTxtParamList.Add(p);
+    p.sRegex := l.Values[format('CustomTypeRegex_%d', [i])];
+    p.sLabel := l.Values[format('CustomTypeLabel_%d', [i])];
+    p.sRestrictExt := l.Values[format('CustomTypeRestrictExt_%d', [i])];
+    p.bRestrictExt := p.sRestrictExt <> '*';
+    strtmp := l.Values[format('CustomTypeEncoding_%d', [i])];
+    if lowercase(strtmp) = 'unicode' then
+      p.eEncoding := tencoding.unicode
+    else
+      p.eEncoding := tencoding.UTF8;
+    p.iIdBackref := strtointdef(l.Values[format('CustomTypeBackrefID_%d', [i])], 0);
+    p.bIsFallback := strtobooldef(l.Values[format('CustomTypeIsFallback_%d', [i])], false);
+    p.bUseSaveLangSuffixe := strtobooldef(l.Values[format('CustomTypeSaveLangSuffixe_%d', [i])], false);
+
+
+  end;
+  // define fallback
+  for i := 0 to lCustomTxtParamList.Count - 1 do
+  begin
+    p := lCustomTxtParamList[i];
+    if p.bIsFallback then
+    begin
+      ifallback := i;
+      break;
+    end;
+  end;
+
+  l.Free;
+end;
+
+destructor tCustomTxt.Destroy;
+var
+  i: integer;
+begin
+  // ----------------
+  for i := 0 to lCustomTxtParamList.Count - 1 do
+    dispose(pcustomTxtDefinition(lCustomTxtParamList[i]));
+  lCustomTxtParamList.Free;
+  inherited;
+end;
+
+function tCustomTxt.isValidTxtExt(ext: string): boolean;
+begin
+  result := pos(ext, sCustomExtList) > 0;
+end;
+
+function tCustomTxt.isFallback(i: integer): boolean;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.bIsFallback;
+end;
+
+function tCustomTxt.getRegex(i: integer): string;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.sRegex;
+end;
+
+function tCustomTxt.useSuffixe(i: integer): boolean;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.bUseSaveLangSuffixe;
+end;
+
+function tCustomTxt.getrefId(i: integer): integer;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.iIdBackref;
+end;
+
+function tCustomTxt.getEncoding(i: integer): tencoding;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.eEncoding;
+end;
+
+function tCustomTxt.getLabel(i: integer): string;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  result := p.sLabel;
+end;
+
+procedure tCustomTxt.incStat(i: integer);
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  inc(p.stats);
+end;
+
+procedure tCustomTxt.resetstat;
+var
+  i: integer;
+begin
+  for i := 0 to lCustomTxtParamList.Count - 1 do
+    pcustomTxtDefinition(lCustomTxtParamList[i]).stats := 0;
+end;
+
+function tCustomTxt.mcmDecider(f: tstringList): integer;
+var
+  i, j, m: integer;
+  RegEx: tperlRegex;
+begin
+  result := -1;
+  if lCustomTxtParamList.Count = 0 then
+    exit;
+
+  CustomTxtParams.resetstat;
+  RegEx := tperlRegex.Create;
+  try
+    for j := 0 to lCustomTxtParamList.Count - 1 do
+    begin
+      if not isFallback(j) then
+      begin
+        RegEx.RegEx := getRegex(j);
+
+        for i := 0 to f.Count - 1 do
+        begin
+          RegEx.subject := f[i];
+          if RegEx.Match then
+            incStat(j);
+          if i > 20 then
+            break;
+        end;
+      end;
+    end;
+
+    m := pcustomTxtDefinition(lCustomTxtParamList[0]).stats;
+    for i := 1 to lCustomTxtParamList.Count - 1 do
+      if m < pcustomTxtDefinition(lCustomTxtParamList[i]).stats then
+        m := pcustomTxtDefinition(lCustomTxtParamList[i]).stats;
+
+    if m = 0 then
+      result := ifallback
+    else
+    begin
+      for i := 0 to lCustomTxtParamList.Count - 1 do
+        if pcustomTxtDefinition(lCustomTxtParamList[i]).stats = m then
+        begin
+          result := i;
+          break;
+        end;
+    end;
+  finally
+    RegEx.Free;
+  end;
+end;
+
+// ------------------------
+
 function RemoveChar(const aString: string): string;
 var
   slen, i: integer;
@@ -979,7 +1203,7 @@ var
   i: integer;
 begin
   with l do
-    for i := items.count - 1 downto 0 do
+    for i := items.Count - 1 downto 0 do
       if selected[i] then
         items.delete(i);
 end;
@@ -1025,13 +1249,13 @@ end;
 function get_uPath_in_registryEx(path, key: string): string;
 begin
   result := '';
-  With TRegistry.create Do
+  With TRegistry.Create Do
     Try
       RootKey := HKEY_LOCAL_MACHINE;
       if OpenKeyreadonly(path) then
         result := ReadString(key);
     Finally
-      free;
+      Free;
     End;
 end;
 
@@ -1115,7 +1339,7 @@ end;
 
 function localInput(const title, info, default: string): string;
 begin
-  formInput := tformInput.create(application);
+  formInput := tformInput.Create(application);
   formInput.caption := title;
   formInput.Label1.caption := info;
   formInput.edit1.text := default;
@@ -1123,7 +1347,7 @@ begin
     result := formInput.edit1.text
   else
     result := default;
-  formInput.free;
+  formInput.Free;
 end;
 
 procedure LaunchSearchTimer;
@@ -1197,11 +1421,11 @@ begin
 
   fallbackResult := getResFallback(SSTFallback);
   if bRessourceFallBackFeedback then
-    for i := 0 to fallbackResult.count - 1 do
+    for i := 0 to fallbackResult.Count - 1 do
       doFeedback('UIFallback found for: ' + fallbackResult[i]);
   // -free tmp stuff
-  fallbackResult.free;
-  SSTFallback.free;
+  fallbackResult.Free;
+  SSTFallback.Free;
 end;
 
 function loadStringList(f: string; sorted: boolean; clean: byte = 0): tstringList;
@@ -1213,7 +1437,7 @@ end;
 procedure loadStringListEx(var l: tstringList; f: string; sorted: boolean; clean: byte = 0);
 begin
   if not assigned(l) then
-    l := tstringList.create
+    l := tstringList.Create
   else
     l.Clear;
   if sorted then
@@ -1238,7 +1462,7 @@ end;
 function secureSavetStringList(l: tstringList; filename: string): boolean;
 begin
   try
-    l.SaveToFile(filename, TEncoding.UTF8);
+    l.SaveToFile(filename, tencoding.UTF8);
     result := true;
   except
     result := false;
@@ -1299,7 +1523,7 @@ var
 begin
   result := 0;
   for j := 0 to 2 do
-    result := result + aList[j].count;
+    result := result + aList[j].Count;
 end;
 
 function cIsDigit(c: char): boolean;
@@ -1623,7 +1847,7 @@ end;
 
 procedure setGameByDialog;
 begin
-  formStartup := tformStartup.create(nil);
+  formStartup := tformStartup.Create(nil);
   formStartup.caption := basePROG_NAME;
   formStartup.button1.caption := STARTUP_INI_VALUES[0];
   formStartup.button2.caption := STARTUP_INI_VALUES[1];
@@ -1658,7 +1882,7 @@ begin
         setGameEx(5);
       end;
   end;
-  formStartup.free;
+  formStartup.Free;
 end;
 
 function setGameByExe: boolean;
@@ -1740,7 +1964,7 @@ end;
 function GetDirectory(title, s: string): string;
 begin
   result := s;
-  with TBrowseForFolder.create(nil) do
+  with TBrowseForFolder.Create(nil) do
     try
       BrowseOptions := BrowseOptions + [bifStatusText, bifUseNewUI];
       caption := title;
@@ -1749,7 +1973,7 @@ begin
       if Execute then
         result := cleanString(folder, '\') + '\'
     finally
-      free;
+      Free;
     end;
 end;
 
@@ -1758,7 +1982,7 @@ var
   savedialog: tsavedialog;
 begin
   result := '';
-  savedialog := tsavedialog.create(nil);
+  savedialog := tsavedialog.Create(nil);
   try
     savedialog.filter := filter;
     savedialog.options := savedialog.options + [ofPathMustExist];
@@ -1770,7 +1994,7 @@ begin
     if savedialog.Execute then
       result := savedialog.filename;
   finally
-    savedialog.free;
+    savedialog.Free;
   end;
 end;
 
@@ -1779,7 +2003,7 @@ var
   opendialog: topendialog;
 begin
   result := '';
-  opendialog := topendialog.create(nil);
+  opendialog := topendialog.Create(nil);
   try
     opendialog.filter := filter;
     opendialog.options := opendialog.options + [ofPathMustExist];
@@ -1789,7 +2013,7 @@ begin
     if opendialog.Execute then
       result := opendialog.filename
   finally
-    opendialog.free;
+    opendialog.Free;
   end;
 end;
 
@@ -1798,7 +2022,7 @@ var
   opendialog: topendialog;
 begin
   result := false;
-  opendialog := topendialog.create(nil);
+  opendialog := topendialog.Create(nil);
   try
     opendialog.filter := filter;
     opendialog.options := opendialog.options + [ofPathMustExist, ofAllowMultiSelect];
@@ -1811,7 +2035,7 @@ begin
       result := true;
     end;
   finally
-    opendialog.free;
+    opendialog.Free;
   end;
 end;
 
@@ -1820,7 +2044,7 @@ var
   timeStop: dword;
 begin
   if assigned(stringLog) then
-    stringLog.add(s);
+    stringLog.Add(s);
   if doMsg then
   begin
     timeStop := GetTickCount;
@@ -1829,23 +2053,23 @@ begin
   end;
 end;
 
-procedure writeFileVsCache(filename: string; size: Int64);
+procedure writeFileVsCache(filename: string; size: int64);
 var
   txtfilename: string;
   l: tstringList;
 begin
   txtfilename := datacache + ChangeFileExt(filename, DATACACHE_EXT_ID);
-  l := tstringList.create;
+  l := tstringList.Create;
   try
     l.Values['version'] := datacacheVersionByGame[CURRENT_GAME_ID];
     l.Values['id'] := inttohex(size, 16);
     l.SaveToFile(txtfilename);
   finally
-    l.free;
+    l.Free;
   end;
 end;
 
-function verifyFileVsCache(addonFullpath, filename: string; var bCanBeCached: boolean; var fSize: Int64): boolean;
+function verifyFileVsCache(addonFullpath, filename: string; var bCanBeCached: boolean; var fSize: int64): boolean;
 var
   txtfilename: string;
   l: tstringList;
@@ -1858,7 +2082,7 @@ begin
   fSize := GetFileSize(addonFullpath);
   bCanBeCached := fSize > DATACACHE_MinSize;
 
-  l := tstringList.create;
+  l := tstringList.Create;
   try
     if authFileAccessRW(txtfilename) then
       l.loadfromfile(txtfilename);
@@ -1868,11 +2092,11 @@ begin
     if (registeredtoolversion = datacacheVersionByGame[CURRENT_GAME_ID]) and (fSize > 0) then
       result := registeredmodsize = inttohex(fSize, 16);
   finally
-    l.free;
+    l.Free;
   end;
 end;
 
-function GetFileSize(const filename: TFileName): Int64;
+function GetFileSize(const filename: TFileName): int64;
 var
   SearchRec: TSearchRec;
 begin
@@ -1947,7 +2171,7 @@ procedure headerHtmFile(s: tstringList);
 var
   i: integer;
 begin
-  for i := headerString.count - 1 downto 0 do
+  for i := headerString.Count - 1 downto 0 do
     s.Insert(0, headerString.strings[i]);
 end;
 
@@ -1956,7 +2180,7 @@ var
   s: tstringList;
 begin
   SetCurrentDir(sstResFolder);
-  s := tstringList.create;
+  s := tstringList.Create;
   try
     if fileexists(filename) then
     begin
@@ -1967,7 +2191,7 @@ begin
     else
       htmlrender.LoadFromString(filename + sstDocmissing);
   finally
-    s.free;
+    s.Free;
   end;
 end;
 
@@ -2035,7 +2259,7 @@ procedure removeCommentLine(t: tstringList);
 var
   j: integer;
 begin
-  for j := t.count - 1 downto 0 do
+  for j := t.Count - 1 downto 0 do
     if is_comment(t.strings[j]) then
       t.delete(j);
 end;
@@ -2044,7 +2268,7 @@ procedure cleanResList(t: tstringList);
 var
   j: integer;
 begin
-  for j := t.count - 1 downto 0 do
+  for j := t.Count - 1 downto 0 do
     if is_comment(t[j]) or (pos('=', t[j]) = 0) then
       t.delete(j);
 end;
@@ -2138,7 +2362,7 @@ begin
   // regular
   if assigned(lDef) then
   begin
-    for i := 0 to pred(lDef.count) do
+    for i := 0 to pred(lDef.Count) do
     begin
       aliasStr := trim(AnsiLowerCase(stringreplace(lDef[i], '%basename%', lowername, [rfIgnoreCase])));
       BsaName := ExcludeTrailingPathDelimiter(folder) + '\' + aliasStr;
@@ -2155,7 +2379,7 @@ var
   m: TMatch;
 begin
   result := 0;
-  r := TRegEx.create('^\[version=(\d+)\]$');
+  r := TRegEx.Create('^\[version=(\d+)\]$');
   m := r.Match(s);
   if m.success then
   begin
@@ -2168,7 +2392,7 @@ var
   r: TRegEx;
   m: TMatch;
 begin
-  r := TRegEx.create('^\[(.+)\] (.+?)$');
+  r := TRegEx.Create('^\[(.+)\] (.+?)$');
   m := r.Match(filename);
   if m.success then
   begin
@@ -2202,7 +2426,7 @@ var
   r1, r2: TRegEx;
   m: TMatch;
 begin
-  r1 := TRegEx.create('^(.+)\\(.+?)\.(\w+)');
+  r1 := TRegEx.Create('^(.+)\\(.+?)\.(\w+)');
   m := r1.Match(filename);
 
   if m.success then
@@ -2219,7 +2443,7 @@ begin
   end;
   result.fPathSlash := result.fPath + '\';
 
-  r2 := TRegEx.create('^(.+)_(\w+)$');
+  r2 := TRegEx.Create('^(.+)_(\w+)$');
   m := r2.Match(result.fName);
 
   if m.success then
@@ -2452,7 +2676,7 @@ begin
     result := 3
   else if inrange(iVersion, 182, 200) then // f76
     result := 4
-  else if inrange(iVersion, 552, 558) then // Starfield
+  else if inrange(iVersion, 552, 559) then // Starfield
     result := 5
   else
   begin
@@ -2466,13 +2690,13 @@ procedure SaveBytesToFile(const Data: TBytes;
 var
   stream: TMemoryStream;
 begin
-  stream := TMemoryStream.create;
+  stream := TMemoryStream.Create;
   try
     if length(Data) > 0 then
       stream.WriteBuffer(Data[0], length(Data));
     stream.SaveToFile(mainpath + '\_Tests\' + filename);
   finally
-    stream.free;
+    stream.Free;
   end;
 end;
 

@@ -76,6 +76,15 @@ Def_:NNAM=IRES=0
 Def_:NNAM=MISC=0
 Def_:QMSU=QUST=0 
 
+Def_:VOVS=GPOF=0
+Def_:RESN=GPOF=0
+Def_:NNAM=GPOF=0
+Def_:DNAM=GPOF=0
+Def_:NNAM=GPOG=0
+
+
+
+
 #Def_:ESCS=SCEN=0//not string
 #Def_:XATR=REFR=0//not string
 
