@@ -100,6 +100,11 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.6:
+-Custom txt import: Fixed an issue with lang suffixe not applied correctly when extracting a txt file from a bsa.
+-Custom txt import: Fixed an issue with McMCompare.
+-Arabic: Added a very experimental and early alpha test for arabic RTLtoLRT conversion (menu ->tool -> language specific tools)
+
 version 1.5.5:
 -Custom txt import:Text importing has been rewritten to allow importing custom text files as long as their string definitions are handled on single lines. This applies to Mcm/translate default files, as well as rftp, Skyrim Desc files, and so on. The parsing definition is located in [xTranslator\misc\customTxtDefinition.txt] and can be edited as needed.
 -Starfield: Added new REC:FIELD definitions 

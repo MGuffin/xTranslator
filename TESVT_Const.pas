@@ -47,6 +47,7 @@ type
     Control1, list2, list3: integer;
   end;
 
+  aCharArray = array of char;
   aCardinal = array of cardinal;
   aaCardinal = array [0 .. 1] of array of cardinal;
 
@@ -136,7 +137,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.5';
+  aPROG_CURRENTVERSION = 'v1.5.6';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -165,7 +166,7 @@ const
   VocabUserHeader8: cardinal = $39555353; // fileHeader SSU7 user    v8 =  Masterlist in sst
   // ============================================================
   // 'Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield'
-  datacacheVersionByGame: array [0 .. 5] of string = ('5', '4', '1', '4', '4', '6');
+  datacacheVersionByGame: array [0 .. 5] of string = ('5', '4', '1', '4', '5', '7');
   // ============================================================
 
   aTheme: array [0 .. 3] of string = ('Windows', 'Obsidian', 'Light', 'Slate Classico');
@@ -270,14 +271,6 @@ const
   STARTUP_INI_VALUES: array [0 .. 8] of String = ('Fallout4', 'Skyrim', 'FalloutNV', 'LastUsed', 'AskDialog', 'ExeName', 'SkyrimSE', 'Fallout76', 'Starfield');
   STARTUP_INI_VALUES_BYGAME: array [0 .. 5] of integer = (0, 1, 2, 6, 7, 8);
   CURRENT_GAME_ID_ICON: array [0 .. 5] of integer = (63, 64, 65, 70, 81, 30);
-  // ----------------------------------
-
-  CustomTxtParser2: array [0 .. 3] of array [1 .. 4] of string = ( //
-    ('(\$.+)\t(.+)', 'mcm', 'Unicode', '1'), // ---
-    ('^(?!#)(.+?)=(.+)$', 'res', 'Utf8', '1'), //
-    ('^(.+~[0-9a-fA-F]+?)\|name\("(.+)"\)$', 'rftp', 'Utf8', '1'), // --
-    ('^(0x.+~[^\|]+)\|([^\|]+)', 'descfw', 'Utf8', '1')); // --
-
   // ----------------
   sstreadme = '..\common\sstreadme.htm';
   sstDocManual = 'manual.htm';

@@ -182,9 +182,6 @@
         <DCCReference Include="TESVT_typedef.pas"/>
         <DCCReference Include="TESVT_Ressources.pas"/>
         <DCCReference Include="TESVT_Hint.pas"/>
-        <DCCReference Include="TESVT_MergeSst.pas">
-            <Form>Form7</Form>
-        </DCCReference>
         <DCCReference Include="TESVT_scriptPex.pas"/>
         <DCCReference Include="TESVT_AddId.pas">
             <Form>Form8</Form>
@@ -195,7 +192,6 @@
         <DCCReference Include="TESVT_EspStruct.pas">
             <Form>Form10</Form>
         </DCCReference>
-        <DCCReference Include="TESVT_TCSC.pas"/>
         <DCCReference Include="TESVT_batch.pas">
             <Form>Form11</Form>
         </DCCReference>
@@ -241,7 +237,6 @@
             <Form>FormColabFilter</Form>
         </DCCReference>
         <DCCReference Include="TESVT_StringsStatus.pas"/>
-        <DCCReference Include="TESVT_QustCTDAUtils.pas"/>
         <DCCReference Include="TESVT_Threads.pas"/>
         <DCCReference Include="TESVT_Codepage.pas">
             <Form>Form14</Form>
@@ -251,7 +246,6 @@
         </DCCReference>
         <DCCReference Include="TESVT_TranslatorApi.pas"/>
         <DCCReference Include="TESVT_NPCMap.pas"/>
-        <DCCReference Include="TESVT_CustomList.pas"/>
         <DCCReference Include="TESVT_ToolBox.pas">
             <Form>Form16</Form>
         </DCCReference>

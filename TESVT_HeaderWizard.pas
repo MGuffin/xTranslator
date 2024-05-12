@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.WinXCtrls, Vcl.StdCtrls, Vcl.ExtCtrls, TESVT_Const, TESVT_Ressources, ShellAPI, SynEdit,
-  Vcl.Buttons, TESVT_CustomList;
+  Vcl.Buttons, TESVT_Utils;
 
 type
   tinjector = class

@@ -250,7 +250,7 @@ object Form2: TForm2
           item
             Position = 2
             Text = 'Translated'
-            Width = 284
+            Width = 288
           end
           item
             Alignment = taCenter
@@ -639,7 +639,7 @@ object Form2: TForm2
         Columns = <
           item
             Position = 0
-            Width = 1223
+            Width = 1227
           end>
       end
     end
@@ -939,6 +939,7 @@ object Form2: TForm2
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 852
         DesignSize = (
           373
           36)
@@ -980,7 +981,6 @@ object Form2: TForm2
           Caption = 'Cancel'
           TabOrder = 1
           OnClick = Button2Click
-          ExplicitLeft = 146
         end
         object Button1: TButton
           Left = 264
@@ -991,7 +991,6 @@ object Form2: TForm2
           Caption = 'Ok_(Ctrl-Enter)'
           TabOrder = 0
           OnClick = Button1Click
-          ExplicitLeft = 231
         end
       end
       object Panel19: TPanel
@@ -1028,7 +1027,7 @@ object Form2: TForm2
         BevelOuter = bvNone
         BorderWidth = 10
         TabOrder = 2
-        ExplicitWidth = 652
+        ExplicitWidth = 619
         object StaticText1: TStaticText
           Left = 10
           Top = 10
@@ -1038,7 +1037,7 @@ object Form2: TForm2
           Alignment = taCenter
           Caption = 'Lbl_EditInfo'
           TabOrder = 0
-          ExplicitWidth = 632
+          ExplicitWidth = 599
         end
       end
     end

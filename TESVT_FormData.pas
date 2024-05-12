@@ -3,7 +3,7 @@ unit TESVT_FormData;
 interface
 
 uses Windows, Messages, SysUtils, System.types, Variants, Classes, Graphics, Controls, Forms, Dialogs, TESVT_Batcher, TESVT_Const,
-  TESVT_Ressources, Menus, TESVT_sharedVTProc, TESVT_espDefinition, StdCtrls, TESVT_tagID, TESVT_CustomList,
+  TESVT_Ressources, Menus, TESVT_sharedVTProc, TESVT_espDefinition, StdCtrls, TESVT_tagID,
   ExtCtrls, ComCtrls, ShellAPI, grids, TESVT_HeaderList, VirtualTrees, ActiveX, ClipBrd, inifiles;
 
 type

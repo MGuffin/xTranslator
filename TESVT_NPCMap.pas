@@ -31,8 +31,8 @@ unit TESVT_NPCMap;
 
 interface
 
-uses classes, sysutils, math, types, TESVT_Const, controls, TESVT_Utils, TESVT_FastSearch, TESVT_CustomList, TESVT_EspDefinition, TESVT_TypeDef,
-  TESVT_MainLoader;
+uses classes, sysutils, math, types, TESVT_Const, controls, TESVT_Utils, TESVT_FastSearch, TESVT_EspDefinition, TESVT_TypeDef,
+  TESVT_MainLoader, TESVT_Ressources;
 
 type
   tSceneData = class
@@ -65,8 +65,7 @@ type
     function getNPCFromQustAlias(loader: tTranslatorLoader; Qust: cardinal; Alias: integer; Recurse: integer = 0): boolean;
     function getNPCFromInfo(loader: tTranslatorLoader; r: tRecord): boolean;
     function getNPCFromInfoSF(loader: tTranslatorLoader; r: tRecord; fCurrent: tfield): boolean;
-    function CTDADecoder(loader: tTranslatorLoader; Qust: cardinal; r: tRecord; startIndex: integer = 0; bBreakOnAnam: boolean = false;
-      Recurse: integer = 0): boolean;
+    function CTDADecoder(loader: tTranslatorLoader; Qust: cardinal; r: tRecord; startIndex: integer = 0; bBreakOnAnam: boolean = false; Recurse: integer = 0): boolean;
     function AddNPCToList(loader: tTranslatorLoader; formID: cardinal; defaultSig: sheaderSig; fallbackName: string = ''): boolean;
     procedure AddNPCToListEx(npc: string);
     procedure clearSceneParse;
@@ -103,19 +102,277 @@ Const
   PlayerName = '[NPC_:Player]';
   PlayerFORM: cardinal = 7;
 
+function getQuestString(QustRefRec: tRecord; QustID: cardinal; l: tstringlist): string;
+function getStringFromRecRef(Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; l: tstringlist; var bNeedMaster: boolean): string;
+procedure CTDADecoderOutput(espLoader: tespLoader; l: tstrings; r: tRecord);
+
 implementation
+
+function getQuestString(QustRefRec: tRecord; QustID: cardinal; l: tstringlist): string;
+var
+  mName, qName: string;
+  idMaster: byte;
+  sk: tSkyStr;
+begin
+  if Assigned(QustRefRec) then
+  begin
+    sk := QustRefRec.getSkfromDataRef(headerFULL);
+    if Assigned(sk) then
+      qName := format('(%s) ', [sk.s])
+    else
+      qName := '';
+    result := format('QUST: %s %s[%.8x]', [QustRefRec.EdidNameEx, qName, QustID]);
+  end
+  else
+  begin
+    idMaster := getMasterIndex(QustID);
+    if (QustID > 0) and (InRange(idMaster, 0, (l.count - 2))) then
+    begin
+      mName := formatRes('Qust_NeedMaster%s', [l.Strings[idMaster]])
+    end
+    else
+      mName := getRes('Qust_ErrorInRef');
+    result := format('QUST: %s [%.8x]', [mName, QustID]);
+  end;
+end;
+
+function getStringFromRecRef(Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; l: tstringlist; var bNeedMaster: boolean): string;
+var
+  mName: string;
+  idMaster: byte;
+  sk: tSkyStr;
+begin
+  if Assigned(Rec) then
+  begin
+    sk := Rec.getSkfromDataRef(h);
+    if Assigned(sk) then
+    begin
+      if bSource then
+        result := sk.s
+      else
+        result := sk.strans
+    end
+    else
+      result := Rec.EdidNameEx;
+  end
+  else
+  begin
+    idMaster := getMasterIndex(RecID);
+    if (RecID > 0) and (InRange(idMaster, 0, (l.count - 2))) then
+    begin
+      mName := l.Strings[idMaster];
+      bNeedMaster := true;
+    end
+    else
+      mName := getRes('Error');
+    result := format('%.8x@%s', [RecID, mName]);
+  end;
+end;
+
+
+// == CTDA output
+
+function findRecEdidForCTDA(espLoader: tespLoader; formID: cardinal): string;
+var
+  r: tRecord;
+  sk: tSkyStr;
+begin
+  if formID = $14 then
+    exit('PlayerRef');
+
+  r := espLoader.getFastRecord(formID);
+  if Assigned(r) then
+  begin
+    sk := r.getSkfromDataRef(headerFULL);
+    if Assigned(sk) then
+      result := format('[%.4s:%s][%s]', [string(r.header.name), r.EdidNameEx, sk.s])
+    else
+      result := format('[%.4s:%s]', [string(r.header.name), r.EdidNameEx]);
+  end
+
+  else
+    result := format('%.8x', [formID]);
+end;
+
+procedure CTDADecoderOutput(espLoader: tespLoader; l: tstrings; r: tRecord);
+var
+  i: integer;
+  f: tfield;
+  ctda: rCtdaData;
+  count1, count2: integer;
+  tagBool: string;
+
+  function op(id: byte): string;
+  begin
+    case id of
+      1: result := '!=';
+      2: result := '>';
+      3: result := '>=';
+      4: result := '<';
+      5: result := '<=';
+    else
+      result := '=';
+    end;
+  end;
+
+  function runOnId(id: cardinal): string;
+  begin
+    case id of
+      1: result := 'Target';
+      2: result := 'Reference';
+      3: result := 'CombatTarget';
+      4: result := 'LinkedRef';
+      5: result := 'QuestAlias';
+      6: result := 'Package';
+      7: result := 'Event';
+      8: result := 'Unknown8';
+      9: result := 'CommandTarget';
+      10: result := 'CameraRef';
+      11: result := 'MyKiller';
+      12: result := 'Unknown12';
+      13: result := 'Unknown13';
+      14: result := 'PlayerShip';
+      15: result := 'Target List';
+      16: result := 'Instance Owner';
+    else
+      result := 'Subject';
+    end;
+  end;
+
+  function gender(id: cardinal): string;
+  begin
+    if id = 0 then
+      result := 'Male'
+    else
+      result := 'Female';
+  end;
+
+  function getObjRef(ref: cardinal): string;
+  var
+    ref1: cardinal;
+  begin
+    ref1 := espLoader.getFastRefr(ref);
+    if ref1 > 0 then
+      result := findRecEdidForCTDA(espLoader, ref1)
+    else
+      result := findRecEdidForCTDA(espLoader, ref);
+  end;
+
+  function getAliasLabel(id: cardinal): string;
+  var
+    rQust: tRecord;
+  begin
+    result := '';
+    rQust := espLoader.getQustFromInfo(r);
+    if Assigned(rQust) then
+      result := rQust.GetAliasName(id);
+    if result = '' then
+      result := inttostr(id);
+  end;
+
+  function getStageLabel(qID, id: cardinal): string;
+  var
+    rQust: tRecord;
+  begin
+    result := '';
+    rQust := espLoader.getFastRecord(qID, headerQUST);
+    // rQust := espLoader.getQustFromInfo(r);
+    if Assigned(rQust) then
+      result := rQust.GetStageNote(id);
+    if result = '' then
+      result := inttostr(id);
+  end;
+
+  function getFunc(runOn, ref, p1, p2: cardinal; func: word): string;
+  var
+    i: integer;
+    fName, subject, fparam: string;
+    fparams: TStringArray;
+  begin
+    fName := '';
+    fparam := '';
+    for i := 0 to lCtdaFunc.count - 1 do
+    begin
+      if strtointdef(lCtdaFunc.Names[i], 0) = func then
+      begin
+        fparams := split(lCtdaFunc.ValueFromIndex[i], ':', 2);
+        fName := fparams[0];
+        fparam := fparams[1];
+        break;
+      end;
+    end;
+    if fName = '' then
+      fName := inttostr(func);
+    // runOn
+    if ref = 0 then
+      subject := runOnId(runOn)
+    else
+      subject := getObjRef(ref);
+    // fparams
+
+    if fparam <> '' then
+    begin
+      fparam := stringreplace(fparam, '{1}', getObjRef(p1), []);
+      fparam := stringreplace(fparam, '{2}', getObjRef(p2), []);
+      fparam := stringreplace(fparam, '{A}', '[' + getAliasLabel(p1) + ']', []);
+      fparam := stringreplace(fparam, '{S}', '[' + getStageLabel(p1, p2) + ']', []);
+      fparam := stringreplace(fparam, '{V}', inttostr(p1), []); // actorValue enum for Skyrim
+      fparam := stringreplace(fparam, '{I}', inttostr(p1), []);
+      fparam := stringreplace(fparam, '{W}', ':StringVar', []);
+      fparam := stringreplace(fparam, '{E}', ':EnumVar', []);
+      fparam := stringreplace(fparam, '{X}', gender(p1), []); // sex
+    end;
+    // endresult
+    if fparam <> '' then
+      result := format('%s.%s(%s)', [subject, fName, fparam])
+    else
+      result := format('%s.%s', [subject, fName]);
+  end;
+
+const
+  bOr: array [0 .. 1] of string = (' and', ' or');
+
+begin
+  count1 := 0;
+  count2 := 0;
+  if Assigned(r) and (r.header.name = headerINFO) then
+  begin
+    // count ctda
+    for i := 0 to pred(r.fList.count) do
+    begin
+      f := r.fList[i];
+      if (f.header.name = 'CTDA') then
+        inc(count1);
+    end;
+    // analyse ctda
+    for i := 0 to pred(r.fList.count) do
+    begin
+      f := r.fList[i];
+      if (f.header.name = 'CTDA') then
+      begin
+        inc(count2);
+        ctda := r.CTDADecoderEx(f);
+        if count1 = count2 then
+          tagBool := ''
+        else
+          tagBool := bOr[ord(ctda.boolOr)];
+        l.AddObject(format('%s%s%.0f%s' + sLineBreak, [getFunc(ctda.runOn, ctda.reference, ctda.param1, ctda.param2, ctda.func), op(ctda.opType), ctda.value, tagBool]), l);
+      end;
+    end;
+  end;
+end;
 
 function isNPCRequired(loader: tTranslatorLoader): boolean;
 begin
-  result := assigned(loader) and loader.bNeedFuz;
+  result := Assigned(loader) and loader.bNeedFuz;
   if result then
-    if assigned(mainDialData) then
+    if Assigned(mainDialData) then
       result := (loader.uguid <> mainDialData.current);
 end;
 
 function isNPCLoaded(loader: tTranslatorLoader): boolean;
 begin
-  result := assigned(mainDialData) and (loader.uguid = mainDialData.current);
+  result := Assigned(mainDialData) and (loader.uguid = mainDialData.current);
 end;
 
 constructor tSceneData.create(d, q, s: cardinal; a: integer; p: boolean = false);
@@ -238,7 +495,7 @@ var
 begin
   result := -1;
   t := lNpcName.indexof(npc);
-  if inrange(t, 0, pred(lNpcName.count)) then
+  if InRange(t, 0, pred(lNpcName.count)) then
     result := integer(lNpcName.objects[t]);
 end;
 
@@ -410,8 +667,8 @@ begin
 
   result := false;
   AliasName := '';
-  r := loader.EspLoader.getFastRecord(Qust, headerQUST);
-  if (Recurse > 10) or not assigned(r) then
+  r := loader.espLoader.getFastRecord(Qust, headerQUST);
+  if (Recurse > 10) or not Assigned(r) then
     exit;
   openSection := -1;
   Aleq := 0;
@@ -446,11 +703,11 @@ begin
     if (f.header.name = 'ALFR') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if tmpValue <> 0 then
       begin
         // first search in fastRefr list
-        tmpValueRefr := loader.EspLoader.getFastRefr(tmpValue);
+        tmpValueRefr := loader.espLoader.getFastRefr(tmpValue);
         if tmpValueRefr <> 0 then
           tmpValue := tmpValueRefr;
         if AddNPCToList(loader, tmpValue, ALL_REC) then
@@ -462,7 +719,7 @@ begin
     if (f.header.name = 'ALUA') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if AddNPCToList(loader, tmpValue, headerNPC_) then
         result := true;
       continue;
@@ -471,7 +728,7 @@ begin
     if (f.header.name = 'ALEQ') then
     begin
       move(f.buffer[0], Aleq, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
     end;
     if (f.header.name = 'ALEA') then
       move(f.buffer[0], Alea, SizeOf(tmpValue));
@@ -482,7 +739,7 @@ begin
     if (f.header.name = 'ALCO') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if AddNPCToList(loader, tmpValue, headerNPC_) then
         result := true;
       continue;
@@ -491,7 +748,7 @@ begin
     if (f.header.name = 'VTCK') or (f.header.name = 'ALFV') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if AddNPCToList(loader, tmpValue, 'VTYP') then
         result := true; // no 'or' here so it can override
     end;
@@ -516,16 +773,16 @@ var
 begin
   result := false;
   infoQust := 0;
-  infoDial := loader.EspLoader.setFormIdMapping(r, loader.EspLoader.GetdialIDFromInfo(r));
+  infoDial := loader.espLoader.setFormIdMapping(r, loader.espLoader.GetdialIDFromInfo(r));
   if infoDial > 0 then
   begin
-    rDial := loader.EspLoader.getFastRecord(infoDial, headerDIAL);
-    if assigned(rDial) then
-      infoQust := loader.EspLoader.setFormIdMapping(rDial, rDial.getCardinalfromDataRef((sheaderSig(gamesParams.sQUSTDIALREF))));
+    rDial := loader.espLoader.getFastRecord(infoDial, headerDIAL);
+    if Assigned(rDial) then
+      infoQust := loader.espLoader.setFormIdMapping(rDial, rDial.getCardinalfromDataRef((sheaderSig(gamesParams.sQUSTDIALREF))));
   end;
 
   // firstpass TROT
-  if assigned(fCurrent) then
+  if Assigned(fCurrent) then
   begin
     index := r.fList.indexof(fCurrent);
     if index >= 0 then
@@ -542,7 +799,7 @@ begin
         if (f.header.name = headerTROT) then
         begin
           move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-          tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+          tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
           if AddNPCToList(loader, tmpValue, headerNPC_) then
             result := true;
         end;
@@ -556,7 +813,7 @@ begin
     if (f.header.name = headerANAM) then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if AddNPCToList(loader, tmpValue, headerNPC_) then
         exit(true)
     end;
@@ -564,11 +821,11 @@ begin
     if (f.header.name = 'GNAM') or (f.header.name = 'DNAM') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if tmpValue <> 0 then
       begin
-        rTmp := loader.EspLoader.getFastRecord(tmpValue, headerINFO);
-        if assigned(rTmp) and getNPCFromInfoSF(loader, rTmp, nil) then
+        rTmp := loader.espLoader.getFastRecord(tmpValue, headerINFO);
+        if Assigned(rTmp) and getNPCFromInfoSF(loader, rTmp, nil) then
           result := true;
       end;
     end;
@@ -602,8 +859,8 @@ begin
 
   if not result then
   begin
-    rQust := loader.EspLoader.getFastRecord(infoQust, headerQUST);
-    result := ((assigned(rQust) and CTDADecoder(loader, infoQust, rQust, 0, true)));
+    rQust := loader.espLoader.getFastRecord(infoQust, headerQUST);
+    result := ((Assigned(rQust) and CTDADecoder(loader, infoQust, rQust, 0, true)));
   end;
 
   if (not result) and r.isFieldExists('RNAM') then
@@ -623,12 +880,12 @@ var
 begin
   result := false;
   infoQust := 0;
-  infoDial := loader.EspLoader.setFormIdMapping(r, loader.EspLoader.GetdialIDFromInfo(r));
+  infoDial := loader.espLoader.setFormIdMapping(r, loader.espLoader.GetdialIDFromInfo(r));
   if infoDial > 0 then
   begin
-    rDial := loader.EspLoader.getFastRecord(infoDial, headerDIAL);
-    if assigned(rDial) then
-      infoQust := loader.EspLoader.setFormIdMapping(rDial, rDial.getCardinalfromDataRef((sheaderSig(gamesParams.sQUSTDIALREF))));
+    rDial := loader.espLoader.getFastRecord(infoDial, headerDIAL);
+    if Assigned(rDial) then
+      infoQust := loader.espLoader.setFormIdMapping(rDial, rDial.getCardinalfromDataRef((sheaderSig(gamesParams.sQUSTDIALREF))));
   end;
 
   for i := 0 to pred(r.fList.count) do
@@ -637,7 +894,7 @@ begin
     if (f.header.name = headerANAM) then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if AddNPCToList(loader, tmpValue, headerNPC_) then
         exit(true)
     end;
@@ -645,11 +902,11 @@ begin
     if (f.header.name = 'GNAM') or (f.header.name = 'DNAM') then
     begin
       move(f.buffer[0], tmpValue, SizeOf(tmpValue));
-      tmpValue := loader.EspLoader.setFormIdMapping(r, tmpValue);
+      tmpValue := loader.espLoader.setFormIdMapping(r, tmpValue);
       if tmpValue <> 0 then
       begin
-        rTmp := loader.EspLoader.getFastRecord(tmpValue, headerINFO);
-        if assigned(rTmp) and getNPCFromInfo(loader, rTmp) then
+        rTmp := loader.espLoader.getFastRecord(tmpValue, headerINFO);
+        if Assigned(rTmp) and getNPCFromInfo(loader, rTmp) then
           result := true;
       end;
     end;
@@ -683,16 +940,15 @@ begin
 
   if not result then
   begin
-    rQust := loader.EspLoader.getFastRecord(infoQust, headerQUST);
-    result := ((assigned(rQust) and CTDADecoder(loader, infoQust, rQust, 0, true)));
+    rQust := loader.espLoader.getFastRecord(infoQust, headerQUST);
+    result := ((Assigned(rQust) and CTDADecoder(loader, infoQust, rQust, 0, true)));
   end;
 
   if (not result) and r.isFieldExists('RNAM') then
     result := AddNPCToList(loader, 0, headerNPC_, PlayerName);
 end;
 
-function TImportDial.CTDADecoder(loader: tTranslatorLoader; Qust: cardinal; r: tRecord; startIndex: integer = 0; bBreakOnAnam: boolean = false;
-  Recurse: integer = 0): boolean;
+function TImportDial.CTDADecoder(loader: tTranslatorLoader; Qust: cardinal; r: tRecord; startIndex: integer = 0; bBreakOnAnam: boolean = false; Recurse: integer = 0): boolean;
 var
   i: integer;
   f: tfield;
@@ -716,17 +972,17 @@ begin
         continue;
       if (ctda.func = 72) or (ctda.func = 426) then
       begin
-        if AddNPCToList(loader, loader.EspLoader.setFormIdMapping(r, ctda.param1), headerNPC_) then
+        if AddNPCToList(loader, loader.espLoader.setFormIdMapping(r, ctda.param1), headerNPC_) then
           result := true;
       end
       else if (ctda.func = 71) then
       begin
-        if AddNPCToList(loader, loader.EspLoader.setFormIdMapping(r, ctda.param1), headerFACT) then
+        if AddNPCToList(loader, loader.espLoader.setFormIdMapping(r, ctda.param1), headerFACT) then
           result := true;
       end
       else if (ctda.func = 566) then
       begin
-        if getNPCFromQustAlias(loader, loader.EspLoader.setFormIdMapping(r, Qust), integer(ctda.param1), Recurse + 1) then
+        if getNPCFromQustAlias(loader, loader.espLoader.setFormIdMapping(r, Qust), integer(ctda.param1), Recurse + 1) then
           result := true
       end;
     end
@@ -763,10 +1019,10 @@ begin
   if formID = PlayerFORM then
     exit(PlayerName);
 
-  if assigned(r) then
+  if Assigned(r) then
   begin
     sk := r.getSkfromDataRef(headerFULL);
-    if assigned(sk) then
+    if Assigned(sk) then
     begin
       try
         try
@@ -801,8 +1057,8 @@ begin
   if formID <> 0 then
   begin
     result := true;
-    r := loader.EspLoader.getFastRecord(formID);
-    if assigned(r) and (r.header.name = headerFLST) then
+    r := loader.espLoader.getFastRecord(formID);
+    if Assigned(r) and (r.header.name = headerFLST) then
     begin
       for i := 0 to pred(r.fList.count) do
       begin
@@ -810,8 +1066,8 @@ begin
         if cardinal(f.header.name) = cardinal(headerLNAM) then
         begin
           move(f.buffer[0], formFlst, SizeOf(formFlst));
-          formFlst := loader.EspLoader.setFormIdMapping(r, formFlst);
-          rFlst := loader.EspLoader.getFastRecord(formFlst);
+          formFlst := loader.espLoader.setFormIdMapping(r, formFlst);
+          rFlst := loader.espLoader.getFastRecord(formFlst);
           AddNPCToListEx(getNPCName(rFlst, formFlst, defaultSig));
         end;
       end
@@ -829,19 +1085,19 @@ var
   r: tRecord;
 begin
 
-  loader.EspLoader.buildInheritedData;
+  loader.espLoader.buildInheritedData;
   // scen parsing
-  for i := 0 to pred(loader.EspLoader.aInheritedEsp.count) do
+  for i := 0 to pred(loader.espLoader.aInheritedEsp.count) do
   begin
-    mEsp := loader.EspLoader.aInheritedEsp[i];
-    if assigned(mEsp) then
+    mEsp := loader.espLoader.aInheritedEsp[i];
+    if Assigned(mEsp) then
       for j := pred(mEsp.SceneList.count) downto 0 do
       begin
         r := mEsp.SceneList[j];
         // get the scene_ref, then get the latest override for the scene.
         scenFormID := mEsp.setFormIdMapping(r.headerdata.formID);
-        r := loader.EspLoader.getFastRecord(scenFormID, headerSCEN);
-        if assigned(r) then
+        r := loader.espLoader.getFastRecord(scenFormID, headerSCEN);
+        if Assigned(r) then
           parseSceneRec(mEsp, r);
       end;
   end;
@@ -851,12 +1107,12 @@ begin
   for i := 0 to pred(loader.listarray[2].count) do
   begin
     currentSk := loader.listarray[2][i];
-    if assigned(currentSk.esp.rec) then
+    if Assigned(currentSk.esp.Rec) then
     begin
       if bGameIsSF then
-        getNPCFromInfoSF(loader, currentSk.esp.rec, currentSk.esp.field)
+        getNPCFromInfoSF(loader, currentSk.esp.Rec, currentSk.esp.field)
       else
-        getNPCFromInfo(loader, currentSk.esp.rec);
+        getNPCFromInfo(loader, currentSk.esp.Rec);
     end;
     UpdatePBar(500);
   end;

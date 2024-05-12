@@ -32,12 +32,25 @@ interface
 
 uses Windows, SysUtils, Classes, forms, math, TESVT_Threads, TESVT_Const, TESVT_Typedef, TESVT_espDefinition, TESVT_HeuristicSearch,
   TESVT_Ressources, TESVT_FastSearch, Generics.Collections, TESVT_fstreamSave, TESVT_Undo, VirtualTrees, SyncObjs, regularexpressions, TESVT_RegexUtils,
-  TESVT_Utils;
+  TESVT_Utils, System.Character;
 
-function findStrMatchEx(vlist, dlist: tlist; fProc: tCompareProc; validatedTrans: sStrParams; bResetTrans, forceAutoTranslate, bskipSametest, bSkipTranslated,
-  bVmad: boolean): integer;
-function findEdidMatchEx(edidList, dlist: tlist; fProc: tCompareProc; proc: TListSortCompare; resetState: boolean; appliedTrans: sStrParams;
-  validatedTrans: sStrParams; bApplytag, bTagOnly, bVmad, bApplyStringID: boolean): integer;
+Type
+  rCharMapTCSC = record
+    sc: char;
+    tc: char;
+  end;
+
+  pCharMapTCSC = ^rCharMapTCSC;
+
+function compareCharCodeTC(p1, p2: pointer): integer;
+function compareCharCodeSC(p1, p2: pointer): integer;
+procedure clearTCSCList(l: tlist);
+function buildTCSCList(l: tlist; scstr, tcstr: string): boolean;
+procedure doConvertTCSC(listArray: talist; mode: boolean; l: tlist);
+
+function findStrMatchEx(vlist, dlist: tlist; fProc: tCompareProc; validatedTrans: sStrParams; bResetTrans, forceAutoTranslate, bskipSametest, bSkipTranslated, bVmad: boolean): integer;
+function findEdidMatchEx(edidList, dlist: tlist; fProc: tCompareProc; proc: TListSortCompare; resetState: boolean; appliedTrans: sStrParams; validatedTrans: sStrParams;
+  bApplytag, bTagOnly, bVmad, bApplyStringID: boolean): integer;
 procedure generateHeuristicList;
 Procedure ClearHeuristicList;
 procedure doFindHeuristicFocus(LDTree: TVirtualStringTree; bUseRef: boolean);
@@ -45,11 +58,199 @@ function getWordsMatchHash(sk1, sk2: tSkyStr; var ldOut: single; var bBreak: boo
 procedure generateDerivedStringData(bforceDerived: boolean = false);
 procedure generateOneWordList;
 
+function addRTLTag(const RTLString: string): string;
+function ReverseRTLString(const Str: string): string;
+function ReverseRTLStringEx(const Str: string): string;
+
 var
   HeuristicList: tlist;
   derivedParseList: tstringList;
 
 implementation
+
+function addRTLTag(const RTLString: string): string;
+begin
+  Result := WideChar(UCODE_START_RTL) + RTLString;
+end;
+
+function IsArabicLetter(ch: char): boolean;
+begin
+  Result := ((ch >= #$0600) and (ch <= #$06FF)) or //
+    ((ch >= #$0750) and (ch <= #$077F)) or //
+    ((ch >= #$FB50) and (ch <= #$FDFF)) or //
+    ((ch >= #$FE70) and (ch <= #$FEFF));
+end;
+
+function ReverseRTLString(const Str: string): string;
+var
+  lString: tstringList;
+  j: integer;
+begin
+  lString := tstringList.Create;
+  lString.Text := Str;
+  for j := 0 to lString.count - 1 do
+    lString[j] := ReverseRTLStringEx(lString[j]);
+
+  Result := lString.Text;
+  Result := trim(cleanString(copy(Result, 1, min(length(Result), MAXSIZESTRING_GLOBALCAP)), aCleanChar));
+
+  lString.Free;
+end;
+
+function ReverseRTLStringEx(const Str: string): string;
+var
+  i, j: integer;
+  CurrentSegment: string;
+  Segments: tstringList;
+begin
+  Result := '';
+  if Str = '' then
+    exit;
+
+  Segments := tstringList.Create;
+
+  try
+    CurrentSegment := Str[1];
+    for i := 2 to length(Str) do
+    begin
+      if IsArabicLetter(Str[i]) then
+      begin
+        if not IsArabicLetter(Str[i - 1]) then
+        begin
+          Segments.Add(CurrentSegment);
+          CurrentSegment := '';
+        end;
+      end
+      else
+      begin
+        if IsArabicLetter(Str[i - 1]) then
+        begin
+          Segments.Add(CurrentSegment);
+          CurrentSegment := '';
+        end;
+      end;
+      CurrentSegment := CurrentSegment + Str[i];
+    end;
+
+    Segments.Add(CurrentSegment);
+
+    for i := Segments.count - 1 downto 0 do
+    begin
+      CurrentSegment := Segments[i];
+      if IsArabicLetter(CurrentSegment[1]) then
+      begin
+        for j := length(CurrentSegment) downto 1 do
+          Result := Result + CurrentSegment[j];
+      end
+      else
+        Result := Result + CurrentSegment;
+    end;
+
+  finally
+    Segments.Free;
+  end;
+end;
+
+
+
+
+
+// -TC->SC
+
+function compareCharCodeSC(p1, p2: pointer): integer;
+begin
+  Result := Ord(pCharMapTCSC(p1).sc) - Ord(pCharMapTCSC(p2).sc);
+end;
+
+function compareCharCodeTC(p1, p2: pointer): integer;
+begin
+  Result := Ord(pCharMapTCSC(p1).tc) - Ord(pCharMapTCSC(p2).tc);
+end;
+
+// build list
+function buildTCSCList(l: tlist; scstr, tcstr: string): boolean;
+var
+  i: integer;
+  p: pCharMapTCSC;
+begin
+  if length(scstr) <> length(tcstr) then
+    exit(false);
+  for i := 0 to length(scstr) do
+  begin
+    new(p);
+    p.sc := scstr[i];
+    p.tc := tcstr[i];
+    l.Add(p);
+  end;
+  Result := true;
+  // l.Sort(compareCharCodeSC);
+end;
+
+procedure clearTCSCList(l: tlist);
+var
+  i: integer;
+begin
+  for i := l.count - 1 downto 0 do
+    dispose(pCharMapTCSC(l[i]));
+end;
+
+procedure doConvertTCSC(listArray: talist; mode: boolean; l: tlist);
+var
+  newindex: integer;
+  i, j, k: integer;
+  tmpstr1: string;
+  p: pCharMapTCSC;
+begin
+  // true= TC->SC
+  pbar := 0;
+  new(p);
+  try
+    if mode = true then
+    begin
+      l.Sort(compareCharCodeTC);
+      for k := 0 to 2 do
+        for i := 0 to listArray[k].count - 1 do
+        begin
+          if tSkyStr(listArray[k][i]).lockedStatus then
+            continue;
+          tmpstr1 := tSkyStr(listArray[k][i]).sTrans;
+          if length(tmpstr1) > 0 then
+            for j := 0 to length(tmpstr1) do
+            begin
+              p.tc := tmpstr1[j];
+              if FastListSearch(l, compareCharCodeTC, p, newindex, false) then
+                tmpstr1[j] := pCharMapTCSC(l[newindex]).sc;
+            end;
+          UpdatePBar(1000);
+          tSkyStr(listArray[k][i]).sTrans := tmpstr1;
+        end;
+    end
+    else
+    begin
+      l.Sort(compareCharCodeSC);
+      for k := 0 to 2 do
+        for i := 0 to listArray[k].count - 1 do
+        begin
+          if tSkyStr(listArray[k][i]).lockedStatus then
+            continue;
+          tmpstr1 := tSkyStr(listArray[k][i]).sTrans;
+          if length(tmpstr1) > 0 then
+            for j := 0 to length(tmpstr1) do
+            begin
+              p.sc := tmpstr1[j];
+              if FastListSearch(l, compareCharCodeSC, p, newindex, false) then
+                tmpstr1[j] := pCharMapTCSC(l[newindex]).tc;
+            end;
+          UpdatePBar(1000);
+          tSkyStr(listArray[k][i]).sTrans := tmpstr1;
+        end;
+    end;
+  finally
+    dispose(p);
+  end;
+end;
+
+// --------------------
 
 function WordsDistance(l1, l2: tlist<cardinal>): integer;
 var
@@ -71,7 +272,7 @@ begin
         cost := 0
       else
         cost := 1;
-      d[i, j] := Min(Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+      d[i, j] := min(min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
     end;
   Result := d[len1, len2];
 end;
@@ -83,7 +284,7 @@ var
 begin
   sOut.clear;
   Result := false;
-  if Length(s) = 0 then
+  if length(s) = 0 then
     exit;
   try
     m := RegEx.Match(s);
@@ -109,7 +310,7 @@ var
 begin
   bBreak := false;
   try
-    RegEx := TRegEx.create(pattern, [roIgnoreCase]);
+    RegEx := TRegEx.Create(pattern, [roIgnoreCase]);
   except
     doFeedBack(formatRes('ErrorRegex%s', [pattern]));
     exit;
@@ -119,24 +320,23 @@ begin
   begin
     UpdatePBar(1000);
     if CancelStuff then
-      break;
+      Break;
     sk := vocabBaseList[i];
     if sk.sInternalparams * [derivedComputed] = [] then
     begin
       // Basic Selection
-      if not inrange(Length(sk.s), 2, StrictStringDataLimit) then
+      if not inrange(length(sk.s), 2, StrictStringDataLimit) then
         continue;
-      if not inrange(Length(sk.strans), 2, StrictStringDataLimit) then
+      if not inrange(length(sk.sTrans), 2, StrictStringDataLimit) then
         continue;
-      if DerivedMatch(RegEx, sk.s, pattern, matchList1, bBreak) and DerivedMatch(RegEx, sk.strans, pattern, matchList2, bBreak) and
-        (matchList1.count = matchList2.count) then
+      if DerivedMatch(RegEx, sk.s, pattern, matchList1, bBreak) and DerivedMatch(RegEx, sk.sTrans, pattern, matchList2, bBreak) and (matchList1.count = matchList2.count) then
       begin
         for k := 0 to pred(matchList1.count) do
         begin
           s1 := TrimExtended(matchList1[k], sBlank);
           s2 := TrimExtended(matchList2[k], sBlank);
           if bDerivedverbose then
-            doFeedBack(format('[%s][%s] --> [%s][%s]', [sk.s, sk.strans, s1, s2]));
+            doFeedBack(format('[%s][%s] --> [%s][%s]', [sk.s, sk.sTrans, s1, s2]));
           if (s1 <> '') and (s2 <> '') then
             tmpList.Add(tSkyStr.init(0, 0, s1, s2, sk.listIndex, 0, [], [isCache, derivedComputed], nil, false));
         end;
@@ -156,7 +356,7 @@ var
 begin
   if (not bEnableDerived) and (not bforceDerived) then
     exit;
-  tmpList := tlist.create;
+  tmpList := tlist.Create;
   CancelStuff := false;
   // count nb valid derivedParseList line
   c := 0;
@@ -164,14 +364,14 @@ begin
   begin
     if is_comment(derivedParseList[j]) then
       continue;
-    inc(c);
+    Inc(c);
   end;
 
   ProgressBar.Max := vocabBaseList.count * c;
-  pBar := 0;
+  pbar := 0;
   UpdateStatus(getres('DerivedStringsGen'));
-  matchList1 := tstringList.create;
-  matchList2 := tstringList.create;
+  matchList1 := tstringList.Create;
+  matchList2 := tstringList.Create;
 
   // RegEx.Options := RegEx.Options + [preCaseLess];
   try
@@ -182,8 +382,8 @@ begin
       generateDerivedLine(derivedParseList[j], tmpList, matchList1, matchList2);
     end;
   finally
-    matchList1.free;
-    matchList2.free;
+    matchList1.Free;
+    matchList2.Free;
   end;
   // dispatch on regular string
   count := 0;
@@ -193,14 +393,14 @@ begin
     UpdatePBar(100);
     sk := tmpList[i];
     if not addPointertoSortedList(vocabBaseList, compareallHashesAndSources, sk, index) then
-      sk.free
+      sk.Free
     else
-      inc(count);
+      Inc(count);
   end;
   ProgressBar.position := ProgressBar.Max;
   doFeedBack(formatRes('DerivedStringsKept%d', [count]));
   UpdateStatus('');
-  tmpList.free;
+  tmpList.Free;
 end;
 
 procedure generateOneWordList;
@@ -226,7 +426,7 @@ begin
     UpdateStatus(getres('Cache_Heuristic'));
     HeuristicList.clear;
     ProgressBar.Max := vocabBaseList.count;
-    pBar := 0;
+    pbar := 0;
     for i := 0 to pred(vocabBaseList.count) do
     begin
       tSkyStr(vocabBaseList[i]).initStrings(false);
@@ -276,16 +476,15 @@ var
   sSize, lSize: integer;
 begin
   Result := false;
-  if Length(sk1.s) < 8 then
+  if length(sk1.s) < 8 then
     lSize := getLongestCommonStrInt_Header(ansilowercase(sk1.s), ansilowercase(sk2.s))
   else
     lSize := getLongestCommonStrInt(ansilowercase(sk1.s), ansilowercase(sk2.s));
-  if ((Length(sk1.s) - lSize) <= getSubTringThresholdDec(Length(sk1.s))) and (abs((Length(sk2.s) - Length(sk1.s))) <= getSubTringThresholdInc(Length(sk1.s)))
-  then
+  if ((length(sk1.s) - lSize) <= getSubTringThresholdDec(length(sk1.s))) and (abs((length(sk2.s) - length(sk1.s))) <= getSubTringThresholdInc(length(sk1.s))) then
   begin
     Result := true;
-    sSize := Max(Length(sk1.s), Length(sk2.s)) - lSize;
-    ldOut := sSize * 0.1 + ifThen(sSize = 0, 0.1, 0.55) + GetStringProxy(sk1.s, sk2.strans) * proxybaseRatio;
+    sSize := Max(length(sk1.s), length(sk2.s)) - lSize;
+    ldOut := sSize * 0.1 + ifThen(sSize = 0, 0.1, 0.55) + GetStringProxy(sk1.s, sk2.sTrans) * proxybaseRatio;
   end;
 end;
 
@@ -294,7 +493,7 @@ var
   i: integer;
 begin
   Result := false;
-  for i := Max(startIndex - margingIndex, 0) to Min(startIndex + margingIndex, a.count - 1) do
+  for i := Max(startIndex - margingIndex, 0) to min(startIndex + margingIndex, a.count - 1) do
     if a[i] = c then
       exit(true)
 end;
@@ -316,11 +515,11 @@ begin
   end;
 
   // Uppercase check
-  if (Length(sk1.s) = Length(sk2.s)) then
+  if (length(sk1.s) = length(sk2.s)) then
   begin
     if ansilowercase(sk1.s) = ansilowercase(sk2.s) then
     begin
-      ldOut := 0.3 + GetStringProxy(sk1.s, sk2.strans) * proxybaseRatio;
+      ldOut := 0.3 + GetStringProxy(sk1.s, sk2.sTrans) * proxybaseRatio;
       exit(true);
     end;
   end;
@@ -340,12 +539,12 @@ begin
   for i := 0 to sk1.awords.count - 1 do
   begin
     if not getWordFromIndex(sk2.awords, i, resultThreshold + 1, (sk1.awords[i])) then
-      inc(cMatches);
+      Inc(cMatches);
     if cMatches >= resultThreshold then
       exit;
   end;
 
-  if (cMatches < Min(iLDWordSearchThresholdMax, resultThreshold + 1)) then
+  if (cMatches < min(iLDWordSearchThresholdMax, resultThreshold + 1)) then
     ldOut := WordsDistance(sk1.awords, sk2.awords);
 
   if ldOut > resultThreshold then
@@ -356,7 +555,7 @@ begin
     ldOut := 0.5;
 
   if ldOut < resultThreshold + 1 then
-    ldOut := ldOut + GetStringProxy(sk1.s, sk2.strans) * proxybaseRatio;
+    ldOut := ldOut + GetStringProxy(sk1.s, sk2.sTrans) * proxybaseRatio;
 
   Result := ldOut <= resultThreshold;
 end;
@@ -379,7 +578,7 @@ begin
   if sk1.awords.count = 0 then
     exit;
   ProgressBar.Max := HeuristicList.count;
-  pBar := 0;
+  pbar := 0;
 
   bBreak := false;
   FastListSearch(HeuristicList, compareLowerWordCount, sk1, i, true);
@@ -393,11 +592,11 @@ begin
     if getWordsMatchHash(sk1, sk2, limitLD, bBreak) then
     begin
       sk2.LDResult := limitLD;
-      node := LDTree.AddChild(nil, TNodeData.create(sk2));
+      node := LDTree.AddChild(nil, TNodeData.Create(sk2));
       LDTree.NodeHeight[node] := getHeightforCell(sk2.s, -1, GlobalFontHeight);
     end;
     if bBreak then
-      break;
+      Break;
   end;
   ProgressBar.position := ProgressBar.Max;
 end;
@@ -412,18 +611,19 @@ begin
   skOut := nil;
   count := 0;
   h1 := tSkyStr(l[index]).hash;
-  for i := index to l.count - 1 do // index = current sk
+  for i := index to l.count - 1 do
+  // index = current sk
   begin
     sk := l[i];
     if (sk.hash <> h1) then
-      break;
+      Break;
     if (count > 0) then
     begin
       bnTrans := true;
-      break;
+      Break;
     end;
     skOut := sk;
-    inc(count);
+    Inc(count);
   end;
   Result := assigned(skOut);
 end;
@@ -443,16 +643,16 @@ begin
   begin
     sk := l[i];
     if (sk.hash <> h1) then
-      break;
+      Break;
     if sk.isRefRec(r, f, true) then
     begin
       if (count > 0) then
       begin
         bnTrans := true;
-        break;
+        Break;
       end;
       skOut := sk;
-      inc(count);
+      Inc(count);
     end;
   end;
   Result := assigned(skOut);
@@ -467,8 +667,7 @@ begin
     Result := getStrEx(l, index, skOut, bnTrans);
 end;
 
-function findStrMatchEx(vlist, dlist: tlist; fProc: tCompareProc; validatedTrans: sStrParams; bResetTrans, forceAutoTranslate, bskipSametest, bSkipTranslated,
-  bVmad: boolean): integer;
+function findStrMatchEx(vlist, dlist: tlist; fProc: tCompareProc; validatedTrans: sStrParams; bResetTrans, forceAutoTranslate, bskipSametest, bSkipTranslated, bVmad: boolean): integer;
 var
   i, j: integer;
   sk1, sk2: tSkyStr;
@@ -515,7 +714,7 @@ begin
         sk1.resetTrans(bVmad)
       else
       begin
-        sk1.strans := sk2.strans;
+        sk1.sTrans := sk2.sTrans;
         // if nTrans in sk2.sInternalparams then
         if bnTrans then
         begin
@@ -550,14 +749,14 @@ begin
       if not TESVTSameLanguage then
       begin
         sk1.resetTrans(bVmad);
-        inc(Result);
+        Inc(Result);
       end;
     end;
   end;
 end;
 
-function findEdidMatchEx(edidList, dlist: tlist; fProc: tCompareProc; proc: TListSortCompare; resetState: boolean; appliedTrans: sStrParams;
-  validatedTrans: sStrParams; bApplytag, bTagOnly, bVmad, bApplyStringID: boolean): integer;
+function findEdidMatchEx(edidList, dlist: tlist; fProc: tCompareProc; proc: TListSortCompare; resetState: boolean; appliedTrans: sStrParams; validatedTrans: sStrParams;
+  bApplytag, bTagOnly, bVmad, bApplyStringID: boolean): integer;
 var
   i: integer;
   sk1, sk2: tSkyStr;
@@ -611,7 +810,7 @@ begin
         else
         begin
           bCheckDiff := sk1.hashTrans <> sk2.hashTrans;
-          sk1.strans := sk2.strans;
+          sk1.sTrans := sk2.sTrans;
           if incompleteTrans in foundP.sparams then
             sk1.resetStatus([incompleteTrans], bVmad)
           else if lockedTrans in foundP.sparams then
@@ -647,10 +846,10 @@ begin
       sk1.assignSame
     else if not TESVTSameLanguage then
     begin
-      inc(Result);
+      Inc(Result);
     end;
   end;
-  searchP.free;
+  searchP.Free;
 end;
 
 end.

@@ -30,7 +30,7 @@ unit TESVT_TranslatorApi;
 
 interface
 
-uses windows, math, Classes, SysUtils, TESVT_CustomList, TESVT_Ressources, TESVT_Const, TESVT_FastSearch, TESVT_Utils,
+uses windows, math, Classes, SysUtils, TESVT_Ressources, TESVT_Const, TESVT_FastSearch, TESVT_Utils,
   REST.Client, REST.types, System.JSON, System.JSON.Readers, System.JSON.types, System.hash, Generics.Collections, IdURI, TESVT_RegexUtils;
 
 Const

@@ -209,13 +209,14 @@ type
   public
     pFbData: tpexFeedbackData;
     pexStringList: tlist;
+    fExportStream: tmemoryStream;
     function hasAuthString: boolean;
     constructor create(filename: string);
     destructor Destroy; Override;
     procedure clearList;
     procedure decompilationFeedback;
     function readPex(fstream: tstream; bDiscardNoAuth: boolean): boolean;
-    function dosavePex(fstream: tmemoryStream; t: tstringlist; filename: string): boolean;
+    function dosavePex(t: tstringlist; filename: string): boolean;
   end;
 
 procedure SavePexFiletoTmp(fstream: tmemoryStream; bAuth: boolean; filename: string);
@@ -516,6 +517,7 @@ begin
   globalIdentList.Sorted:= true;
   globalIdentList.Duplicates:= dupIgnore;
   pexObjList:= tlist.create;
+  fExportStream:= tmemorystream.Create;
   pFbData:= tpexFeedbackData.init;
   pexname:= filename;
 end;
@@ -559,6 +561,7 @@ begin
   globalIdentList.Free;
   pexObjList.Free;
   pFbData.Free;
+  fExportStream.Free;
 end;
 
 // --------------
@@ -1546,19 +1549,19 @@ begin
   fstream.Write(tmpRaw[0], sizeRaw);
 end;
 
-function tPexDecompiler.dosavePex(fstream: tmemoryStream; t: tstringlist; filename: string): boolean;
+function tPexDecompiler.dosavePex(t: tstringlist; filename: string): boolean;
 var
   i: integer;
   forcedCP: word;
 begin
-  fstream.clear;
+  fExportstream.clear;
   forcedCP:= getCodepagepexOnSave;
   result:= false;
   try
-    fstream.writebuffer(headerPexBuffer[0], length(headerPexBuffer));
+    fExportstream.writebuffer(headerPexBuffer[0], length(headerPexBuffer));
     for i:= 0 to t.Count - 1 do
-      WriteValue_utf8(iPexByteOrder, t[i], fstream, forcedCP);
-    fstream.writebuffer(dataPexBuffer[0], length(dataPexBuffer));
+      WriteValue_utf8(iPexByteOrder, t[i], fExportstream, forcedCP);
+    fExportstream.writebuffer(dataPexBuffer[0], length(dataPexBuffer));
     result:= true;
   except
   end;

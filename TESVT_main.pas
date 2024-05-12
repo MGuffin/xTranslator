@@ -36,9 +36,9 @@ uses Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics, StdCtrls, 
   HTMLUn2, StrUtils, Menus, ImgList, ToolWin, SynEdit, math, SynURIOpener, SynEditHighlighter, ButtonGroup, TESVT_HeuristicSearch,
   TESVT_searchandreplace, TESVT_espDefinition, activeX, TESVT_Const, TESVT_typedef, TESVT_fstreamsave, TESVT_search, TESVT_langpref,
   HtmlView, ShellAPI, Dialogs, TESVT_Fastsearch, TESVT_bsa, TESVT_Ressources, TESVT_Hint, TESVT_sharedVTProc, TESVT_scriptPex,
-  SynEditMiscClasses, SynEditSearch, SynEditTypes, SynEditKeyCmds, TESVT_TCSC, regularexpressionscore, ClipBrd, TESVT_TranslateFunc,
+  SynEditMiscClasses, SynEditSearch, SynEditTypes, SynEditKeyCmds, regularexpressionscore, ClipBrd, TESVT_TranslateFunc,
   TESVT_SSTFunc, TESVT_Undo, TESVT_StringsFunc, TESVT_XMLFunc, TESVT_MainLoader, TESVT_SpellCheck, TESVT_Fuz, TESVT_Utils, MMSystem,
-  TESVT_StringsStatus, TESVT_Threads, SyncObjs, TESVT_QustCTDAUtils, TESVT_Batcher, TESVT_TranslatorApi, PsAPI, Grids, IdBaseComponent,
+  TESVT_StringsStatus, TESVT_Threads, SyncObjs, TESVT_Batcher, TESVT_TranslatorApi, PsAPI, Grids, IdBaseComponent,
   TESVT_NpcMap, System.ImageList, System.UITypes, urlSubs, RegularExpressionsConsts, System.inifiles, ioutils,
   Vcl.Themes, TESVT_RegexUtils;
 
@@ -412,6 +412,7 @@ type
     Panel32: TPanel;
     MemoLog: TRichEdit;
     TimerVocabSearch: TTimer;
+    RtlToLtr1: TMenuItem;
     function ApplyBatcher(id: integer; bSilent: boolean = false): boolean;
     procedure menuOnClick(Sender: TObject);
     procedure RecentmenuMesure(Sender: TObject; ACanvas: TCanvas; var Width, Height: integer);
@@ -649,6 +650,7 @@ type
     procedure ApiTransMenuClick(Sender: TObject);
     procedure ToolButton49Click(Sender: TObject);
     procedure TimerVocabSearchTimer(Sender: TObject);
+    procedure RtlToLtr1Click(Sender: TObject);
   protected
     procedure WMCommand(var Msg: TMessage); message WM_COMMAND;
     procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
@@ -828,8 +830,8 @@ type
     procedure openAddonCommandLine(filename: string);
     procedure loadMCM(filename: string; savefolder: boolean);
     function doloadMCM(filename: string; savefolder: boolean): integer;
-    function loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; mcmIdList: tstringlist): boolean;
-    function loadAddonMCMbsa(loader: tTranslatorLoader; bsa: string; baselist: tlist; mcmIdList: tstringlist; bGetAddondata: boolean = true): boolean;
+    function loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; bIsOnCompare: boolean): boolean;
+    function loadAddonMCMbsa(loader: tTranslatorLoader; bsa: string; baselist: tlist; bIsOnCompare, bGetAddondata: boolean): boolean;
     function browseArchive(var bStream: TObject; const bsafile, fLabelParam: string; const aFolder, aExt: array of string; var filesToLoad: tstringlist; var discardPex: boolean;
       bAllowMulti: boolean = true): boolean;
     procedure loadMCMCompare(filename: string);
@@ -842,6 +844,7 @@ type
       var bNeedMaster: boolean): integer;
     function getDnamInfoData(loader: tTranslatorLoader; dnamref: cardinal; var n: string; var bNeedMaster: boolean): boolean;
     procedure ConvertTCSC(loader: tTranslatorLoader; Mode: boolean);
+    procedure ConvertRTL(loader: tTranslatorLoader);
     procedure CompareStringsSD(loader: tTranslatorLoader; fProc: tcompareproc);
     procedure CompareStringsSDEx(dlist: tlist; fProc: tcompareproc);
     procedure validateLD(fixNum: boolean);
@@ -907,6 +910,7 @@ var
   Form1: TForm1;
   openAppli: boolean = true;
   bDoUpdateStats: boolean = true;
+  TCSCList: tlist;
 
 implementation
 
@@ -915,6 +919,7 @@ uses TESVT_EspCompareOpts, TESVT_replaceAll, SynHighlighterPex, TESVT_AddId, TES
   TESVT_delocOpts, TESVT_Browser, TESVT_Colab, TESVT_ColabFilter, TESVT_Codepage, TESVT_ChooseCP, TESVT_ToolBox, TESVT_AdvSearch,
   TESVT_DefUIGen, TESVT_FormData, TESVT_HeaderWizard, TESVT_commandProcessor, TESVT_TranslatorApiDialog;
 {$R *.dfm}
+// ------------------------------
 
 procedure TForm1.openlog;
 begin
@@ -4085,7 +4090,7 @@ begin
   if isAlreadyLoaded(filename, Result) then
     exit;
 
-  currentloader := tTranslatorLoader.create(filename);
+  currentloader := tTranslatorLoader.create(filename, espTree);
   currentloader.loaderType := sLoaderTypeStr;
   try
     r := parseFileNameData(filename);
@@ -4361,6 +4366,7 @@ begin
   MainLoader.addUndo(Data.BasicND.s, 0, false);
   Data.BasicND.s.strans := NewText;
   Data.BasicND.s.resetStatus([validated]);
+
   // ReplaceAllStrings(Data.BasicND.s, [validated], false);
   setuserCacheUpdated(MainLoader, cacheLoaded);
 end;
@@ -4828,7 +4834,7 @@ begin
     FinalizePex(MainLoader.addon_folder, MainLoader.addon_name, false)
   else if currentTesvMode = sTESVMcM then
   begin
-    if TESVTSameLanguage or (MainLoader.addon_Lang = '') or (not CustomTxtParams.useSuffixe(MainLoader.McmIdType)) then
+    if TESVTSameLanguage or (MainLoader.addon_Lang = '') or not MainLoader.McMData.useLangSuffixe then
       FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_Filename, true, false)
     else
       FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_name, false, false)
@@ -4854,7 +4860,7 @@ procedure TForm1.Save2Click(Sender: TObject);
 var
   filename: string;
   tmpFolder, tmpFilename: string;
-  bskipSuffixe:boolean;
+  bskipSuffixe: boolean;
 begin
   // closing editWindows
   form2.valideStringChange(false, true, true, [validated]);
@@ -4872,7 +4878,7 @@ begin
   begin
     // creating the  directory if necessary
     ForceDirectories(MainLoader.addon_folder);
-    bskipSuffixe :=  TESVTSameLanguage or (MainLoader.addon_Lang = '') or (not CustomTxtParams.useSuffixe(MainLoader.McmIdType));
+    bskipSuffixe := TESVTSameLanguage or (MainLoader.addon_Lang = '') or (not CustomTxtParams.useSuffixe(MainLoader.McMData.McmIdType));
 
     if bskipSuffixe then
       tmpFilename := extractFileName(MainLoader.addon_Filename)
@@ -5007,7 +5013,7 @@ begin
   begin
     ForceDirectories(folder); // creating the string directory if necessary
     startStuff(getRes('Fbk_SaveMCM'));
-    if MainLoader.saveMCM(tmpOutput) then
+    if MainLoader.McMData.saveMCM(MainLoader.listArray[0], tmpOutput) then
       dofeedback(formatres('Fbk_Saved', [tmpOutput]), true, [askPanel])
     else
     begin
@@ -7021,9 +7027,9 @@ begin
     exit;
 
   b := false;
-  currentloader := tTranslatorLoader.create(filename, false);
+  currentloader := tTranslatorLoader.create(filename, espTree, false);
   try
-    currentloader.StartEspLoader(espTree);
+    currentloader.loaderType := sLoaderTypeEsp;
     lookupfailed := 0;
     sharedIdMaster := 0;
     currentloader.addon_Fullpath := filename;
@@ -7193,8 +7199,8 @@ begin
     exit;
 
   // --if no create a loader
-  currentloader := tTranslatorLoader.create(filename, bLoadEspSingleListA);
-  currentloader.StartEspLoader(Form1.espTree);
+  currentloader := tTranslatorLoader.create(filename, espTree, bLoadEspSingleListA);
+  currentloader.loaderType := sLoaderTypeEsp;
 
   currentloader.addon_Fullpath := filename;
   currentloader.addon_folder := ExtractFilePath(currentloader.addon_Fullpath);
@@ -8013,7 +8019,7 @@ begin
     exit;
   b := false;
 
-  currentloader := tTranslatorLoader.create(fullPath, true);
+  currentloader := tTranslatorLoader.create(fullPath, espTree, true);
   currentloader.addon_name := filename;
   currentloader.addon_Fullpath := fullPath;
 
@@ -8845,7 +8851,7 @@ var
 begin
   if isAlreadyLoaded(filename, Result) then
     exit;
-  currentloader := tTranslatorLoader.create(filename);
+  currentloader := tTranslatorLoader.create(filename, espTree);
   currentloader.loaderType := sLoaderTypeMcM;
   b := false;
   try
@@ -8857,8 +8863,7 @@ begin
       currentloader.addon_name := r.fNameStrict;
       currentloader.addon_Fullpath := filename;
       updateStatus(currentloader.addon_name);
-      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.addon_Ext, currentloader.listArray[0],
-        currentloader.MCMheaderList);
+      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.addon_Ext, currentloader.listArray[0], false);
 
     except
       On E: Exception do
@@ -8880,7 +8885,7 @@ begin
   end;
 end;
 
-function TForm1.loadAddonMCMbsa(loader: tTranslatorLoader; bsa: string; baselist: tlist; mcmIdList: tstringlist; bGetAddondata: boolean = true): boolean;
+function TForm1.loadAddonMCMbsa(loader: tTranslatorLoader; bsa: string; baselist: tlist; bIsOnCompare, bGetAddondata: boolean): boolean;
 var
   fs: tmemoryStream;
   buffer: tbytes;
@@ -8912,7 +8917,7 @@ begin
         begin
           fs.WriteBuffer(buffer[0], length(buffer));
           fs.Position := 0;
-          loader.parseMCM(fs, baselist, mcmIdList);
+          loader.McMData.parseMCM(fs, baselist, bIsOnCompare);
           Result := true;
         end
         else
@@ -8929,7 +8934,7 @@ begin
   end;
 end;
 
-function TForm1.loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; mcmIdList: tstringlist): boolean;
+function TForm1.loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; bIsOnCompare: boolean): boolean;
 var
   f: tstringlist;
 begin
@@ -8941,7 +8946,7 @@ begin
         f.loadfromfile(format('%s%s_%s%s', [folder, filename, lang, ext]))
       else
         f.loadfromfile(format('%s%s%s', [folder, filename, ext]));
-      loader.parseMCM(f, baselist, mcmIdList);
+      loader.McMData.parseMCM(f, baselist, bIsOnCompare);
       Result := true;
     except
       On E: Exception do
@@ -8969,12 +8974,12 @@ begin
       tmpExt := extractFileExt(filename);
       if (tmpExt = '.bsa') or (tmpExt = '.ba2') then
       begin
-        b := loadAddonMCMbsa(MainLoader, filename, LocalVocabBaseList, MainLoader.MCMheaderListCompare, false);
+        b := loadAddonMCMbsa(MainLoader, filename, LocalVocabBaseList, true, false);
       end
       else if CustomTxtParams.isValidTxtExt(tmpExt) then
       begin
         r := parseFileNameData(filename);
-        b := loadAddonMCM(MainLoader, r.fPathSlash, r.fNameStrict, r.fLang, r.fExt, LocalVocabBaseList, MainLoader.MCMheaderListCompare);
+        b := loadAddonMCM(MainLoader, r.fPathSlash, r.fNameStrict, r.fLang, r.fExt, LocalVocabBaseList, true);
       end;
 
       if b then
@@ -8983,7 +8988,7 @@ begin
         form2.close; // security
         Game_EspCompareFolder := ExtractFilePath(filename);
         if openCompareOpt2(fProc, fProcVmad, fprocVmadTrans, 1) then
-          MainLoader.doCompareMCM(fProc);
+          MainLoader.McMData.doCompareMCM(MainLoader.listArray[0], fProc);
         timedebut := timedebut + (GetTickCount - timeStop);
       end;
     except
@@ -8992,7 +8997,7 @@ begin
     end;
   finally
     clearSkList(LocalVocabBaseList, true);
-    MainLoader.MCMheaderListCompare.clear;
+    MainLoader.McMData.MCMheaderListCompare.clear;
     stopStuff;
   end;
 end;
@@ -9131,16 +9136,17 @@ begin
   try
     fstream.WriteBuffer(buffer[0], length(buffer));
 
-    currentloader := tTranslatorLoader.create(tmpFilename);
+    currentloader := tTranslatorLoader.create(tmpFilename, espTree);
     currentloader.addon_BSApath := filename;
     currentloader.addon_Fullpath := filename;
+
     currentloader.addon_folder := ExtractFilePath(currentloader.addon_Fullpath) + fData.fPathSlash;
     currentloader.addon_name := fData.fName + fData.fExt;
     currentloader.addon_nameinBSA := fData.fPathSlash + currentloader.addon_name;
 
     if fData.fExt = '.pex' then
     begin
-      currentloader.StartPexLoader;
+      currentloader.loaderType := sloaderTypePex;
       b := currentloader.PexDecompiler.readPex(fstream, discardPex);
       // set true to discard noAuthString Pex
       if b then
@@ -9156,7 +9162,8 @@ begin
     begin
       currentloader.addon_name := fData.fNameStrict;
       currentloader.loaderType := sLoaderTypeMcM;
-      currentloader.parseMCM(fstream, currentloader.listArray[0], currentloader.MCMheaderList);
+      currentloader.addon_Lang := fData.fLang;
+      currentloader.McMData.parseMCM(fstream, currentloader.listArray[0], false);
       if currentloader.listArray[0].count > 0 then
       begin
         currentloader.fLoaderMode := sTESVMcM;
@@ -9246,8 +9253,8 @@ begin
   Result := false;
   if isAlreadyLoaded(filename, index) then
     exit;
-  currentloader := tTranslatorLoader.create(filename);
-  currentloader.StartPexLoader;
+  currentloader := tTranslatorLoader.create(filename, espTree);
+  currentloader.loaderType := sloaderTypePex;
 
   r := parseFileNameData(filename);
   currentloader.addon_folder := r.fPathSlash;
@@ -9293,7 +9300,6 @@ begin
       end;
     end;
   end;
-
 end;
 
 procedure TForm1.InjectInBSA(loader: tTranslatorLoader; multi: boolean);
@@ -9740,6 +9746,37 @@ begin
   stopStuff;
 end;
 
+procedure TForm1.ConvertRTL(loader: tTranslatorLoader);
+var
+  i, k: integer;
+  tmpStr: string;
+  sk: tskystr;
+begin
+  startStuff(getRes('Converting...'));
+  ProgressBar.max := getTotalVocabCount(loader.listArray);
+
+  for k := 0 to 2 do
+    for i := 0 to loader.listArray[k].count - 1 do
+    begin
+
+      sk := loader.listArray[k][i];
+      if sk.lockedStatus then
+        continue;
+
+      tmpStr := sk.strans;
+
+      tmpStr := ReverseRTLString(tmpStr);
+      // tmpStr := addRTLTag(tmpStr);
+      if tmpStr <> sk.strans then
+        sk.resetStatus([incompleteTrans]);
+      sk.strans := tmpStr;
+
+      updatepBar(1000);
+    end;
+
+  stopStuff;
+end;
+
 // compareStrings Tool
 
 procedure TForm1.TagDiff1Click(Sender: TObject);
@@ -10003,9 +10040,9 @@ var
   bOpt: integer;
 begin
   b := false;
-  currentloader := tTranslatorLoader.create(filename, false);
+  currentloader := tTranslatorLoader.create(filename, espTree, false);
   try
-    currentloader.StartEspLoader(espTree);
+    currentloader.loaderType := sLoaderTypeEsp;
     lookupfailed := 0;
     sharedIdMaster := 0;
     currentloader.addon_Fullpath := filename;
@@ -10960,6 +10997,11 @@ begin
     ClearArrayList(tmpAlist, true, true);
     masterList.free;
   end;
+end;
+
+procedure TForm1.RtlToLtr1Click(Sender: TObject);
+begin
+  ConvertRTL(MainLoader);
 end;
 
 

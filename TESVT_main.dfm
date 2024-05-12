@@ -2688,6 +2688,10 @@ object Form1: TForm1
           ImageIndex = 1
           OnClick = ConvertSCTC1Click
         end
+        object RtlToLtr1: TMenuItem
+          Caption = 'Arabic RtlToLtr (AlphaTEST-WIP)'
+          OnClick = RtlToLtr1Click
+        end
         object N17: TMenuItem
           Caption = '-'
         end

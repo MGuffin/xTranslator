@@ -33,7 +33,7 @@ interface
 {$I _config.inc}
 
 uses Classes, sysUtils, Dialogs, VirtualTrees, comCtrls, math, zlibEx, TESVT_fstreamsave, TESVT_Const, TESVT_Ressources,
-  Generics.Collections, TESVT_Streams, TESVT_VMAD, TESVT_CustomList;
+  Generics.Collections, TESVT_Streams, TESVT_VMAD, TESVT_Utils;
 
 type
   sRecordType = (sRecord, sGrup, sMaster);
