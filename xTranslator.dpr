@@ -33,8 +33,6 @@ uses
   TESVT_ApplySSTOpts in 'TESVT_ApplySSTOpts.pas' {Form12},
   TESVT_SpellCheck in 'TESVT_SpellCheck.pas',
   TESVT_regex in 'TESVT_regex.pas' {Form13},
-  TESVT_Streams in 'TESVT_Streams.pas',
-  TESVT_Utils in 'TESVT_Utils.pas',
   TESVT_XMLExportOpts in 'TESVT_XMLExportOpts.pas' {FormXmlOpt},
   TESVT_delocOpts in 'TESVT_delocOpts.pas' {FormLocOpt},
   TESVT_Browser in 'TESVT_Browser.pas' {FormBrowser},
@@ -74,7 +72,8 @@ uses
   TESVT_HeaderWizard in 'TESVT_HeaderWizard.pas' {Form23},
   TESVT_commandProcessor in 'TESVT_commandProcessor.pas' {Form24},
   TESVT_TranslatorApiDialog in 'TESVT_TranslatorApiDialog.pas' {Form25},
-  TESVT_RegexUtils in 'TESVT_RegexUtils.pas';
+  TESVT_RegexUtils in 'TESVT_RegexUtils.pas',
+  TESVT_RtlPreview in 'TESVT_RtlPreview.pas' {FormRtl};
 
 {$R *.res}
 

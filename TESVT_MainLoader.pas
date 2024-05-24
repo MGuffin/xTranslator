@@ -49,18 +49,22 @@ Type
   pArray3 = array [0 .. 2] of pVirtualNode;
 
   tMcMData = class
-  public
+  private
     McMMemoryStream: tmemorystream;
     fExportStream: tmemorystream;
     MCMheaderList: tstringlist;
     MCMheaderListCompare: tstringlist;
     customTextNormalizedList: tstringlist;
+    function getTag(i: integer): string;
+  public
+
     McmIdType: integer;
     Constructor create;
     Destructor Destroy; override;
     function useLangSuffixe: boolean;
-    procedure parseMCM(fstream: tmemorystream; baselist: tlist; bIsOnCompare: boolean); overload;
+    function parseMCM(fstream: tmemorystream; baselist: tlist; bIsOnCompare: boolean): string; overload;
     procedure parseMCM(f: tstringlist; baselist: tlist; bIsOnCompare: boolean); overload;
+    function parseMCM(baselist: tlist; bIsOnCompare: boolean; sEncoding: string = ''): string; overload;
     function saveMCM(l: tlist; filename: string; tlistInject: tstringlist = nil): boolean;
     procedure doCompareMCM(l: tlist; fProc: tCompareProc);
   end;
@@ -154,7 +158,7 @@ Type
     function getAddonHashStr: string;
     procedure initAddonReferences;
     procedure getaddonHash;
-    procedure ResetallTrans;
+    procedure ResetallTrans(bCacheupdate: boolean = true);
     procedure ValidateallTrans;
     function GetCaption: string;
     procedure checkFieldSize;
@@ -200,6 +204,7 @@ Type
     function isTaggedTES4_SNAM: boolean;
     function getMasterList: tstringlist;
     procedure updateAllRecordsForStringIDRestoration(bRandom: boolean);
+    function addon_NameWithSuffixe: string;
   end;
 
 Function GetListArrayCount(loader: tTranslatorLoader; i: integer): integer;
@@ -220,6 +225,7 @@ function MainLoaderStatsOutputRaw(id: integer): integer;
 function isFuzRequired(loader: tTranslatorLoader; current: cardinal): boolean;
 function isFuzLoaded(loader: tTranslatorLoader; current: cardinal): boolean;
 function isFuzCompatible(loader: tTranslatorLoader): boolean;
+function isMcMLoader(loader: tTranslatorLoader): boolean;
 function GetFontX(loader: tTranslatorLoader): single;
 function AuthOnCheckAllUserCacheUpdated: boolean;
 function getCurrentLoaderIndex(loader: tTranslatorLoader): integer;
@@ -256,9 +262,19 @@ begin
   inherited;
 end;
 
+function tMcMData.useLangSuffixe: boolean;
+begin
+  result := CustomTxtParams.useSuffixe(McmIdType);
+end;
+
+function tMcMData.getTag(i: integer): string;
+begin
+  result := format('{{xt=%d}}', [i]);
+end;
+
 procedure tMcMData.parseMCM(f: tstringlist; baselist: tlist; bIsOnCompare: boolean);
 var
-  i, j, refID: integer;
+  i, j, refID, lastOffset: integer;
   tmpid: string;
   sk: tSkyStr;
   RegEx: tperlRegex;
@@ -267,74 +283,164 @@ begin
   McmIdType := CustomTxtParams.mcmDecider(f);
   if McmIdType = -1 then
     exit;
+  // cleanup;
+  MCMheaderListCompare.Clear;
+  MCMheaderList.Clear;
+  customTextNormalizedList.Clear;
+  // pbar
+  pBar := 0;
 
+  // ----------
   RegEx := tperlRegex.create;
+  RegEx.Options := [preCaseLess, preSingleLine];
+
   RegEx.RegEx := CustomTxtParams.getRegex(McmIdType);
   refID := CustomTxtParams.getrefId(McmIdType);
-
   try
-    for i := 0 to f.count - 1 do
+    if CustomTxtParams.isSearchByLine(McmIdType) then
     begin
-      NormalizedString := f[i];
-      tmpid := inttohex(i, 8);
-      if length(f[i]) <> 0 then
+
+      ProgressBar.Max := f.count;
+      for i := 0 to f.count - 1 do
       begin
-        RegEx.subject := f[i];
-        if RegEx.Match then
+
+        NormalizedString := f[i];
+        tmpid := inttohex(i, 8);
+        if length(f[i]) <> 0 then
         begin
-          for j := RegEx.Groupcount downto 1 do
+          RegEx.subject := f[i];
+          if RegEx.Match then
           begin
-            if j = refID then
-              tmpid := RegEx.Groups[j]
-            else
-            begin
-              if RegEx.Groups[j] <> '' then
+            // first loop, get REfID if relevant
+            if refID > 0 then
+              for j := 1 to RegEx.Groupcount do
+                if (j = refID) and (RegEx.Groups[j] <> '') then
+                begin
+                  tmpid := RegEx.Groups[j];
+                  break;
+                end;
+            // 2 de loop, get string
+            for j := RegEx.Groupcount downto 1 do
+              if (j <> refID) and (RegEx.Groups[j] <> '') then
               begin
-                NormalizedString := MidStrReplace(NormalizedString, '<%' + inttostr(j) + '%>', RegEx.GroupOffsets[j], RegEx.GroupLengths[j]);
-                sk := tSkyStr.init(j, i, RegEx.Groups[j], '', 0, 0, [], [], nil, true);
-                // iId = refn lId = line
+                NormalizedString := MidStrReplace(NormalizedString, getTag(j), RegEx.GroupOffsets[j], RegEx.GroupLengths[j]);
+                sk := tSkyStr.init(0, i, RegEx.Groups[j], '', 0, 0, [], [], nil, true);
+                if refID <> 0 then
+                  sk.esp.rHash := stringHash(tmpid);
+                sk.esp.index := j;
+                sk.esp.indexMax := RegEx.Groupcount;
                 baselist.add(sk);
               end;
-            end;
           end;
+        end;
+        if not bIsOnCompare then
+        begin
+          MCMheaderList.add(tmpid);
+          customTextNormalizedList.add(NormalizedString);
         end
-      end;
+        else
+          MCMheaderListCompare.add(tmpid);
 
-      if not bIsOnCompare then
-      begin
-        MCMheaderList.add(tmpid);
-        customTextNormalizedList.add(NormalizedString);
-      end
-      else
-        MCMheaderListCompare.add(tmpid);
+        UpdatePBar(100, 0, false);
+        if cancelstuff then
+          break;
+      end;
+    end
+    else
+    begin
+      ProgressBar.Max := length(f.Text);
+      RegEx.subject := f.Text;
+      NormalizedString := '';
+      lastOffset := 1;
+      i := 0; // index of edid  (stringID, saved)
+      // j := 2; // group
+      if RegEx.Match then
+        repeat
+          tmpid := inttohex(i, 8);
+          // first loop, get REfID if relevant
+          if refID > 0 then
+            for j := 1 to RegEx.Groupcount do
+              if (j = refID) and (RegEx.Groups[j] <> '') then
+              begin
+                tmpid := RegEx.Groups[j];
+                break;
+              end;
+          // 2 de loop, get string
+          for j := 1 to RegEx.Groupcount do
+            if (j <> refID) and (RegEx.Groups[j] <> '') then
+            begin
+              NormalizedString := NormalizedString + copy(f.Text, lastOffset, RegEx.GroupOffsets[j] - lastOffset) + getTag(baselist.count);
+              lastOffset := RegEx.GroupOffsets[j] + RegEx.GroupLengths[j];
+              sk := tSkyStr.init(baselist.count, i, RegEx.Groups[j], '', 0, 0, [], [], nil, true);
+              if refID <> 0 then
+                sk.esp.rHash := stringHash(tmpid);
+              sk.esp.index := j;
+              sk.esp.indexMax := RegEx.Groupcount;
+              baselist.add(sk);
+            end;
+          inc(i);
+          if not bIsOnCompare then
+            MCMheaderList.add(tmpid)
+          else
+            MCMheaderListCompare.add(tmpid);
+
+          UpdatePBar(100, lastOffset, false);
+          if cancelstuff then
+            break;
+        until not RegEx.MatchAgain;
+
+      NormalizedString := NormalizedString + copy(f.Text, lastOffset, maxInt);
+      customTextNormalizedList.Text := NormalizedString;
     end;
   finally
     RegEx.free;
   end;
 end;
 
-function tMcMData.useLangSuffixe: boolean;
-begin
-  result := CustomTxtParams.useSuffixe(McmIdType);
-end;
-
-procedure tMcMData.parseMCM(fstream: tmemorystream; baselist: tlist; bIsOnCompare: boolean);
+function tMcMData.parseMCM(baselist: tlist; bIsOnCompare: boolean; sEncoding: string = ''): string;
 var
   f: tstringlist;
 begin
   f := tstringlist.create;
   try
-    fstream.position := 0;
-    f.LoadFromStream(fstream); // , TEncoding.UTF8
+    McMMemoryStream.position := 0;
+    try
+      if sEncoding = '' then
+      begin
+        f.LoadFromStream(McMMemoryStream, tEncoding.utf8);
+        result := 'utf8';
+      end
+      else
+      begin
+        f.LoadFromStream(McMMemoryStream, getTencoding(sEncoding));
+        result := sEncoding;
+      end;
+    except
+      on E: EEncodingError do
+      begin
+        McMMemoryStream.position := 0;
+        f.LoadFromStream(McMMemoryStream);
+        result := 'utf16';
+      end;
+    end;
     parseMCM(f, baselist, bIsOnCompare);
   finally
     f.free;
   end;
 end;
 
+function tMcMData.parseMCM(fstream: tmemorystream; baselist: tlist; bIsOnCompare: boolean): string;
+begin
+  fstream.position := 0;
+  McMMemoryStream.Clear;
+  McMMemoryStream.CopyFrom(fstream, fstream.Size);
+  result := parseMCM(baselist, bIsOnCompare);
+end;
+
 function tMcMData.saveMCM(l: tlist; filename: string; tlistInject: tstringlist = nil): boolean;
 var
   f: tstringlist;
+  tmpString: string;
   i: integer;
   sk: tSkyStr;
 begin
@@ -342,11 +448,28 @@ begin
   f := tstringlist.create;
   try
     try
-      f.Assign(customTextNormalizedList); // listarray[0]
-      for i := 0 to l.count - 1 do
+      pbar:=0;
+      ProgressBar.Max := l.count;
+      if CustomTxtParams.isSearchByLine(McmIdType) then
       begin
-        sk := l[i];
-        f[sk.stringID] := stringreplace(f[sk.stringID], '<%' + inttostr(sk.iId) + '%>', sk.strans, []);
+        f.Assign(customTextNormalizedList); // listarray[0]
+        for i := 0 to l.count - 1 do
+        begin
+          sk := l[i];
+          f[sk.stringID] := stringreplace(f[sk.stringID], getTag(sk.esp.index), sk.strans, []);
+          UpdatePBar(100, i, false);
+        end;
+      end
+      else
+      begin
+        tmpString := customTextNormalizedList.Text;
+        for i := 0 to l.count - 1 do
+        begin
+          sk := l[i];
+          tmpString := stringreplace(tmpString, getTag(i), sk.strans, []);
+          UpdatePBar(100, i, false);
+        end;
+        f.Text := tmpString;
       end;
 
       if assigned(tlistInject) then
@@ -360,7 +483,7 @@ begin
       result := true;
     except
       On E: Exception do
-        doFeedback(E.Message, true);
+        dofeedback(E.Message, true);
     end
   finally
     f.free;
@@ -368,37 +491,37 @@ begin
 end;
 
 // ---compare MCM
-
 procedure tMcMData.doCompareMCM(l: tlist; fProc: tCompareProc);
 var
-  i, j, refID: integer;
+  j: integer;
   sk, sksst: tSkyStr;
 
-  function indexOf(l: tstringlist; s: string): integer;
+  function getSkCompare(c: cardinal; index: integer): tSkyStr;
   var
     i: integer;
   begin
-    for i := 0 to l.count - 1 do
-      if lowercase(l[i]) = lowercase(s) then
-        exit(i);
-    result := -1;
+    for i := 0 to LocalVocabBaseList.count - 1 do
+    begin
+      result := LocalVocabBaseList[i];
+      if (result.esp.rHash = c) and (result.esp.index = index) then
+        exit;
+    end;
+    result := nil;
   end;
 
 begin
-  for i := 0 to LocalVocabBaseList.count - 1 do
+  for j := 0 to l.count - 1 do
   begin
-    sksst := LocalVocabBaseList[i];
-    refID := indexOf(MCMheaderList, MCMheaderListCompare[sksst.stringID]);
-    if refID >= 0 then
-      for j := 0 to l.count - 1 do
+    sk := l[j];
+    if fProc(sk) then
+    begin
+      sksst := getSkCompare(sk.esp.rHash, sk.esp.index);
+      if (sksst <> nil) then
       begin
-        sk := l[j];
-        if fProc(sk) and (integer(sk.stringID) = refID) and (sk.iId = sksst.iId) then
-        begin
-          sk.strans := sksst.s;
-          sk.resetStatus([incompleteTrans]);
-        end;
-      end
+        sk.strans := sksst.s;
+        sk.resetStatus([incompleteTrans]);
+      end;
+    end;
   end;
 end;
 // ---------------------
@@ -411,6 +534,11 @@ end;
 function isFuzRequired(loader: tTranslatorLoader; current: cardinal): boolean;
 begin
   result := isFuzCompatible(loader) and (loader.uGuid <> current);
+end;
+
+function isMcMLoader(loader: tTranslatorLoader): boolean;
+begin
+  result := assigned(loader) and (loader.loaderType = sLoaderTypeMCM);
 end;
 
 function isFuzCompatible(loader: tTranslatorLoader): boolean;
@@ -1023,7 +1151,7 @@ var
 begin
   for i := 0 to undoList.count - 1 do
     tUndoData(undoList[i]).free;
-  undoList.clear;
+  undoList.Clear;
 end;
 
 Procedure tTranslatorLoader.doUndo;
@@ -1187,14 +1315,15 @@ begin
   usercacheUpdated := true;
 end;
 
-procedure tTranslatorLoader.ResetallTrans;
+procedure tTranslatorLoader.ResetallTrans(bCacheupdate: boolean = true);
 var
   i, j: integer;
 begin
   for j := 0 to 2 do
     for i := 0 to listarray[j].count - 1 do
       tSkyStr(listarray[j][i]).resetTrans;
-  usercacheUpdated := true;
+  if bCacheupdate then
+    usercacheUpdated := true;
 end;
 
 procedure tTranslatorLoader.SortListByStringID;
@@ -1216,7 +1345,7 @@ begin
     for j := 0 to 2 do
       for i := 0 to listarray[j].count - 1 do
         addon_Hash := doAddonHash(addon_Hash, tSkyStr(listarray[j][i]).hash);
-    doFeedback(format('%s [Hash: %s]', [addon_Name, getAddonHashStr]));
+    dofeedback(format('%s [Hash: %s]', [addon_Name, getAddonHashStr]));
   end;
 end;
 
@@ -1302,9 +1431,9 @@ begin
       inc(count);
     end;
   end;
-  doFeedback(getres('VMADkept') + inttostr(EspLoader.VMADList.count));
-  doFeedback(getres('VMADdiscarded') + inttostr(EspLoader.BrokenVMAD));
-  doFeedback(getres('VMADString') + inttostr(count));
+  dofeedback(getres('VMADkept') + inttostr(EspLoader.VMADList.count));
+  dofeedback(getres('VMADdiscarded') + inttostr(EspLoader.BrokenVMAD));
+  dofeedback(getres('VMADString') + inttostr(count));
 end;
 
 function tTranslatorLoader.GetEspStrings(forceutf8: string = ''): rEspStats;
@@ -1473,7 +1602,7 @@ var
   i, j: integer;
 begin
   Testcanvas.font.name := virtualTreeFont;
-  Testcanvas.font.size := virtualTreeFontsize[0];
+  Testcanvas.font.Size := virtualTreeFontsize[0];
   FontX := -1;
   for j := 0 to 2 do
     for i := 0 to listarray[j].count - 1 do
@@ -1551,7 +1680,7 @@ begin
         SavePexFiletoTmp(fstream, bUseExternalDecompiler, ExtractFileName(addon_Name));
     except
       On E: Exception do
-        doFeedback(E.Message, true);
+        dofeedback(E.Message, true);
     end;
   finally
     fstream.free;
@@ -1648,7 +1777,7 @@ begin
       begin
         inc(sharedIdMaster);
         if bVerbose then
-          doFeedback(format('Shared Field(s): %s', [sk.s]));
+          dofeedback(format('Shared Field(s): %s', [sk.s]));
       end;
 
       if not(toLocalizedEsp in sk.sInternalparams) then
@@ -1660,7 +1789,8 @@ begin
             include(sk.sInternalparams, isLookupFailed);
             include(sk.sInternalparams, toLocalizedEsp);
             if bVerbose then
-              doFeedback(formatres('Fbk_RecOrphean', [sk.esp.strID, sk.getEspRef])) // lookupfailed
+              dofeedback(formatres('Fbk_RecOrphean', [sk.esp.strID, sk.getEspRef]))
+              // lookupfailed
           end;
           if bDeleteLookUpfailed then
             include(sk.sInternalparams, isDeleted)
@@ -1752,11 +1882,11 @@ begin
               if bDiff then
               begin
                 tSkyStr(f1.sk).resetStatus([validated]);
-                if (f1.rIndex.IndexMax > 0) or (f2.rIndex.IndexMax > 0) then
+                if (f1.rIndex.indexMax > 0) or (f2.rIndex.indexMax > 0) then
                 begin
                   tSkyStr(f1.sk).sparams := [incompleteTrans];
 
-                  if f1.rIndex.IndexMax <> f2.rIndex.IndexMax then
+                  if f1.rIndex.indexMax <> f2.rIndex.indexMax then
                     include(tSkyStr(f1.sk).sInternalparams, bigwarning)
                   else
                     include(tSkyStr(f1.sk).sInternalparams, warning)
@@ -1810,7 +1940,7 @@ begin
       continue;
     if sk1.aWords.count = 0 then
       continue;
-    if CancelStuff then
+    if cancelstuff then
       exit;
     if not fProc(sk1) then
       continue;
@@ -1853,7 +1983,7 @@ begin
       inc(count);
   end;
 
-  doFeedback(formatres('Fbk_LDResult', [count, listarray[lId].count, divide(count, listarray[lId].count) * 100]))
+  dofeedback(formatres('Fbk_LDResult', [count, listarray[lId].count, divide(count, listarray[lId].count) * 100]))
 end;
 
 // ----------------------------PEX--------------------
@@ -1904,11 +2034,11 @@ begin
         else
         begin
           PexDecompiler.fExportStream.SaveToFile(filename);
-          PexDecompiler.fExportStream.clear;
+          PexDecompiler.fExportStream.Clear;
         end;
     except
       On E: Exception do
-        doFeedback(E.Message, true);
+        dofeedback(E.Message, true);
     end;
   finally
     t.free;
@@ -1971,7 +2101,7 @@ begin
       lockTES4;
     end
     else
-      doFeedback(getres('FbK_SSTLoadError'), true);
+      dofeedback(getres('FbK_SSTLoadError'), true);
   finally
     ClearSkList(LocalVocabBaseList, true);
     clearInternalRefList(LocalVocabEdidList);
@@ -2013,6 +2143,14 @@ begin
   end;
 end;
 
+function tTranslatorLoader.addon_NameWithSuffixe: string;
+var
+  ext: string;
+begin
+  ext := ansilowercase(extractFileExt(addon_Filename));
+  result := addon_Name + '_' + Destlanguage + ext;
+end;
+
 // ------------------VMAD Exporter----------------------
 procedure tTranslatorLoader.rebuildVMADBuffers;
 var
@@ -2045,7 +2183,7 @@ begin
     exit;
   updateStatus(getres('BuildQuestList'));
   EspLoader.buildInheritedData;
-  MainLoader.QuestsList.clear;
+  MainLoader.QuestsList.Clear;
   Node := EspLoader.topDialGrup;
   grupLvl := EspLoader.VT.GetNodeLevel(Node);
   Node := EspLoader.VT.GetNext(Node);
@@ -2084,7 +2222,7 @@ begin
   begin
     filter := ansilowercase(filter);
     l.items.beginUpdate;
-    l.clear;
+    l.Clear;
     for i := 0 to pred(QuestsList.count) do
     begin
       if filter = '' then
@@ -2122,7 +2260,7 @@ procedure tTranslatorLoader.prepareColabExport;
 var
   i: integer;
 begin
-  lColabLabel.clear;
+  lColabLabel.Clear;
   for i := 1 to MAXCOLAB_ID do
   begin
     if (aColab[i] > 0) and (aColabLabel[i] <> '') then
@@ -2141,13 +2279,13 @@ begin
     if inrange(index, 1, MAXCOLAB_ID) then
       aColabLabel[index] := lColabLabel[i];
   end;
-  lColabLabel.clear;
+  lColabLabel.Clear;
 end;
 
 procedure tTranslatorLoader.uniqueAudit;
 begin
-  doFeedback('Uniques: ' + inttostr(MainLoader.uniqueAudit(false)));
-  doFeedback('Uniques (notTranslated): ' + inttostr(MainLoader.uniqueAudit(true)));
+  dofeedback('Uniques: ' + inttostr(MainLoader.uniqueAudit(false)));
+  dofeedback('Uniques (notTranslated): ' + inttostr(MainLoader.uniqueAudit(true)));
 end;
 
 function tTranslatorLoader.uniqueAudit(bnotTranslatedOnly: boolean): integer;
@@ -2174,7 +2312,7 @@ begin
   result := l.count;
   // UpdatePBar(0, ProgressBar.Max);
   // ------------
-  l.clear;
+  l.Clear;
   l.free;
 end;
 

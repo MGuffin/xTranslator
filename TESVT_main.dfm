@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 511
   Top = 0
   Caption = 'xTranslator'
-  ClientHeight = 630
-  ClientWidth = 1266
+  ClientHeight = 674
+  ClientWidth = 1256
   Color = clBtnFace
   Constraints.MinHeight = 480
   Constraints.MinWidth = 600
@@ -26,8 +26,8 @@ object Form1: TForm1
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 263
-    Width = 1266
+    Top = 307
+    Width = 1256
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -51,12 +51,12 @@ object Form1: TForm1
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 1266
+    Width = 1256
     Height = 30
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 1262
+    ExplicitWidth = 1252
     object Splitter3: TSplitter
       Left = 240
       Top = 0
@@ -391,17 +391,17 @@ object Form1: TForm1
     object Panel12: TPanel
       Left = 952
       Top = 0
-      Width = 314
+      Width = 304
       Height = 30
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 310
+      ExplicitWidth = 300
       object ComboBox1: TComboBox
         AlignWithMargins = True
         Left = 63
         Top = 3
-        Width = 248
+        Width = 238
         Height = 21
         Hint = 'hint_loadedModeList'
         Align = alClient
@@ -415,9 +415,9 @@ object Form1: TForm1
         ParentDoubleBuffered = False
         TabOrder = 0
         OnChange = ComboBox1Change
-        ExplicitWidth = 244
+        ExplicitWidth = 234
       end
-      object ComboBox2: TComboBox
+      object ComboBox_changeCP: TComboBox
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -434,7 +434,7 @@ object Form1: TForm1
         ShowHint = True
         TabOrder = 1
         Visible = False
-        OnChange = ComboBox2Change
+        OnChange = ComboBox_changeCPChange
       end
     end
     object Panel17: TPanel
@@ -584,33 +584,33 @@ object Form1: TForm1
   end
   object Panel4: TPanel
     Left = 0
-    Top = 266
-    Width = 1266
+    Top = 310
+    Width = 1256
     Height = 364
     Align = alBottom
     BevelOuter = bvNone
     Caption = 'Panel4'
     TabOrder = 2
-    ExplicitTop = 265
-    ExplicitWidth = 1262
+    ExplicitTop = 309
+    ExplicitWidth = 1252
     object pagecontrol2: TPageControl
       Left = 0
       Top = 0
-      Width = 1266
+      Width = 1256
       Height = 340
-      ActivePage = TabSheet2
+      ActivePage = TabSheet10
       Align = alClient
       Images = ImageList1
       TabOrder = 0
       OnChange = pagecontrol2Change
-      ExplicitWidth = 1262
+      ExplicitWidth = 1252
       object TabSheet8: TTabSheet
         Caption = 'Home'
         ImageIndex = 3
         object Panel5: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 311
           Margins.Left = 0
           Margins.Top = 0
@@ -623,7 +623,7 @@ object Form1: TForm1
           object HtmlViewer1: THtmlViewer
             Left = 0
             Top = 0
-            Width = 1258
+            Width = 1248
             Height = 311
             StyleElements = [seClient, seBorder]
             BorderStyle = htSingle
@@ -654,7 +654,7 @@ object Form1: TForm1
         object VocabTree: TVirtualStringTree
           Left = 0
           Top = 25
-          Width = 1258
+          Width = 1248
           Height = 286
           Align = alClient
           ButtonStyle = bsTriangle
@@ -709,7 +709,7 @@ object Form1: TForm1
             item
               Position = 1
               Text = 'Dictionaries'
-              Width = 1231
+              Width = 1221
             end
             item
               Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coAllowFocus]
@@ -726,7 +726,7 @@ object Form1: TForm1
         object Panel6: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 25
           Align = alTop
           BevelOuter = bvNone
@@ -734,7 +734,7 @@ object Form1: TForm1
           object Panel7: TPanel
             Left = 357
             Top = 0
-            Width = 901
+            Width = 891
             Height = 25
             Align = alClient
             BevelOuter = bvNone
@@ -742,7 +742,7 @@ object Form1: TForm1
             object ToolBar3: TToolBar
               Left = 0
               Top = 0
-              Width = 901
+              Width = 891
               Height = 28
               ButtonHeight = 24
               ButtonWidth = 25
@@ -883,7 +883,7 @@ object Form1: TForm1
         object LDtree: TVirtualStringTree
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 311
           Align = alClient
           Colors.SelectionTextColor = clWindowText
@@ -933,7 +933,7 @@ object Form1: TForm1
             item
               Position = 2
               Text = 'Translated'
-              Width = 834
+              Width = 824
             end
             item
               Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coVisible, coAllowFocus]
@@ -948,7 +948,7 @@ object Form1: TForm1
         object espTree: TVirtualStringTree
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 311
           Align = alClient
           ButtonStyle = bsTriangle
@@ -979,23 +979,25 @@ object Form1: TForm1
         object Panel9: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
+          ExplicitWidth = 1244
           object Panel10: TPanel
             Left = 357
             Top = 0
-            Width = 901
+            Width = 891
             Height = 25
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 0
+            ExplicitWidth = 887
             object ToolBar2: TToolBar
               Left = 0
               Top = 0
-              Width = 901
+              Width = 891
               Height = 28
               ButtonHeight = 24
               ButtonWidth = 25
@@ -1007,6 +1009,7 @@ object Form1: TForm1
               ParentShowHint = False
               ShowHint = True
               TabOrder = 0
+              ExplicitWidth = 887
               object ToolButton37: TToolButton
                 Left = 0
                 Top = 0
@@ -1072,17 +1075,18 @@ object Form1: TForm1
         object PageControlPex: TPageControl
           Left = 0
           Top = 25
-          Width = 1258
+          Width = 1248
           Height = 286
           ActivePage = TabSheet13
           Align = alClient
           TabOrder = 1
+          ExplicitWidth = 1244
           object TabSheet13: TTabSheet
             Caption = 'PexAsm'
             object SynEditPex: TSynEdit
               Left = 0
               Top = 0
-              Width = 1250
+              Width = 1240
               Height = 258
               Align = alClient
               ActiveLineColor = clInfoBk
@@ -1092,21 +1096,14 @@ object Form1: TForm1
               Font.Name = 'Courier New'
               Font.Pitch = fpFixed
               Font.Style = []
+              Font.Quality = fqClearTypeNatural
               TabOrder = 0
               OnMouseDown = SynEditPexMouseDown
-              CodeFolding.GutterShapeSize = 11
-              CodeFolding.CollapsedLineColor = clGrayText
-              CodeFolding.FolderBarLinesColor = clGrayText
-              CodeFolding.IndentGuidesColor = clGray
-              CodeFolding.IndentGuides = True
-              CodeFolding.ShowCollapsedLine = False
-              CodeFolding.ShowHintMark = True
               UseCodeFolding = False
               BookMarkOptions.BookmarkImages = ImageList3
               BookMarkOptions.GlyphsVisible = False
               BookMarkOptions.LeftMargin = 1
               BorderStyle = bsNone
-              Gutter.AutoSize = True
               Gutter.Color = clWindow
               Gutter.BorderColor = clScrollBar
               Gutter.DigitCount = 5
@@ -1115,9 +1112,27 @@ object Form1: TForm1
               Gutter.Font.Height = -11
               Gutter.Font.Name = 'Courier New'
               Gutter.Font.Style = []
-              Gutter.LeftOffset = 15
               Gutter.ShowLineNumbers = True
-              Gutter.Width = 0
+              Gutter.Bands = <
+                item
+                  Kind = gbkMarks
+                  Visible = True
+                  Width = 13
+                end
+                item
+                  Kind = gbkLineNumbers
+                end
+                item
+                  Kind = gbkFold
+                end
+                item
+                  Kind = gbkTrackChanges
+                end
+                item
+                  Kind = gbkMargin
+                  Visible = True
+                  Width = 3
+                end>
               Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
               ReadOnly = True
               RightEdge = 0
@@ -1127,7 +1142,7 @@ object Form1: TForm1
               WordWrapGlyph.Visible = False
               OnGutterClick = SynEditPexGutterClick
               OnMouseCursor = SynEditPexMouseCursor
-              FontSmoothing = fsmNone
+              ExplicitWidth = 1236
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp
@@ -1142,7 +1157,7 @@ object Form1: TForm1
             object SynEditScript: TSynEdit
               Left = 0
               Top = 0
-              Width = 1250
+              Width = 1240
               Height = 258
               Align = alClient
               ActiveLineColor = clCream
@@ -1152,20 +1167,14 @@ object Form1: TForm1
               Font.Name = 'Courier New'
               Font.Pitch = fpFixed
               Font.Style = []
+              Font.Quality = fqClearTypeNatural
               TabOrder = 0
-              CodeFolding.GutterShapeSize = 11
-              CodeFolding.CollapsedLineColor = clGrayText
               CodeFolding.FolderBarLinesColor = clGray
-              CodeFolding.IndentGuidesColor = clGray
-              CodeFolding.IndentGuides = True
-              CodeFolding.ShowCollapsedLine = False
-              CodeFolding.ShowHintMark = True
               UseCodeFolding = False
               BookMarkOptions.BookmarkImages = ImageList3
               BookMarkOptions.GlyphsVisible = False
               BookMarkOptions.LeftMargin = 1
               BorderStyle = bsNone
-              Gutter.AutoSize = True
               Gutter.Color = clWindow
               Gutter.BorderColor = clScrollBar
               Gutter.DigitCount = 5
@@ -1174,9 +1183,27 @@ object Form1: TForm1
               Gutter.Font.Height = -11
               Gutter.Font.Name = 'Courier New'
               Gutter.Font.Style = []
-              Gutter.LeftOffset = 15
               Gutter.ShowLineNumbers = True
-              Gutter.Width = 0
+              Gutter.Bands = <
+                item
+                  Kind = gbkMarks
+                  Visible = True
+                  Width = 13
+                end
+                item
+                  Kind = gbkLineNumbers
+                end
+                item
+                  Kind = gbkFold
+                end
+                item
+                  Kind = gbkTrackChanges
+                end
+                item
+                  Kind = gbkMargin
+                  Visible = True
+                  Width = 3
+                end>
               Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
               ReadOnly = True
               RightEdge = 0
@@ -1184,7 +1211,6 @@ object Form1: TForm1
               TabWidth = 6
               WordWrap = True
               WordWrapGlyph.Visible = False
-              FontSmoothing = fsmNone
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp
@@ -1201,7 +1227,7 @@ object Form1: TForm1
         object ListBox2: TListBox
           Left = 0
           Top = 25
-          Width = 1258
+          Width = 1248
           Height = 286
           Style = lbOwnerDrawFixed
           Align = alClient
@@ -1220,7 +1246,7 @@ object Form1: TForm1
         object Panel18: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 25
           Align = alTop
           BevelOuter = bvNone
@@ -1253,7 +1279,7 @@ object Form1: TForm1
           object Panel24: TPanel
             Left = 353
             Top = 0
-            Width = 905
+            Width = 895
             Height = 25
             Align = alClient
             BevelOuter = bvNone
@@ -1261,7 +1287,7 @@ object Form1: TForm1
             object ToolBar7: TToolBar
               Left = 0
               Top = 0
-              Width = 905
+              Width = 895
               Height = 29
               ButtonHeight = 24
               ButtonWidth = 24
@@ -1295,7 +1321,7 @@ object Form1: TForm1
         object Panel16: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 52
           Align = alTop
           BevelOuter = bvNone
@@ -1303,7 +1329,7 @@ object Form1: TForm1
           object Panel13: TPanel
             Left = 0
             Top = 0
-            Width = 1258
+            Width = 1248
             Height = 22
             Align = alTop
             BevelOuter = bvNone
@@ -1311,7 +1337,7 @@ object Form1: TForm1
             object Edit1: TEdit
               Left = 0
               Top = 0
-              Width = 1154
+              Width = 1144
               Height = 22
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -1324,7 +1350,7 @@ object Form1: TForm1
               TabOrder = 0
             end
             object Panel14: TPanel
-              Left = 1162
+              Left = 1152
               Top = 0
               Width = 96
               Height = 22
@@ -1361,7 +1387,7 @@ object Form1: TForm1
               end
             end
             object Panel15: TPanel
-              Left = 1154
+              Left = 1144
               Top = 0
               Width = 8
               Height = 22
@@ -1373,7 +1399,7 @@ object Form1: TForm1
           object Panel20: TPanel
             Left = 0
             Top = 27
-            Width = 1258
+            Width = 1248
             Height = 25
             Align = alBottom
             BevelOuter = bvNone
@@ -1462,7 +1488,7 @@ object Form1: TForm1
             object Panel26: TPanel
               Left = 497
               Top = 0
-              Width = 761
+              Width = 751
               Height = 25
               Align = alClient
               BevelOuter = bvNone
@@ -1473,7 +1499,7 @@ object Form1: TForm1
         object Panel25: TPanel
           Left = 0
           Top = 52
-          Width = 1258
+          Width = 1248
           Height = 259
           Align = alClient
           BevelOuter = bvNone
@@ -1570,7 +1596,7 @@ object Form1: TForm1
           object ListBox1: TListBox
             Left = 370
             Top = 0
-            Width = 888
+            Width = 878
             Height = 259
             Style = lbOwnerDrawFixed
             Align = alClient
@@ -1594,7 +1620,7 @@ object Form1: TForm1
         object SynEditRecord: TSynEdit
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 311
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
@@ -1603,14 +1629,8 @@ object Form1: TForm1
           Font.Name = 'Courier New'
           Font.Pitch = fpFixed
           Font.Style = []
+          Font.Quality = fqClearTypeNatural
           TabOrder = 0
-          CodeFolding.GutterShapeSize = 11
-          CodeFolding.CollapsedLineColor = clGrayText
-          CodeFolding.FolderBarLinesColor = clGrayText
-          CodeFolding.IndentGuidesColor = clGray
-          CodeFolding.IndentGuides = True
-          CodeFolding.ShowCollapsedLine = False
-          CodeFolding.ShowHintMark = True
           UseCodeFolding = False
           Gutter.Color = clWindow
           Gutter.Font.Charset = DEFAULT_CHARSET
@@ -1619,7 +1639,26 @@ object Form1: TForm1
           Gutter.Font.Name = 'Courier New'
           Gutter.Font.Style = []
           Gutter.Visible = False
-          Gutter.Width = 0
+          Gutter.Bands = <
+            item
+              Kind = gbkMarks
+              Visible = True
+              Width = 13
+            end
+            item
+              Kind = gbkLineNumbers
+            end
+            item
+              Kind = gbkFold
+            end
+            item
+              Kind = gbkTrackChanges
+            end
+            item
+              Kind = gbkMargin
+              Visible = True
+              Width = 3
+            end>
           Lines.Strings = (
             
               '#WARNING: do not modify this file, unless you know what you are ' +
@@ -1699,7 +1738,6 @@ object Form1: TForm1
           Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoNoCaret, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
           ReadOnly = True
           RightEdge = 0
-          FontSmoothing = fsmNone
         end
       end
       object TabSheet2: TTabSheet
@@ -1708,17 +1746,16 @@ object Form1: TForm1
         object Panel32: TPanel
           Left = 0
           Top = 0
-          Width = 1258
+          Width = 1248
           Height = 311
           Align = alClient
           BevelOuter = bvNone
           Caption = 'Panel32'
           TabOrder = 0
-          ExplicitWidth = 1254
           object MemoLog: TRichEdit
             Left = 0
             Top = 0
-            Width = 1258
+            Width = 1248
             Height = 311
             Align = alClient
             BevelInner = bvSpace
@@ -1736,7 +1773,6 @@ object Form1: TForm1
             ScrollBars = ssVertical
             TabOrder = 0
             StyleElements = []
-            ExplicitWidth = 1254
           end
         end
       end
@@ -1744,7 +1780,7 @@ object Form1: TForm1
     object StatusBar1: TStatusBar
       Left = 0
       Top = 340
-      Width = 1266
+      Width = 1256
       Height = 24
       DoubleBuffered = True
       Panels = <
@@ -1764,38 +1800,38 @@ object Form1: TForm1
         end>
       ParentColor = True
       ParentDoubleBuffered = False
-      ExplicitWidth = 1262
+      ExplicitWidth = 1252
     end
   end
   object Panel29: TPanel
     Left = 0
     Top = 42
-    Width = 1266
-    Height = 221
+    Width = 1256
+    Height = 265
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 1262
-    ExplicitHeight = 220
+    ExplicitWidth = 1252
+    ExplicitHeight = 264
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 1266
-      Height = 203
+      Width = 1256
+      Height = 247
       ActivePage = TabSheet1
       Align = alClient
       Images = ImageList1
       TabOrder = 0
       OnChange = PageControl1Change
-      ExplicitWidth = 1262
-      ExplicitHeight = 202
+      ExplicitWidth = 1252
+      ExplicitHeight = 246
       object TabSheet1: TTabSheet
         Caption = 'STRINGS'
         object SkyTree: TVirtualStringTree
           Left = 0
           Top = 0
-          Width = 1258
-          Height = 174
+          Width = 1248
+          Height = 218
           Align = alClient
           BiDiMode = bdLeftToRight
           ButtonStyle = bsTriangle
@@ -1865,7 +1901,7 @@ object Form1: TForm1
             item
               Position = 4
               Text = 'Translated'
-              Width = 767
+              Width = 757
             end
             item
               Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coVisible, coAllowFocus]
@@ -1888,8 +1924,8 @@ object Form1: TForm1
         object dlSkyTree: TVirtualStringTree
           Left = 0
           Top = 0
-          Width = 1258
-          Height = 174
+          Width = 1248
+          Height = 218
           Align = alClient
           ButtonStyle = bsTriangle
           Colors.SelectionTextColor = clWindowText
@@ -1952,7 +1988,7 @@ object Form1: TForm1
             item
               Position = 4
               Text = 'Translated'
-              Width = 762
+              Width = 752
             end
             item
               Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coVisible, coAllowFocus]
@@ -1975,8 +2011,8 @@ object Form1: TForm1
         object ilSkyTree: TVirtualStringTree
           Left = 0
           Top = 0
-          Width = 1258
-          Height = 174
+          Width = 1248
+          Height = 218
           Align = alClient
           ButtonStyle = bsTriangle
           Colors.SelectionTextColor = clWindowText
@@ -2038,7 +2074,7 @@ object Form1: TForm1
             item
               Position = 4
               Text = 'Translated'
-              Width = 767
+              Width = 757
             end
             item
               Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coVisible, coAllowFocus]
@@ -2058,28 +2094,28 @@ object Form1: TForm1
     end
     object PanelFeedBack: TPanel
       Left = 0
-      Top = 203
-      Width = 1266
+      Top = 247
+      Width = 1256
       Height = 18
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
       Visible = False
-      ExplicitTop = 202
-      ExplicitWidth = 1262
+      ExplicitTop = 246
+      ExplicitWidth = 1252
     end
   end
   object Panel31: TPanel
     Left = 0
     Top = 30
-    Width = 1266
+    Width = 1256
     Height = 12
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 4
     Visible = False
     OnAlignPosition = Panel31AlignPosition
-    ExplicitWidth = 1262
+    ExplicitWidth = 1252
     object Image1: TImage
       Left = 259
       Top = 6
@@ -2569,12 +2605,6 @@ object Form1: TForm1
         Caption = 'DebugMenu'
         ImageIndex = 74
         Visible = False
-        object debug1: TMenuItem
-          Caption = 'AltMemo'
-          ShortCut = 24699
-          Visible = False
-          OnClick = debug1Click
-        end
         object AltDisplay1: TMenuItem
           Caption = 'AltDisplay'
           ShortCut = 16504
@@ -2690,6 +2720,8 @@ object Form1: TForm1
         end
         object RtlToLtr1: TMenuItem
           Caption = 'Arabic RtlToLtr (AlphaTEST-WIP)'
+          ImageIndex = 24
+          ShortCut = 32887
           OnClick = RtlToLtr1Click
         end
         object N17: TMenuItem
@@ -2698,7 +2730,7 @@ object Form1: TForm1
         object Experimental1: TMenuItem
           Caption = 'Experimental: Set bidiMode RTL<-> LTR'
           ImageIndex = 24
-          ShortCut = 16504
+          ShortCut = 32888
           OnClick = Experimental1Click
         end
       end

@@ -29,7 +29,7 @@ object Form24: TForm24
       893
       38)
     object but_Run: TButton
-      Left = 732
+      Left = 728
       Top = 5
       Width = 139
       Height = 25
@@ -38,10 +38,10 @@ object Form24: TForm24
       ModalResult = 1
       TabOrder = 0
       OnClick = but_RunClick
-      ExplicitLeft = 728
+      ExplicitLeft = 724
     end
     object cancel: TButton
-      Left = 651
+      Left = 647
       Top = 5
       Width = 75
       Height = 25
@@ -49,7 +49,7 @@ object Form24: TForm24
       Caption = 'cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 647
+      ExplicitLeft = 643
     end
   end
   object Panel2: TPanel
@@ -120,14 +120,8 @@ object Form24: TForm24
       Font.Height = -13
       Font.Name = 'Courier New'
       Font.Style = []
+      Font.Quality = fqClearTypeNatural
       TabOrder = 0
-      CodeFolding.GutterShapeSize = 11
-      CodeFolding.CollapsedLineColor = clGrayText
-      CodeFolding.FolderBarLinesColor = clGrayText
-      CodeFolding.IndentGuidesColor = clGray
-      CodeFolding.IndentGuides = True
-      CodeFolding.ShowCollapsedLine = False
-      CodeFolding.ShowHintMark = True
       UseCodeFolding = False
       BorderStyle = bsNone
       Gutter.DigitCount = 2
@@ -137,9 +131,27 @@ object Form24: TForm24
       Gutter.Font.Name = 'Courier New'
       Gutter.Font.Style = []
       Gutter.Visible = False
-      Gutter.Width = 0
+      Gutter.Bands = <
+        item
+          Kind = gbkMarks
+          Visible = True
+          Width = 13
+        end
+        item
+          Kind = gbkLineNumbers
+        end
+        item
+          Kind = gbkFold
+        end
+        item
+          Kind = gbkTrackChanges
+        end
+        item
+          Kind = gbkMargin
+          Visible = True
+          Width = 3
+        end>
       Options = [eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoSmartTabDelete, eoSmartTabs, eoTabIndent]
-      FontSmoothing = fsmNone
       ExplicitWidth = 654
       ExplicitHeight = 542
     end

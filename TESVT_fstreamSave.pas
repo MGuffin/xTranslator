@@ -31,7 +31,7 @@ unit TESVT_fstreamSave;
 
 interface
 
-uses Windows, classes, SysUtils, math, TESVT_Utils, TESVT_Const;
+uses Windows, classes, SysUtils, math, TESVT_Utils, TESVT_Const, TESVT_Ressources;
 
 type
   tWriteStringCodepage = function(s: string; fstream: tmemorystream; stringheader: boolean; bzero: boolean = true): integer;
@@ -47,10 +47,10 @@ type
   end;
 
 Const
-  supportedCodepage: array [0 .. 9] of string = ('utf8', '1250', '1251', '1252', '1253', '1254', '1256', '932', '936', '950');
+  supportedCodepage: array [0 .. 10] of string = ('utf8', 'utf16', '1250', '1251', '1252', '1253', '1254', '1256', '932', '936', '950');
   // must be lowercase, utf8 first = fallback
 
-function getcodepage(f: string; t: tstringlist; forceCP: string; cpByName: string): rCodepage;
+function getcodepage(f: string; t: tstringlist; forceCP: string; cpByName: string; bAuthExtraCP: boolean = false): rCodepage;
 // tstream
 function WriteStringUtf8(s: string; fstream: tmemorystream; stringheader: boolean; bzero: boolean = true): integer;
 function WriteString1250(s: string; fstream: tmemorystream; stringheader: boolean; bzero: boolean = true): integer;
@@ -83,7 +83,45 @@ function WriteBufferVMADutf8(s: string; var b: tbytes; startPos: cardinal): word
 procedure fallbackFbk(nbFallback: integer; codepage: rCodepage);
 function limitStringSize(s: string; encoding: word; maxSize: integer): string;
 
+// Fstream/Buffer Standard routine-------------------------------------------------
+procedure fReadBuffer(fstream: TStream; p: Pointer; l: integer; endPos: Int64);
+procedure fRead(fstream: TStream; p: Pointer; l: integer; endPos: Int64);
+procedure getBufferData(b: tbytes; p: Pointer; var startPos: cardinal; const datasize, endPos: cardinal);
+
 implementation
+
+procedure fReadBuffer(fstream: TStream; p: Pointer; l: integer; endPos: Int64);
+begin
+  if l = 0 then
+    exit;
+  if (fstream.Position + l > endPos) then
+    Raise Exception.Create(READDATAERROR)
+  else
+    fstream.ReadBuffer(p^, l);
+end;
+
+procedure fRead(fstream: TStream; p: Pointer; l: integer; endPos: Int64);
+begin
+  if l = 0 then
+    exit;
+  if (fstream.Position + l > endPos) then
+    Raise Exception.Create(READDATAERROR)
+  else
+    fstream.read(p^, l);
+end;
+
+procedure getBufferData(b: tbytes; p: Pointer; var startPos: cardinal; const datasize, endPos: cardinal);
+begin
+  if datasize = 0 then
+    exit;
+  if (startPos + datasize > endPos) then
+    Raise Exception.Create(READDATAERROR)
+  else
+  begin
+    move(b[startPos], p^, datasize);
+    startPos := startPos + datasize;
+  end;
+end;
 
 procedure fallbackFbk(nbFallback: integer; codepage: rCodepage);
 begin
@@ -95,28 +133,28 @@ function rawStringtoStringUTF8(rbs: rawbyteString; codepage: rCodepage; var bFal
 var
   tb: tbytes;
 begin
-  tb:= bytesof(rbs);
+  tb := bytesof(rbs);
   if bReadDoFUtf8Fallback then
   begin
 
     try
-      Result:= tEncoding.utf8.GetString(tb);
+      Result := TEncoding.utf8.GetString(tb);
     except
-      Result:= '';
+      Result := '';
     end;
   end
   else
-    Result:= '';
+    Result := '';
 
   if (Result = '') and (Length(tb) > 0) then
   begin
-    bFallBack:= bReadDoFUtf8Fallback;
+    bFallBack := bReadDoFUtf8Fallback;
     if (codepage.cFallback = 0) then
-      Result:= UTF8toString(rbs)
+      Result := UTF8toString(rbs)
     else
     begin
-      SetCodePage(rbs, codepage.cFallback, False);
-      Result:= string(rbs);
+      SetCodePage(rbs, codepage.cFallback, false);
+      Result := string(rbs);
     end;
   end;
 
@@ -124,31 +162,31 @@ end;
 
 function rawStringtoString(rbs: rawbyteString; codepage: rCodepage; var bFallBack: boolean): string;
 begin
-  bFallBack:= False;
+  bFallBack := false;
   if codepage.isUtf8 then
-    Result:= rawStringtoStringUTF8(rbs, codepage, bFallBack)
+    Result := rawStringtoStringUTF8(rbs, codepage, bFallBack)
   else
   begin
     // forceDeloc
     if codepage.c = $FFFF then
     begin
-      Result:= string(rbs);
+      Result := string(rbs);
     end
     // normal
     else
     begin
-      SetCodePage(rbs, codepage.c, False);
-      Result:= string(rbs);
+      SetCodePage(rbs, codepage.c, false);
+      Result := string(rbs);
     end;
   end;
 end;
 
 function rawStringtoStringLockedUTF8(rbs: rawbyteString; codepage: rCodepage): string;
 begin
-  Result:= UTF8toString(rbs);
+  Result := UTF8toString(rbs);
 end;
 
-function getcodepage(f: string; t: tstringlist; forceCP: string; cpByName: string): rCodepage;
+function getcodepage(f: string; t: tstringlist; forceCP: string; cpByName: string; bAuthExtraCP: boolean = false): rCodepage;
 var
   i: integer;
   codes: string;
@@ -156,163 +194,174 @@ var
   a: sArray;
   bForced: boolean;
 begin
-  Result.cFallback:= 0;
-  bForced:= False;
-  codepage:= 65001; // default fallback: utf8
+  Result.cFallback := 0;
+  bForced := false;
+  codepage := 65001; // default fallback: utf8
   // User overrides-------------->
   if cpByName <> '' then
   begin
     if cpByName = 'utf8' then
-      codepage:= 65001
+      codepage := 65001
+    else if (bAuthExtraCP and (cpByName = 'utf16')) then
+      codepage := 1
     else
-      codepage:= strtointdef(cpByName, 65001);
-    bForced:= true;
+      codepage := strtointdef(cpByName, 65001);
+    bForced := true;
   end
   else if forceCP <> '' then
   begin
-    if cpByName = 'utf8' then
-      codepage:= 65001
+    if forceCP = 'utf8' then
+      codepage := 65001
+    else if (bAuthExtraCP and (forceCP = 'utf16')) then
+      codepage := 1
     else
-      codepage:= strtointdef(forceCP, 65001);
-    bForced:= true;
+      codepage := strtointdef(forceCP, 65001);
+    bForced := true;
   end;
   // <-------------User overrides
 
-  f:= ansilowercase(f);
-  for i:= 0 to t.count - 1 do
+  f := ansilowercase(f);
+  for i := 0 to t.count - 1 do
   begin
     if pos('_' + ansilowercase(t.Names[i]), f) > 0 then
     begin
-      codes:= ansilowercase(trim(t.ValueFromIndex[i]));
+      codes := ansilowercase(trim(t.ValueFromIndex[i]));
 
       explode(codes, a, ',');
       if not bForced then
       begin
         if a[0] = 'utf8' then
-          codepage:= 65001
+          codepage := 65001
         else if bForceEsmDeloc then
-          codepage:= $FFFF
+          codepage := $FFFF
         else
-          codepage:= strtointdef(a[0], 65001);
+          codepage := strtointdef(a[0], 65001);
       end;
 
       if Length(a) > 1 then
-        Result.cFallback:= strtointdef(a[1], 0);
+        Result.cFallback := strtointdef(a[1], 0);
       break;
     end;
   end;
 
   // assign exportProc
   case codepage of
+    1: // utf16 for McM
+      begin
+        Result.c := 1;
+        Result.verif := 1;
+        Result.f := WriteStringUtf8; // fallback utf8
+        Result.fb := WriteBufferutf8; // fallback utf8
+        Result.s := 'Utf16'
+      end;
     932:
       begin
-        Result.c:= 932;
-        Result.verif:= 932;
-        Result.f:= WriteString932;
-        Result.fb:= WriteBuffer932;
-        Result.s:= '932'
+        Result.c := 932;
+        Result.verif := 932;
+        Result.f := WriteString932;
+        Result.fb := WriteBuffer932;
+        Result.s := '932'
       end;
     936:
       begin
-        Result.c:= 936;
-        Result.verif:= 936;
-        Result.f:= WriteString936;
-        Result.fb:= WriteBuffer936;
-        Result.s:= '936'
+        Result.c := 936;
+        Result.verif := 936;
+        Result.f := WriteString936;
+        Result.fb := WriteBuffer936;
+        Result.s := '936'
       end;
     950:
       begin
-        Result.c:= 950;
-        Result.verif:= 950;
-        Result.f:= WriteString950;
-        Result.fb:= WriteBuffer950;
-        Result.s:= '950'
+        Result.c := 950;
+        Result.verif := 950;
+        Result.f := WriteString950;
+        Result.fb := WriteBuffer950;
+        Result.s := '950'
       end;
     1250:
       begin
-        Result.c:= 1250;
-        Result.verif:= 1250;
-        Result.f:= WriteString1250;
-        Result.fb:= WriteBuffer1250;
-        Result.s:= '1250'
+        Result.c := 1250;
+        Result.verif := 1250;
+        Result.f := WriteString1250;
+        Result.fb := WriteBuffer1250;
+        Result.s := '1250'
       end;
     1251:
       begin
-        Result.c:= 1251;
-        Result.verif:= 1251;
-        Result.f:= WriteString1251;
-        Result.fb:= WriteBuffer1251;
-        Result.s:= '1251'
+        Result.c := 1251;
+        Result.verif := 1251;
+        Result.f := WriteString1251;
+        Result.fb := WriteBuffer1251;
+        Result.s := '1251'
       end;
     1252:
       begin
-        Result.c:= 1252;
-        Result.verif:= 1252;
-        Result.f:= WriteString1252;
-        Result.fb:= WriteBuffer1252;
-        Result.s:= '1252'
+        Result.c := 1252;
+        Result.verif := 1252;
+        Result.f := WriteString1252;
+        Result.fb := WriteBuffer1252;
+        Result.s := '1252'
       end;
     1253:
       begin
-        Result.c:= 1253;
-        Result.verif:= 1253;
-        Result.f:= WriteString1253;
-        Result.fb:= WriteBuffer1253;
-        Result.s:= '1253'
+        Result.c := 1253;
+        Result.verif := 1253;
+        Result.f := WriteString1253;
+        Result.fb := WriteBuffer1253;
+        Result.s := '1253'
       end;
     1254:
       begin
-        Result.c:= 1254;
-        Result.verif:= 1254;
-        Result.f:= WriteString1254;
-        Result.fb:= WriteBuffer1254;
-        Result.s:= '1254'
+        Result.c := 1254;
+        Result.verif := 1254;
+        Result.f := WriteString1254;
+        Result.fb := WriteBuffer1254;
+        Result.s := '1254'
       end;
     1256:
       begin
-        Result.c:= 1256;
-        Result.verif:= 1256;
-        Result.f:= WriteString1256;
-        Result.fb:= WriteBuffer1256;
-        Result.s:= '1256'
+        Result.c := 1256;
+        Result.verif := 1256;
+        Result.f := WriteString1256;
+        Result.fb := WriteBuffer1256;
+        Result.s := '1256'
       end;
     65001:
       begin
-        Result.c:= 0;
-        Result.verif:= 65001;
-        Result.f:= WriteStringUtf8;
-        Result.fb:= WriteBufferutf8;
-        Result.s:= 'Utf8'
+        Result.c := 0;
+        Result.verif := 65001;
+        Result.f := WriteStringUtf8;
+        Result.fb := WriteBufferutf8;
+        Result.s := 'Utf8'
       end;
     $FFFF:
       begin
-        Result.c:= $FFFF;
-        Result.verif:= $FFFF;
-        Result.f:= WriteStringForceDeloc;
-        Result.fb:= WriteBufferForceDeloc;
-        Result.s:= 'ForceDeloc'
+        Result.c := $FFFF;
+        Result.verif := $FFFF;
+        Result.f := WriteStringForceDeloc;
+        Result.fb := WriteBufferForceDeloc;
+        Result.s := 'ForceDeloc'
       end;
   else
     // fallback in UTF8
     begin
-      Result.c:= 0;
-      Result.verif:= 65001;
-      Result.f:= WriteStringUtf8;
-      Result.fb:= WriteBufferutf8;
-      Result.s:= 'Utf8'
+      Result.c := 0;
+      Result.verif := 65001;
+      Result.f := WriteStringUtf8;
+      Result.fb := WriteBufferutf8;
+      Result.s := 'Utf8'
     end;
   end;
-  Result.isUtf8:= Result.c = 0;
+  Result.isUtf8 := Result.c = 0;
   if Result.cFallback = 0 then
-    Result.cFallback:= Result.c;
+    Result.cFallback := Result.c;
 
   // if result is still 0 then fallback is utf8
   if Result.cFallback = 0 then
-    Result.sFallback:= 'Utf8'
+    Result.sFallback := 'Utf8'
   else
-    Result.sFallback:= inttostr(Result.cFallback);
+    Result.sFallback := inttostr(Result.cFallback);
 end;
-
 
 function limitStringSize(s: string; encoding: word; maxSize: integer): string;
 var
@@ -321,22 +370,21 @@ var
   cExceed: integer;
 
 begin
-  maxSize:= maxSize - 1;
-    //encodeSize:= tEncoding.GetEncoding(encoding).GetByteCount(s);
-    encodeSize:= getbyteCount(Encoding, s);
-    if encodeSize < maxSize then
-      Exit(s);
+  maxSize := maxSize - 1;
+  // encodeSize:= tEncoding.GetEncoding(encoding).GetByteCount(s);
+  encodeSize := getbyteCount(encoding, s);
+  if encodeSize < maxSize then
+    exit(s);
 
-    cExceed:= round((encodeSize - maxSize) / (encodeSize / Length(s)));
+  cExceed := round((encodeSize - maxSize) / (encodeSize / Length(s)));
 
-    for i:= (Length(s) - cExceed) downto 1 do
-    begin
-      //if tEncoding.GetEncoding(encoding).GetByteCount(copy(s, 1, i)) <= maxSize then
-         if getbyteCount(encoding, copy(s, 1, i)) <= maxSize then
-        Exit(copy(s, 1, i));
-    end;
-    Result:= ' ';
-
+  for i := (Length(s) - cExceed) downto 1 do
+  begin
+    // if tEncoding.GetEncoding(encoding).GetByteCount(copy(s, 1, i)) <= maxSize then
+    if getbyteCount(encoding, copy(s, 1, i)) <= maxSize then
+      exit(copy(s, 1, i));
+  end;
+  Result := ' ';
 
 end;
 
@@ -345,17 +393,17 @@ var
   tmpRaw: rawbyteString;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 65001, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 65001, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= utf8encode(s) + #0
+    tmpRaw := utf8encode(s) + #0
   else
-    tmpRaw:= utf8encode(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := utf8encode(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -367,17 +415,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 932, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 932, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -389,17 +437,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 950, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 950, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -411,17 +459,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 936, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 936, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -433,17 +481,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1250, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1250, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -455,17 +503,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1251, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1251, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -477,17 +525,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1252, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1252, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -499,17 +547,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1253, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1253, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -521,17 +569,17 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1254, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1254, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
@@ -543,24 +591,24 @@ var
   tmpRaw: tmpStringtype;
   sizeRaw: integer;
 begin
-  s:= limitStringSize(s, 1256, MAXSIZESTRING_GLOBALCAP);
+  s := limitStringSize(s, 1256, MAXSIZESTRING_GLOBALCAP);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
-  Result:= sizeRaw;
+    tmpRaw := tmpStringtype(s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP, Length(tmpRaw));
+  Result := sizeRaw;
   if stringheader then
   begin
     fstream.Write(Result, SizeOf(Result));
-    Result:= Result + 4;
+    Result := Result + 4;
   end;
   fstream.Write(tmpRaw[1], sizeRaw);
 end;
 
 function WriteStringForceDeloc(s: string; fstream: tmemorystream; stringheader: boolean; bzero: boolean = true): integer;
 begin
-  Result:= 4;
+  Result := 4;
 end;
 
 
@@ -571,14 +619,14 @@ function WriteBufferutf8(s: string; var b: tbytes; iMaxSize: integer; bzero: boo
 var
   tmpRaw: rawbyteString;
 begin
-  s:= limitStringSize(s, 65001, iMaxSize);
+  s := limitStringSize(s, 65001, iMaxSize);
   if bzero then
-    tmpRaw:= utf8encode(s) + #0
+    tmpRaw := utf8encode(s) + #0
   else
-    tmpRaw:= utf8encode(s);
+    tmpRaw := utf8encode(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1250(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -587,14 +635,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1250, iMaxSize);
+  s := limitStringSize(s, 1250, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1251(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -603,14 +651,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1251, iMaxSize);
+  s := limitStringSize(s, 1251, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1252(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -619,14 +667,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1252, iMaxSize);
+  s := limitStringSize(s, 1252, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1253(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -635,14 +683,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1253, iMaxSize);
+  s := limitStringSize(s, 1253, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1254(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -651,14 +699,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1254, iMaxSize);
+  s := limitStringSize(s, 1254, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer1256(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -667,14 +715,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 1256, iMaxSize);
+  s := limitStringSize(s, 1256, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer932(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -683,14 +731,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 932, iMaxSize);
+  s := limitStringSize(s, 932, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer936(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -699,14 +747,14 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 936, iMaxSize);
+  s := limitStringSize(s, 936, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBuffer950(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
@@ -715,19 +763,19 @@ type
 var
   tmpRaw: tmpStringtype;
 begin
-  s:= limitStringSize(s, 950, iMaxSize);
+  s := limitStringSize(s, 950, iMaxSize);
   if bzero then
-    tmpRaw:= tmpStringtype(s) + #0
+    tmpRaw := tmpStringtype(s) + #0
   else
-    tmpRaw:= tmpStringtype(s);
+    tmpRaw := tmpStringtype(s);
   SetLength(b, min(iMaxSize, Length(tmpRaw)));
-  Move(tmpRaw[1], b[0], Length(b));
-  Result:= Length(b);
+  move(tmpRaw[1], b[0], Length(b));
+  Result := Length(b);
 end;
 
 function WriteBufferForceDeloc(s: string; var b: tbytes; iMaxSize: integer; bzero: boolean = true): integer;
 begin
-  Result:= Length(b);
+  Result := Length(b);
 end;
 
 // BUFFER VMAD
@@ -735,12 +783,12 @@ function WriteBufferVMADutf8(s: string; var b: tbytes; startPos: cardinal): word
 var
   tmpRaw: rawbyteString;
 begin
-  s:= limitStringSize(s, 65001, MAXSIZESTRING_GLOBALCAP_LOW);
-  tmpRaw:= utf8encode(s);
-  Result:= min(MAXSIZESTRING_GLOBALCAP_LOW, Length(tmpRaw));
+  s := limitStringSize(s, 65001, MAXSIZESTRING_GLOBALCAP_LOW);
+  tmpRaw := utf8encode(s);
+  Result := min(MAXSIZESTRING_GLOBALCAP_LOW, Length(tmpRaw));
   SetLength(b, Length(b) + Result + 2);
-  Move(Result, b[startPos], 2);
-  Move(tmpRaw[1], b[startPos + 2], Result);
+  move(Result, b[startPos], 2);
+  move(tmpRaw[1], b[startPos + 2], Result);
 end;
 
 end.

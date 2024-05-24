@@ -518,9 +518,6 @@ Coordinates=1642,826,102,36
 [langpresetsmenu1]
 Coordinates=1642,881,120,36
 
-[ComboBox2]
-Coordinates=454,10,101,124
-
 [MenuCloseCurrent]
 Coordinates=1642,991,122,36
 
@@ -643,9 +640,6 @@ Coordinates=1996,1,172,36
 
 [Save2]
 Coordinates=1824,991,51,36
-
-[debug1]
-Coordinates=1824,1046,57,36
 
 [Restart4]
 Coordinates=1824,1101,63,36
@@ -783,8 +777,11 @@ Coordinates=1996,1101,79,36
 Coordinates=1996,1156,130,36
 
 []
-Coordinates=1746,1200,57,36
+Coordinates=1824,1046,57,36
 
 [ArrayTranslatorApi_2]
 Coordinates=914,221,65,36
+
+[ComboBox_changeCP]
+Coordinates=454,10,101,124
 

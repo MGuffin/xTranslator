@@ -71,7 +71,7 @@ const
 
 var
   espFilter: string = '*.esp, *.esm, *.esl|*.ESP; *.ESM; *.ESL';
-  //txtFilter: string = 'FilterTXT|*.TXT';
+  // txtFilter: string = 'FilterTXT|*.TXT';
   pexFilter: string = 'FilterPex|*.PEX';
   stringsFilter: string = 'FilterStr|*.STRINGS';
   sstDocmissing: string = 'DocsMissing';
@@ -316,7 +316,7 @@ begin
   ResLogcodepage := getRes(ResLogcodepage);
   ResTotal := getRes(ResTotal);
   // espFilter := getRes(espFilter);
-  //txtFilter := getRes(txtFilter);
+  // txtFilter := getRes(txtFilter);
   pexFilter := getRes(pexFilter);
   sstDocmissing := getRes(sstDocmissing);
   stringsFilter := getRes(stringsFilter);
@@ -581,7 +581,7 @@ begin
     else if form.components[i] is TrichEdit then
     begin
       TrichEdit(form.components[i]).Color := newWhite;
-      TrichEdit(form.components[i]).StyleElements := [seBorder];
+      TrichEdit(form.components[i]).StyleElements := [seBorder]; // []; //
       TrichEdit(form.components[i]).borderstyle := tfbs;
     end
     else if form.components[i] is Tmemo then

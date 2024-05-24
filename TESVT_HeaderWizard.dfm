@@ -378,14 +378,8 @@ object Form23: TForm23
       Font.Name = 'Courier New'
       Font.Pitch = fpFixed
       Font.Style = []
+      Font.Quality = fqClearTypeNatural
       TabOrder = 1
-      CodeFolding.GutterShapeSize = 11
-      CodeFolding.CollapsedLineColor = clGrayText
-      CodeFolding.FolderBarLinesColor = clGrayText
-      CodeFolding.IndentGuidesColor = clGray
-      CodeFolding.IndentGuides = True
-      CodeFolding.ShowCollapsedLine = False
-      CodeFolding.ShowHintMark = True
       UseCodeFolding = False
       Gutter.Color = clWindow
       Gutter.Font.Charset = DEFAULT_CHARSET
@@ -394,16 +388,32 @@ object Form23: TForm23
       Gutter.Font.Name = 'Courier New'
       Gutter.Font.Style = []
       Gutter.Visible = False
-      Gutter.Width = 0
-      Lines.Strings = (
-        'Log:')
-      Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoScrollPastEol, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
+      Gutter.Bands = <
+        item
+          Kind = gbkMarks
+          Visible = True
+          Width = 13
+        end
+        item
+          Kind = gbkLineNumbers
+        end
+        item
+          Kind = gbkFold
+        end
+        item
+          Kind = gbkTrackChanges
+        end
+        item
+          Kind = gbkMargin
+          Visible = True
+          Width = 3
+        end>
+      Options = [eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
       ReadOnly = True
       RightEdge = 0
-      ScrollBars = ssVertical
       WordWrap = True
+      WordWrapGlyph.Visible = False
       OnSpecialLineColors = Memo1SpecialLineColors
-      FontSmoothing = fsmNone
     end
   end
 end

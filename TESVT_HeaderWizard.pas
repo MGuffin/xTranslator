@@ -99,51 +99,6 @@ var
 const
   defautHeaderRules = '_HeaderRules\HeaderRules.txt';
 
-  // Const
-  // Fallout76BackupDir = '_Ba2Backup\';
-  // Fallout76translateBaseFile = 'interface\translate_';
-  // Fallout76translateBaseExt = '.txt';
-  {
-    Fallout76InterfaceBSA = 'SeventySix - Interface.ba2';
-    Fallout76LocalBSA = 'SeventySix - Localization.ba2';
-    Fallout76InterfaceInject: array [0 .. 18] of string = ( //
-    'interface\fontconfig_de.txt', //
-    'interface\fontconfig_en.txt', //
-    'interface\fontconfig_es.txt', //
-    'interface\fontconfig_esmx.txt', //
-    'interface\fontconfig_fr.txt', //
-    'interface\fontconfig_it.txt', //
-    'interface\fontconfig_ja.txt', //
-    'interface\fontconfig_ko.txt', //
-    'interface\fontconfig_pl.txt', //
-    'interface\fontconfig_ptbr.txt', //
-    'interface\fontconfig_ru.txt', //
-    'interface\fontconfig_zhhans.txt', //
-    'interface\fontconfig_zhhant.txt', //
-    'interface\fonts_en.swf', //
-    'interface\fonts_ru.swf', //
-    'interface\fonts_ja.swf', //
-    'interface\fonts_ko.swf', //
-    'interface\fonts_zhhans.swf', //
-    'interface\fonts_zhhant.swf' //
-    );
-
-    Fallout76LocalInject: array [0 .. 12] of string = ( //
-    'interface\translate_de.txt', //
-    'interface\translate_en.txt', //
-    'interface\translate_es.txt', //
-    'interface\translate_esmx.txt', //
-    'interface\translate_fr.txt', //
-    'interface\translate_it.txt', //
-    'interface\translate_ja.txt', //
-    'interface\translate_ko.txt', //
-    'interface\translate_pl.txt', //
-    'interface\translate_ptbr.txt', //
-    'interface\translate_ru.txt', //
-    'interface\translate_zhhans.txt', //
-    'interface\translate_zhhant.txt' //
-    ); //
-  }
 implementation
 
 uses tesvt_main;
@@ -199,11 +154,6 @@ procedure TForm23.cancloseW(b: boolean);
 begin
   bCancloseW := b;
   self.enabled := b;
-  { lockForm(self, b);
-    Button1.enabled := b
-    Button4.enabled := b;
-    Button5.enabled := b;
-    Button6.enabled := b; }
   update;
 end;
 
@@ -241,7 +191,7 @@ begin
           form1.executeWizardMCM(Edit1.text + HeaderProcMcMLoadFrom, HeaderProctranslateBaseFile, ComboBox2.items[i], HeaderProctranslateBaseExt, true);
 
         for k := 0 to ListBox1.items.count - 1 do
-          form1.executeWizard(Edit1.text + ListBox1.items[k], ComboBox2.items[i], true);
+          form1.executeWizard(Edit1.text + ListBox1.items[k], ComboBox2.items[i], true, true);
         if not CheckBox3.checked then
           break;
         application.ProcessMessages;
@@ -257,7 +207,7 @@ begin
     if doMcM then
       form1.executeWizardMCM(Edit1.text + HeaderProcMcMLoadFrom, HeaderProctranslateBaseFile, ComboBox2.items[ComboBox2.itemIndex], HeaderProctranslateBaseExt);
     for k := 0 to ListBox1.items.count - 1 do
-      form1.executeWizard(Edit1.text + ListBox1.items[k], ComboBox2.items[ComboBox2.itemIndex]);
+      form1.executeWizard(Edit1.text + ListBox1.items[k], ComboBox2.items[ComboBox2.itemIndex], true, false);
   end;
   addinfoLine(strSeparator, 2);
   addinfoLine(getRes('Fbk_WizardCompleted'), 2);
@@ -445,7 +395,7 @@ procedure TForm23.FormShow(Sender: TObject);
 begin
   cancloseW(true);
 
-    authProcess;
+  authProcess;
 end;
 
 procedure TForm23.WMDropFiles(var Msg: TMessage);

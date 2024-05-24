@@ -195,6 +195,9 @@ type
     Panel22: TPanel;
     Edit2: TEdit;
     ComboBox3: TComboBox;
+    N8: TMenuItem;
+    UseSimpleMemo1: TMenuItem;
+    BidiModeRTL1: TMenuItem;
     procedure spSuggestionOnClick(Sender: TObject);
     procedure searchTreeGetText(Sender: TBaseVirtualTree; Node: pvirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure searchTreeFreeNode(Sender: TBaseVirtualTree; Node: pvirtualNode);
@@ -305,7 +308,13 @@ type
     procedure SynPasteClick(Sender: TObject);
     procedure PopupMenu4Popup(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt; var CallHelp: boolean): boolean;
+    procedure UseSimpleMemo1Click(Sender: TObject);
+    procedure BidiModeRTL1Click(Sender: TObject);
   private
+
+    bLocalSimpleMemoRTL: boolean;
+    bLocalUseSimpleMemo: boolean;
+
     espLoader: tEspLoader;
     espTree: TVirtualStringTree;
     currentEspRecord: trecord;
@@ -381,6 +390,8 @@ type
     procedure updateDialogFeedback(sk: tskystr);
     // function Search_And_Replace(richedit: TRichEdit; SearchText, ReplaceText: string): boolean;
   public
+    procedure useSimpleMemo(b, doText: boolean);
+    procedure useMemoRTL(b: boolean);
     procedure editNewString(bGetDialog: boolean; const newstring: string = '');
     procedure updateStringFromQuest(r: trecord; qustID: cardinal);
     procedure valideStringChange(forceValid: boolean; confirm, autotrim: boolean; statusIn: sStrParams);
@@ -743,7 +754,7 @@ begin
   if SearchrWindowpos.Control1 > SearchrWindowpos.height - 100 then
     SearchrWindowpos.Control1 := SearchrWindowpos.height - 100;
   Panel15.width := SearchrWindowpos.List2;
-  ListBox3.height  := SearchrWindowpos.List3;
+  ListBox3.height := SearchrWindowpos.List3;
   Panel1.height := SearchrWindowpos.Control1;
 end;
 
@@ -793,6 +804,21 @@ procedure TForm2.FormCreate(Sender: TObject);
 var
   HL: TSynSampleSyn;
 begin
+  bLocalUseSimpleMemo := false;
+  bLocalSimpleMemoRTL := false;
+
+  if bLocalUseSimpleMemo <> bUseSimpleMemo then
+  begin
+    useSimpleMemo(bUseSimpleMemo, false);
+    bLocalUseSimpleMemo := bUseSimpleMemo;
+  end;
+
+  if bLocalSimpleMemoRTL <> bSimpleMemoRTL then
+  begin
+    useMemoRTL(bSimpleMemoRTL);
+    bLocalSimpleMemoRTL := bSimpleMemoRTL;
+  end;
+
   bIsDropDownOpen := false;
   bSearchInProgress := false;
   iApiDrawIcon := -1;
@@ -1274,22 +1300,13 @@ begin
 
     // pexnotrans support
     Memo2.readonly := pexNoTrans in focusedNode.fString.sInternalparams;
-    Memo4.readonly := pexNoTrans in focusedNode.fString.sInternalparams;
+    Memo4.readonly := Memo2.readonly;
 
-    SetEditedText(Memo1, Memo5, focusedNode.fString.s);
-    if newstring = '' then
-      SetEditedText(Memo2, Memo4, focusedNode.fString.STrans)
-    else
-      SetEditedText(Memo2, Memo4, newstring);
     backupOriginalSourceString := '';
 
     poweredByEnd;
     getDiff;
     getEspData(bGetDialog);
-    CheckAlias;
-    CheckMaxLength;
-    resetSpellCheck;
-    espcompareResultList;
 
     // feedback
     updateDialogFeedback(focusedNode.fString);
@@ -1304,6 +1321,17 @@ begin
       SwitchAutoDial(focusedNode.fString);
 
     self.Show;
+
+    //---------
+    SetEditedText(Memo1, Memo5, focusedNode.fString.s);
+    if newstring = '' then
+      SetEditedText(Memo2, Memo4, focusedNode.fString.STrans)
+    else
+      SetEditedText(Memo2, Memo4, newstring);
+    CheckAlias;
+    CheckMaxLength;
+    resetSpellCheck;
+    espcompareResultList;
 
     if TESVTsstCustom then
       SetMemoFocus(Memo1, Memo5)
@@ -1566,6 +1594,75 @@ begin
       Memo2.Sellength := length(itext);
     end;
   end;
+end;
+
+procedure TForm2.BidiModeRTL1Click(Sender: TObject);
+begin
+  useMemoRTL(not bSimpleMemoRTL);
+end;
+
+procedure TForm2.UseSimpleMemo1Click(Sender: TObject);
+begin
+  useSimpleMemo(not bUseSimpleMemo, true);
+end;
+
+procedure TForm2.useMemoRTL(b: boolean);
+begin
+  bSimpleMemoRTL := b;
+  if bSimpleMemoRTL then
+    Memo4.BiDiMode := bdRightToLeft
+  else
+    Memo4.BiDiMode := bdLeftToRight;
+  BidiModeRTL1.checked := bSimpleMemoRTL;
+end;
+
+procedure TForm2.useSimpleMemo(b, doText: boolean);
+begin
+  bUseSimpleMemo := b;
+  if bUseSimpleMemo then
+  begin
+    Memo4.Align := alClient;
+    Memo5.Align := alClient;
+    Memo1.visible := false;
+    Memo2.visible := false;
+    Memo4.visible := true;
+    Memo5.visible := true;
+    if doText then
+    begin
+      Memo4.Text := Memo2.Text;
+      Memo2.Text := '';
+      Memo5.Text := Memo1.Text;
+      Memo1.Text := '';
+      Memo4.OnChange(Memo4);
+    end;
+  end
+  else
+  begin
+    Memo2.Align := alClient;
+    Memo1.Align := alClient;
+    Memo4.visible := false;
+    Memo5.visible := false;
+    Memo1.visible := true;
+    Memo2.visible := true;
+    if doText then
+    begin
+      Memo2.Text := Memo4.Text;
+      Memo4.Text := '';
+      Memo1.Text := Memo5.Text;
+      Memo5.Text := '';
+      Memo2.OnChange(Memo2);
+    end;
+  end;
+
+  UseSimpleMemo1.checked := bUseSimpleMemo;
+  BidiModeRTL1.visible := bUseSimpleMemo;
+  ToolButton1.enabled := not bUseSimpleMemo;
+  ToolButton2.enabled := not bUseSimpleMemo;
+  ToolButton4.enabled := not bUseSimpleMemo;
+  ToolButton5.enabled := not bUseSimpleMemo;
+  ToolButton6.enabled := not bUseSimpleMemo;
+  ToolButton7.enabled := not bUseSimpleMemo;
+  ListBox1.visible := not bUseSimpleMemo;
 end;
 
 procedure TForm2.Usethistranslation1Click(Sender: TObject);
@@ -2617,12 +2714,12 @@ end;
 
 procedure TForm2.ToolButton5Click(Sender: TObject);
 begin
-  startCommand(ecUpperCaseBlock);
+  startCommand(ecUpperCase);
 end;
 
 procedure TForm2.ToolButton6Click(Sender: TObject);
 begin
-  startCommand(ecLowerCaseBlock);
+  startCommand(ecLowerCase);
 end;
 
 procedure TForm2.ToolButton7Click(Sender: TObject);

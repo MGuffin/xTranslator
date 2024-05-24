@@ -33,7 +33,7 @@ interface
 {$I _config.inc}
 
 uses forms, classes, virtualtrees, stdCtrls, ExtCtrls, types, math, graphics, Menus, Dialogs, windows, registry, sysutils, ComCtrls, stdActns,
-  controls, TESVT_Dialog, HTMLUn2, HtmlView, regularexpressions, RegularExpressionsCore, TESVT_Startup, TESVT_Input, FolderUtil;
+  controls, TESVT_Dialog, HTMLUn2, HtmlView, shellApi, regularexpressions, RegularExpressionsCore, TESVT_Startup, TESVT_Input, FolderUtil;
 
 type
   sHeaderSig = array [0 .. 3] of AnsiChar;
@@ -101,6 +101,7 @@ type
     sRestrictExt: string;
     bRestrictExt: boolean;
     bIsFallback: boolean;
+    bSearchByLine: boolean;
     iIdBackref: integer;
     bUseSaveLangSuffixe: boolean;
     stats: integer;
@@ -124,6 +125,7 @@ type
     function getEncoding(i: integer): tencoding;
     function mcmDecider(f: tstringList): integer;
     function isValidTxtExt(ext: string): boolean;
+    function isSearchByLine(i: integer): boolean;
     function isFallback(i: integer): boolean;
     function useSuffixe(i: integer): boolean;
   end;
@@ -137,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.6';
+  aPROG_CURRENTVERSION = 'v1.5.7';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -485,6 +487,8 @@ const
   // --BIDI---------
   UCODE_START_RTL: char = #$200F;
   UCODE_END_RTL: char = #$200E;
+  UCODE_RLE = #$202B;
+  UCODE_PDF = #$202C;
 
   FORBIDDENFILECHAR: array [0 .. 8] of char = ('"', '/', '\', '*', '?', '<', '>', '|', ':');
 
@@ -492,10 +496,12 @@ const
     'DC4 ', 'NAK ', 'SYN ', 'ETB ', 'CAN ', 'EM ', 'SUB ', 'ESC ', 'FS ', 'GS ', 'RS ', 'US ', 'SPACECHAR ');
   aCleanChar: array [0 .. 33] of char = (#0, #1, #2, #3, #4, #5, #6, #7, #8, #9, #10, #11, #12, #13, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25, #26, #26, #28, #29, #30, #31,
     #32, #$3000);
-
+  aSymbols : array [0 .. 4] of char = (',','-','.',':',';');
+  aWhiteChar: array [0 .. 1] of char = (#$0020, #$00A0);
   cWidgetColor: array [1 .. 6] of cardinal = ($00FFFFFF, $00DDBBAA, $00DD77DD, $00AACCAA, $005555FF, $0088DDDD);
 
   sPunctuation = [#0 .. #31, #33 .. #47, #58 .. #64, #91 .. #96, #123 .. #127];
+  sSymbols = [#33 .. #47, #58 .. #59, #63, #64, #91 .. #96, #123 .. #127];  //without <,=,>
   sPunctuationEx = [#0 .. #47, #58 .. #64, #91 .. #96, #123 .. #127];
   sBlank = [#0 .. #32, #160];
   sBracketEx = [#34, #40, #41, #91, #93, #123, #125];
@@ -667,12 +673,21 @@ var
   sUseExternalDecompilerPath: string = '';
   bUseExternalDecompiler: boolean;
 
+
   bGetVMADStrings: boolean = false; // set to true to analyse VMAD
   bApplyVMADOpt: boolean = true; // autoapply VMAD on string
+
+  //ArabicRtl----->
+  bRtlRemoveControl: boolean = true;
+  iRtlMethod: integer =1;
+  bUseLineSize: boolean = false;
+  iRtlLineSize: integer = 75;
+  //<----ArabicRtl
 
   genericTreeImageList: timagelist;
   bBidiBase: TBiDiMode = bdLeftToRight;
   bUseSimpleMemo: boolean = false;
+  bSimpleMemoRTL: boolean = false;
   testCanvas: tcanvas;
   MainPageControl: tPageControl;
   bDerivedVerbose: boolean = false;
@@ -869,6 +884,7 @@ function askDialog(s: string; form: tform; iRememberIndex: integer; bAlwaysYes: 
 function askDialog(s: string; form: tform; sopt: sAskDialButtons; autoDuration: integer = 1500): integer; overload;
 function cleanString(s: string; c: char = #0): string; overload;
 function cleanString(s: string; c: array of char): string; overload;
+function getcharinArray(ch: char; c: array of char): boolean;
 procedure getLangSST(const s: string; var s1, s2, s3: string);
 function bApplyVMAD: boolean;
 function is_comment(t: string): boolean;
@@ -961,6 +977,9 @@ function bGameIsSF: boolean;
 function bGameIsSkyrim: boolean;
 function bGameIsFallout: boolean;
 function RemoveChar(const aString: string): string;
+function GetStringProxy(gs, gTrans: string): integer;
+procedure ClearTmpFiles;
+function GetTEncoding(const EncodingName: string): tencoding;
 
 const // registry data
   {
@@ -1001,6 +1020,24 @@ implementation
 
 uses TESVT_Ressources;
 
+function GetTEncoding(const EncodingName: string): tencoding;
+var
+  codepage: integer;
+begin
+  try
+    if lowercase(EncodingName) = 'utf8' then
+      Result := tencoding.utf8
+    else if lowercase(EncodingName) = 'utf16' then
+      Result := tencoding.unicode
+    else if TryStrToInt(EncodingName, codepage) then
+      Result := tencoding.getEncoding(codepage)
+    else
+      Result := tencoding.getEncoding(EncodingName);
+  except
+    Result := tencoding.unicode;
+  end;
+end;
+
 constructor tCustomTxt.Create(l: tstringList);
 var
   i, nbParam: integer;
@@ -1022,14 +1059,11 @@ begin
     p.sRestrictExt := l.Values[format('CustomTypeRestrictExt_%d', [i])];
     p.bRestrictExt := p.sRestrictExt <> '*';
     strtmp := l.Values[format('CustomTypeEncoding_%d', [i])];
-    if lowercase(strtmp) = 'unicode' then
-      p.eEncoding := tencoding.unicode
-    else
-      p.eEncoding := tencoding.UTF8;
+    p.eEncoding := GetTEncoding(strtmp);
     p.iIdBackref := strtointdef(l.Values[format('CustomTypeBackrefID_%d', [i])], 0);
     p.bIsFallback := strtobooldef(l.Values[format('CustomTypeIsFallback_%d', [i])], false);
     p.bUseSaveLangSuffixe := strtobooldef(l.Values[format('CustomTypeSaveLangSuffixe_%d', [i])], false);
-
+    p.bSearchByLine := strtobooldef(l.Values[format('CustomTypeSearchByLine_%d', [i])], true);
 
   end;
   // define fallback
@@ -1059,7 +1093,7 @@ end;
 
 function tCustomTxt.isValidTxtExt(ext: string): boolean;
 begin
-  result := pos(ext, sCustomExtList) > 0;
+  Result := pos(ext, sCustomExtList) > 0;
 end;
 
 function tCustomTxt.isFallback(i: integer): boolean;
@@ -1067,7 +1101,15 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.bIsFallback;
+  Result := p.bIsFallback;
+end;
+
+function tCustomTxt.isSearchByLine(i: integer): boolean;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  Result := p.bSearchByLine;
 end;
 
 function tCustomTxt.getRegex(i: integer): string;
@@ -1075,7 +1117,7 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.sRegex;
+  Result := p.sRegex;
 end;
 
 function tCustomTxt.useSuffixe(i: integer): boolean;
@@ -1083,7 +1125,7 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.bUseSaveLangSuffixe;
+  Result := p.bUseSaveLangSuffixe;
 end;
 
 function tCustomTxt.getrefId(i: integer): integer;
@@ -1091,7 +1133,7 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.iIdBackref;
+  Result := p.iIdBackref;
 end;
 
 function tCustomTxt.getEncoding(i: integer): tencoding;
@@ -1099,7 +1141,7 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.eEncoding;
+  Result := p.eEncoding;
 end;
 
 function tCustomTxt.getLabel(i: integer): string;
@@ -1107,7 +1149,7 @@ var
   p: pcustomTxtDefinition;
 begin
   p := lCustomTxtParamList[i];
-  result := p.sLabel;
+  Result := p.sLabel;
 end;
 
 procedure tCustomTxt.incStat(i: integer);
@@ -1130,8 +1172,11 @@ function tCustomTxt.mcmDecider(f: tstringList): integer;
 var
   i, j, m: integer;
   RegEx: tperlRegex;
+const
+  iLineLimit = 50;
+  iSizeLimit = 2048;
 begin
-  result := -1;
+  Result := -1;
   if lCustomTxtParamList.Count = 0 then
     exit;
 
@@ -1142,15 +1187,29 @@ begin
     begin
       if not isFallback(j) then
       begin
-        RegEx.RegEx := getRegex(j);
 
-        for i := 0 to f.Count - 1 do
+        RegEx.RegEx := getRegex(j);
+        RegEx.Replacement := '';
+        RegEx.Options := [preCaseLess, preSingleLine];
+
+        if isSearchByLine(j) then
         begin
-          RegEx.subject := f[i];
+          for i := 0 to f.Count - 1 do
+          begin
+            RegEx.subject := f[i];
+            if RegEx.Match then
+              incStat(j);
+            if i > iLineLimit then
+              break;
+          end;
+        end
+        else
+        begin
+          RegEx.subject := copy(f.text, 1, iSizeLimit);
           if RegEx.Match then
-            incStat(j);
-          if i > 20 then
-            break;
+            repeat
+              incStat(j);
+            until not RegEx.MatchAgain;
         end;
       end;
     end;
@@ -1161,13 +1220,13 @@ begin
         m := pcustomTxtDefinition(lCustomTxtParamList[i]).stats;
 
     if m = 0 then
-      result := ifallback
+      Result := ifallback
     else
     begin
       for i := 0 to lCustomTxtParamList.Count - 1 do
         if pcustomTxtDefinition(lCustomTxtParamList[i]).stats = m then
         begin
-          result := i;
+          Result := i;
           break;
         end;
     end;
@@ -1182,13 +1241,13 @@ function RemoveChar(const aString: string): string;
 var
   slen, i: integer;
 begin
-  result := '';
+  Result := '';
   slen := length(aString);
   for i := 1 to slen do
     if not charinset(aString[i], [#9, #10, #13, '!' .. ',', '.' .. '?']) then
-      result := result + aString[i]
+      Result := Result + aString[i]
     else
-      result := result + ' ';
+      Result := Result + ' ';
 end;
 
 procedure deleteListEntry(l: TListBox);
@@ -1203,22 +1262,22 @@ end;
 
 function currentEditedTree: TVirtualStringTree;
 begin
-  result := treearray[MainPageControl.ActivePageIndex];
+  Result := treearray[MainPageControl.ActivePageIndex];
 end;
 
 function bGameIsSF: boolean;
 begin
-  result := CURRENT_GAME_ID = 5;
+  Result := CURRENT_GAME_ID = 5;
 end;
 
 function bGameIsSkyrim: boolean;
 begin
-  result := CURRENT_GAME_ID in [1, 3];
+  Result := CURRENT_GAME_ID in [1, 3];
 end;
 
 function bGameIsFallout: boolean;
 begin
-  result := CURRENT_GAME_ID in [0, 4];
+  Result := CURRENT_GAME_ID in [0, 4];
 end;
 
 function override_ExportFolder(iMode: integer; sfolder: string; sFolderAlt: string = ''): string;
@@ -1226,27 +1285,27 @@ begin
   if sFolderAlt <> '' then
   begin
     case iMode of
-      1: result := sFolderAlt;
+      1: Result := sFolderAlt;
       // esp
-      2: result := sFolderAlt + GAME_INTERFACEMCM_SUBFOLDER; // mcm
-      3: result := sFolderAlt + GAME_SCRIPTS_SUBFOLDER; // script
-      4: result := sfolder + sFolderAlt; // wizardAllTemplates
-    else result := sFolderAlt + GAME_STRINGS_SUBFOLDER; // string
+      2: Result := sFolderAlt + GAME_INTERFACEMCM_SUBFOLDER; // mcm
+      3: Result := sFolderAlt + GAME_SCRIPTS_SUBFOLDER; // script
+      4: Result := sfolder + sFolderAlt; // wizardAllTemplates
+    else Result := sFolderAlt + GAME_STRINGS_SUBFOLDER; // string
     end;
   end
   else
-    result := sfolder;
+    Result := sfolder;
 
 end;
 
 function get_uPath_in_registryEx(path, key: string): string;
 begin
-  result := '';
+  Result := '';
   With TRegistry.Create Do
     Try
       RootKey := HKEY_LOCAL_MACHINE;
       if OpenKeyreadonly(path) then
-        result := ReadString(key);
+        Result := ReadString(key);
     Finally
       Free;
     End;
@@ -1254,13 +1313,13 @@ end;
 
 function get_uPath_in_registry(path, key: string): string;
 begin
-  result := get_uPath_in_registryEx(RegistryBase32 + path, key);
-  result := stringreplace(result, '"', '', [rfReplaceAll]);
-  if result = '' then
-    result := get_uPath_in_registryEx(RegistryBase64 + path, key);
-  result := stringreplace(result, '"', '', [rfReplaceAll]);
-  if result <> '' then
-    result := result + CURRENT_GAME_PATH;
+  Result := get_uPath_in_registryEx(RegistryBase32 + path, key);
+  Result := stringreplace(Result, '"', '', [rfReplaceAll]);
+  if Result = '' then
+    Result := get_uPath_in_registryEx(RegistryBase64 + path, key);
+  Result := stringreplace(Result, '"', '', [rfReplaceAll]);
+  if Result <> '' then
+    Result := Result + CURRENT_GAME_PATH;
 end;
 
 procedure getAllGamePath(installType: integer);
@@ -1327,7 +1386,7 @@ end;
 
 function bApplyVMAD: boolean;
 begin
-  result := bApplyVMADOpt or bGetVMADStrings;
+  Result := bApplyVMADOpt or bGetVMADStrings;
 end;
 
 function localInput(const title, info, default: string): string;
@@ -1337,9 +1396,9 @@ begin
   formInput.Label1.caption := info;
   formInput.edit1.text := default;
   if formInput.ShowModal = mrOk then
-    result := formInput.edit1.text
+    Result := formInput.edit1.text
   else
-    result := default;
+    Result := default;
   formInput.Free;
 end;
 
@@ -1355,51 +1414,51 @@ end;
 function retCardinal(i: integer): cardinal;
 begin
   if i < 0 then
-    result := 0
+    Result := 0
   else
-    result := i;
+    Result := i;
 end;
 
 function inttostrShort(i: integer): string;
 begin
   if i >= 1024 * 1024 then
-    result := format('%.1f Mo', [i / (1024 * 1024)])
+    Result := format('%.1f Mo', [i / (1024 * 1024)])
   else
-    result := format('%.1f Ko', [i / 1024])
+    Result := format('%.1f Ko', [i / 1024])
 end;
 
 function inttostrShort(i: cardinal): string;
 begin
   if i >= 1024 * 1024 then
-    result := format('%.1f Mo', [i / (1024 * 1024)])
+    Result := format('%.1f Mo', [i / (1024 * 1024)])
   else
-    result := format('%.1f Ko', [i / 1024])
+    Result := format('%.1f Ko', [i / 1024])
 end;
 
 function warnForcedCodepage: boolean;
 begin
   if bForceCodepageOnLoad or bForceCodepageOnSave then
   begin
-    result := askDialog(formatres('Warn_ForceCodepage%s%s', [sForceCodepageOnLoad, sForceCodepageOnSave]), nil, 10, true, [askYes, askNo]) = mrYes;
+    Result := askDialog(formatres('Warn_ForceCodepage%s%s', [sForceCodepageOnLoad, sForceCodepageOnSave]), nil, 10, true, [askYes, askNo]) = mrYes;
   end
   else
-    result := true;
+    Result := true;
 end;
 
 function bforceCpOnLoad: string;
 begin
   if bForceCodepageOnLoad then
-    result := sForceCodepageOnLoad
+    Result := sForceCodepageOnLoad
   else
-    result := '';
+    Result := '';
 end;
 
 function bforceCpOnSave: string;
 begin
   if bForceCodepageOnSave then
-    result := sForceCodepageOnSave
+    Result := sForceCodepageOnSave
   else
-    result := '';
+    Result := '';
 end;
 
 procedure initRessources;
@@ -1423,8 +1482,8 @@ end;
 
 function loadStringList(f: string; sorted: boolean; clean: byte = 0): tstringList;
 begin
-  result := nil;
-  loadStringListEx(result, f, sorted, clean);
+  Result := nil;
+  loadStringListEx(Result, f, sorted, clean);
 end;
 
 procedure loadStringListEx(var l: tstringList; f: string; sorted: boolean; clean: byte = 0);
@@ -1455,10 +1514,10 @@ end;
 function secureSavetStringList(l: tstringList; filename: string): boolean;
 begin
   try
-    l.SaveToFile(filename, tencoding.UTF8);
-    result := true;
+    l.SaveToFile(filename, tencoding.utf8);
+    Result := true;
   except
-    result := false;
+    Result := false;
     doFeedback(formatres('errorOnSave%s', [filename]), true);
   end;
 end;
@@ -1480,33 +1539,33 @@ begin
     #8230, // Suspension points
     #8216, // Single quotes
     #171, #187, #8220, #8221, // Double quotes
-    #8211, #8212: result := true; // Dashes
-  else result := false;
+    #8211, #8212: Result := true; // Dashes
+  else Result := false;
   end;
 end;
 
 function isChar_WordDelimiterExtended(c: char): boolean;
 begin
-  result := isChar_WordDelimiter(c);
-  if not result then
+  Result := isChar_WordDelimiter(c);
+  if not Result then
     case c of
-      '-', '''', #8209, '’', #8720: result := true;
+      '-', '''', #8209, '’', #8720: Result := true;
     end;
 end;
 
 function isChar_WordDelimitersEndLine(c: char): boolean;
 begin
   case c of
-    '.', '?', '!', '¡', '¿', #8230: result := true;
-  else result := false;
+    '.', '?', '!', '¡', '¿', #8230: Result := true;
+  else Result := false;
   end;
 end;
 
 function isChar_WordDelimitersSPAcceptedInside(c: char): boolean;
 begin
   case c of
-    '-', '''', #8209, #8217, #8720: result := true;
-  else result := false;
+    '-', '''', #8209, #8217, #8720: Result := true;
+  else Result := false;
   end;
 end;
 
@@ -1514,14 +1573,14 @@ function getTotalVocabCount(aList: tAlist): integer;
 var
   j: integer;
 begin
-  result := 0;
+  Result := 0;
   for j := 0 to 2 do
-    result := result + aList[j].Count;
+    Result := Result + aList[j].Count;
 end;
 
 function cIsDigit(c: char): boolean;
 begin
-  result := charinset(c, ['0' .. '9']);
+  Result := charinset(c, ['0' .. '9']);
 end;
 
 function doAddonHash(const addon, v: cardinal): cardinal;
@@ -1530,18 +1589,18 @@ const
   FNV_prime = 16777619;
 begin
   if addon = 0 then
-    result := FNV_offset_basis
+    Result := FNV_offset_basis
   else
-    result := addon;
-  result := (result xor v) * FNV_prime;
+    Result := addon;
+  Result := (Result xor v) * FNV_prime;
 end;
 
 function conditionalCase(s: string; l: boolean): string;
 begin
   if l then
-    result := AnsiLowerCase(s)
+    Result := AnsiLowerCase(s)
   else
-    result := s;
+    Result := s;
 end;
 
 function cleanString(s: string; c: char = #0): string;
@@ -1556,41 +1615,82 @@ begin
     else
       break;
   if tag > 0 then
-    result := copy(s, 1, l - tag)
+    Result := copy(s, 1, l - tag)
   else
-    result := s;
+    Result := s;
+end;
+
+function getcharinArray(ch: char; c: array of char): boolean;
+var
+  j: integer;
+begin
+  for j := low(c) to high(c) do
+    if ch = c[j] then
+      exit(true);
+  Result := false;
 end;
 
 function cleanString(s: string; c: array of char): string;
 var
   l, tag, i: integer;
-  function getcharinArray(ch: char): boolean;
-  var
-    j: integer;
-  begin
-    for j := low(c) to high(c) do
-      if s[i] = c[j] then
-        exit(true);
-    result := false;
-  end;
-
 begin
   l := length(s);
   tag := 0;
   for i := l downto 1 do
-    if getcharinArray(s[i]) then
+    if getcharinArray(s[i], c) then
       inc(tag)
     else
       break;
   if tag > 0 then
-    result := copy(s, 1, l - tag)
+    Result := copy(s, 1, l - tag)
   else
-    result := s;
+    Result := s;
+end;
+
+function GetStringProxy(gs, gTrans: string): integer;
+var
+  num1, num2, punc1, punc2: boolean;
+  i: integer;
+begin
+  // if length(gs) > iLengthCaseCompareThreshold then
+  // exit(0);
+  Result := 3;
+  // check Uppercase
+  if (ansiUpperCase(gTrans) = gTrans) = (ansiUpperCase(gs) = gs) then
+    dec(Result);
+  // hasNumber
+  num1 := false;
+  num2 := false;
+  punc1 := false;
+  punc2 := false;
+
+  for i := 1 to length(gs) do
+  begin
+    if charinset(gs[i], ['0' .. '9']) then
+      num1 := true;
+    if charinset(gs[i], sPunctuation) then
+      punc1 := true;
+    if num1 and punc1 then
+      break;
+  end;
+  for i := 1 to length(gTrans) do
+  begin
+    if charinset(gTrans[i], ['0' .. '9']) then
+      num2 := true;
+    if charinset(gTrans[i], sPunctuation) then
+      punc2 := true;
+    if num2 and punc2 then
+      break;
+  end;
+  if num1 = num2 then
+    dec(Result);
+  if punc1 = punc2 then
+    dec(Result);
 end;
 
 function askDialog(s: string; form: tform; sopt: sAskDialButtons; autoDuration: integer = 1500): integer;
 begin
-  result := askDialog(s, form, -1, false, sopt, autoDuration);
+  Result := askDialog(s, form, -1, false, sopt, autoDuration);
 end;
 
 function askDialog(s: string; form: tform; iRememberIndex: integer; bAlwaysYes: boolean; sopt: sAskDialButtons; autoDuration: integer = 2500): integer;
@@ -1603,7 +1703,7 @@ begin
   if (not assigned(formDialog)) then
   begin
     showmessage(s);
-    result := mrOk;
+    Result := mrOk;
     exit;
   end;
   // sanitize dialog
@@ -1633,7 +1733,7 @@ begin
   begin
     if tmpArray^[iRememberIndex] > 0 then
     begin
-      result := ifthen(bAlwaysYes, mrYes, tmpArray^[iRememberIndex]);
+      Result := ifthen(bAlwaysYes, mrYes, tmpArray^[iRememberIndex]);
       exit;
     end
     else
@@ -1674,7 +1774,7 @@ begin
     gPanelFeedback.height := h;
     gPanelFeedback.visible := true;
     application.ProcessMessages;
-    result := 1;
+    Result := 1;
   end
   else
   begin
@@ -1688,10 +1788,10 @@ begin
     begin
       formDialog.Show;
       application.ProcessMessages;
-      result := 1;
+      Result := 1;
     end
     else
-      result := formDialog.ShowModal;
+      Result := formDialog.ShowModal;
   end;
 end;
 
@@ -1722,28 +1822,28 @@ begin
     application.ProcessMessages;
     exit(true);
   end;
-  result := false;
+  Result := false;
 end;
 
 function cacheLoaded: boolean;
 begin
-  result := bCacheLoaded
+  Result := bCacheLoaded
   // ; or TESVTsstCustom or (TESVmode = sTESVTsstEdit); // added sstEditmode, so that can handle the userCacheUpdatedFlag
 end;
 
 function TESVTSameLanguage: boolean;
 begin
-  result := AnsiLowerCase(Sourcelanguage) = AnsiLowerCase(Destlanguage);
+  Result := AnsiLowerCase(Sourcelanguage) = AnsiLowerCase(Destlanguage);
 end;
 
 function BlockSameLanguageEditing: boolean;
 begin
-  result := (not AUTH_SAME_LANGUAGE_EDITING) and TESVTSameLanguage
+  Result := (not AUTH_SAME_LANGUAGE_EDITING) and TESVTSameLanguage
 end;
 
 function isGameHandled(id: integer): boolean;
 begin
-  result := inrange(id, 0, high(STARTUP_INI_VALUES_BYGAME)); // 5 = max Game Id value
+  Result := inrange(id, 0, high(STARTUP_INI_VALUES_BYGAME)); // 5 = max Game Id value
 end;
 
 procedure setGameEx(id: integer);
@@ -1882,11 +1982,11 @@ function setGameByExe: boolean;
 var
   i: integer;
 begin
-  result := false;
+  Result := false;
   for i := 0 to high(aEXE_GAME) do
     if lowercase(extractFilename(application.ExeName)) = aEXE_GAME[i] then
     begin
-      result := true;
+      Result := true;
       setGameEx(i);
       exit;
     end;
@@ -1956,7 +2056,7 @@ end;
 
 function GetDirectory(title, s: string): string;
 begin
-  result := s;
+  Result := s;
   with TBrowseForFolder.Create(nil) do
     try
       BrowseOptions := BrowseOptions + [bifStatusText, bifUseNewUI];
@@ -1964,7 +2064,7 @@ begin
       if (s <> '') and directoryExists(s) then
         folder := cleanString(s, '\');
       if Execute then
-        result := cleanString(folder, '\') + '\'
+        Result := cleanString(folder, '\') + '\'
     finally
       Free;
     end;
@@ -1974,18 +2074,18 @@ function SaveFileDialog(title, folder, filename, filter: string; defaultext: str
 var
   savedialog: tsavedialog;
 begin
-  result := '';
+  Result := '';
   savedialog := tsavedialog.Create(nil);
   try
     savedialog.filter := filter;
-    savedialog.options := savedialog.options + [ofPathMustExist];
+    savedialog.Options := savedialog.Options + [ofPathMustExist];
     savedialog.InitialDir := folder;
     savedialog.filename := filename;
     if defaultext <> '' then
       savedialog.defaultext := defaultext;
     savedialog.title := title;
     if savedialog.Execute then
-      result := savedialog.filename;
+      Result := savedialog.filename;
   finally
     savedialog.Free;
   end;
@@ -1995,16 +2095,16 @@ function OpenFileDialog(title, folder, filename, filter: string): string;
 var
   opendialog: topendialog;
 begin
-  result := '';
+  Result := '';
   opendialog := topendialog.Create(nil);
   try
     opendialog.filter := filter;
-    opendialog.options := opendialog.options + [ofPathMustExist];
+    opendialog.Options := opendialog.Options + [ofPathMustExist];
     opendialog.InitialDir := folder;
     opendialog.filename := filename;
     opendialog.title := title;
     if opendialog.Execute then
-      result := opendialog.filename
+      Result := opendialog.filename
   finally
     opendialog.Free;
   end;
@@ -2014,18 +2114,18 @@ function OpenFileDialogMulti(title, folder, filename, filter: string; var f: tst
 var
   opendialog: topendialog;
 begin
-  result := false;
+  Result := false;
   opendialog := topendialog.Create(nil);
   try
     opendialog.filter := filter;
-    opendialog.options := opendialog.options + [ofPathMustExist, ofAllowMultiSelect];
+    opendialog.Options := opendialog.Options + [ofPathMustExist, ofAllowMultiSelect];
     opendialog.InitialDir := folder;
     opendialog.filename := filename;
     opendialog.title := title;
     if opendialog.Execute then
     begin
       f.text := opendialog.files.text;
-      result := true;
+      Result := true;
     end;
   finally
     opendialog.Free;
@@ -2062,6 +2162,20 @@ begin
   end;
 end;
 
+procedure ClearTmpFiles;
+var
+  ShOp: TSHFileOpStruct;
+begin
+  ShOp.Wnd := application.Handle;
+  ShOp.wFunc := FO_DELETE;
+  ShOp.pFrom := PChar(tmpFuzPath + #0);
+  ShOp.pTo := nil;
+  ShOp.fFlags := FOF_NO_UI;
+  // ShOp.fFlags := FOF_NOCONFIRMATION; //progressbar
+  // ShOp.fFlags := FOF_ALLOWUNDO;  //trashCan
+  SHFileOperation(ShOp);
+end;
+
 function verifyFileVsCache(addonFullpath, filename: string; var bCanBeCached: boolean; var fSize: int64): boolean;
 var
   txtfilename: string;
@@ -2070,7 +2184,7 @@ var
 begin
 
   // DATACACHE_MinSize
-  result := false;
+  Result := false;
   txtfilename := datacache + ChangeFileExt(filename, DATACACHE_EXT_ID);
   fSize := GetFileSize(addonFullpath);
   bCanBeCached := fSize > DATACACHE_MinSize;
@@ -2083,7 +2197,7 @@ begin
     registeredmodsize := l.Values['id'];
 
     if (registeredtoolversion = datacacheVersionByGame[CURRENT_GAME_ID]) and (fSize > 0) then
-      result := registeredmodsize = inttohex(fSize, 16);
+      Result := registeredmodsize = inttohex(fSize, 16);
   finally
     l.Free;
   end;
@@ -2095,11 +2209,11 @@ var
 begin
   if FindFirst(filename, faAnyFile, SearchRec) = 0 then
   begin
-    result := SearchRec.size;
+    Result := SearchRec.size;
     sysutils.FindClose(SearchRec);
   end
   else
-    result := -1;
+    Result := -1;
 end;
 
 procedure deleteDataCachefileFolder(path, ext: string);
@@ -2117,12 +2231,12 @@ function authFileAccess(filename: TFileName): boolean;
 var
   HFileRes: HFILE;
 begin
-  result := false;
+  Result := false;
   if not fileexists(filename) then
     exit;
   HFileRes := CreateFile(PChar(filename), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-  result := (HFileRes <> INVALID_HANDLE_VALUE);
-  if result then
+  Result := (HFileRes <> INVALID_HANDLE_VALUE);
+  if Result then
     CloseHandle(HFileRes);
 end;
 
@@ -2130,18 +2244,18 @@ function authFileAccessRW(filename: TFileName): boolean;
 var
   HFileRes: HFILE;
 begin
-  result := false;
+  Result := false;
   if not fileexists(filename) then
     exit;
   HFileRes := CreateFile(PChar(filename), GENERIC_READ OR GENERIC_WRITE, 0, nil, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-  result := (HFileRes <> INVALID_HANDLE_VALUE);
-  if result then
+  Result := (HFileRes <> INVALID_HANDLE_VALUE);
+  if Result then
     CloseHandle(HFileRes);
 end;
 
 function GetParentDirectory(path: string): string;
 begin
-  result := ExpandFileName(path + '\..')
+  Result := ExpandFileName(path + '\..')
 end;
 
 function divide(a, b: integer): double;
@@ -2149,7 +2263,7 @@ begin
   if b = 0 then
     exit(0)
   else
-    result := a / b;
+    Result := a / b;
 end;
 
 function divide(a, b: double): double;
@@ -2157,7 +2271,7 @@ begin
   if b = 0 then
     exit(0)
   else
-    result := a / b;
+    Result := a / b;
 end;
 
 procedure headerHtmFile(s: tstringList);
@@ -2229,22 +2343,22 @@ begin
     bRemove := verifyExt = tmpExt;
   end;
   if bRemove then
-    result := sysutils.ChangeFileExt(filename, '')
+    Result := sysutils.ChangeFileExt(filename, '')
   else
-    result := filename;
+    Result := filename;
 end;
 
 function atleast(const value, atleast: integer): integer;
 begin
   if value < atleast then
-    result := atleast
+    Result := atleast
   else
-    result := value;
+    Result := value;
 end;
 
 function checkForNullTrans(s, strans: string): boolean;
 begin
-  result := false;
+  Result := false;
   // result:= (length(s) = 1) and (length(strans) = 0);
 end;
 
@@ -2268,21 +2382,21 @@ end;
 
 function is_comment(t: string): boolean;
 begin
-  result := (trim(t) = '') or (t[1] = '#');
+  Result := (trim(t) = '') or (t[1] = '#');
 end;
 
 function is_adress(t: string): boolean;
 begin
-  result := (length(trim(t)) = 10) and (t[1] = '@');
+  Result := (length(trim(t)) = 10) and (t[1] = '@');
 end;
 
 function cleanForbiddenChar(s: string): string;
 var
   i: integer;
 begin
-  result := trim(s);
+  Result := trim(s);
   for i := 0 to high(FORBIDDENFILECHAR) do
-    result := stringreplace(result, FORBIDDENFILECHAR[i], '', [rfReplaceAll]);
+    Result := stringreplace(Result, FORBIDDENFILECHAR[i], '', [rfReplaceAll]);
 end;
 
 function StringHash(const str: String): cardinal;
@@ -2293,23 +2407,23 @@ const
   FNV_prime = 16777619;
 begin
   // FNV-1a hash
-  result := FNV_offset_basis;
+  Result := FNV_offset_basis;
   for i := 1 to length(str) do
-    result := (result xor byte(str[i])) * FNV_prime;
+    Result := (Result xor byte(str[i])) * FNV_prime;
 end;
 
 function Split(aString: String; const aSeparator: char; aMax: integer): TStringArray;
 var
   i, j: integer;
 begin
-  setlength(result, aMax);
+  setlength(Result, aMax);
   for i := 0 to aMax - 1 do
-    result[i] := '';
+    Result[i] := '';
   j := 0;
   for i := 1 to length(aString) do
   begin
     if aString[i] <> aSeparator then
-      result[j] := result[j] + aString[i]
+      Result[j] := Result[j] + aString[i]
     else
     begin
       inc(j);
@@ -2323,12 +2437,12 @@ function Split(const aString: String; const aSeparator: char): string;
 var
   SepPos: integer;
 begin
-  result := aString;
-  SepPos := pos(aSeparator, result);
+  Result := aString;
+  SepPos := pos(aSeparator, Result);
   if (SepPos > 0) then
-    System.delete(result, 1, SepPos)
+    System.delete(Result, 1, SepPos)
   else
-    result := '';
+    Result := '';
 end;
 
 function getBSAFileName(lDef, lAlias: tstrings; var BsaName: string; folder, s: String): boolean;
@@ -2337,7 +2451,7 @@ var
   aliasStr: string;
   i: integer;
 begin
-  result := false;
+  Result := false;
   BsaName := '';
   lowername := AnsiLowerCase(s);
   // alias first
@@ -2347,8 +2461,8 @@ begin
     if aliasStr <> '' then
     begin
       BsaName := ExcludeTrailingPathDelimiter(folder) + '\' + aliasStr;
-      result := authFileAccess(BsaName);
-      if result then
+      Result := authFileAccess(BsaName);
+      if Result then
         exit;
     end;
   end;
@@ -2359,8 +2473,8 @@ begin
     begin
       aliasStr := trim(AnsiLowerCase(stringreplace(lDef[i], '%basename%', lowername, [rfIgnoreCase])));
       BsaName := ExcludeTrailingPathDelimiter(folder) + '\' + aliasStr;
-      result := authFileAccess(BsaName);
-      if result then
+      Result := authFileAccess(BsaName);
+      if Result then
         exit;
     end;
   end;
@@ -2371,12 +2485,12 @@ var
   r: TRegEx;
   m: TMatch;
 begin
-  result := 0;
+  Result := 0;
   r := TRegEx.Create('^\[version=(\d+)\]$');
   m := r.Match(s);
-  if m.success then
+  if m.Success then
   begin
-    result := strtointdef(m.Groups[1].value, 0);
+    Result := strtointdef(m.Groups[1].value, 0);
   end;
 end;
 
@@ -2387,30 +2501,30 @@ var
 begin
   r := TRegEx.Create('^\[(.+)\] (.+?)$');
   m := r.Match(filename);
-  if m.success then
+  if m.Success then
   begin
-    result.fNameFull := m.Groups[2].value;
-    result.fNameFile := extractFilename(result.fNameFull);
-    result.fNameFolder := ExtractFilePath(result.fNameFull);
-    result.fNameType := m.Groups[1].value;
-    if result.fNameType = 'TXT' then
-      result.fType := 1
-    else if result.fNameType = 'PEX' then
-      result.fType := 2
-    else if result.fNameType = 'STR' then
-      result.fType := 3
-    else if result.fNameType = 'ESP' then
-      result.fType := 4
-    else if result.fNameType = 'BSA' then
-      result.fType := 5;
+    Result.fNameFull := m.Groups[2].value;
+    Result.fNameFile := extractFilename(Result.fNameFull);
+    Result.fNameFolder := ExtractFilePath(Result.fNameFull);
+    Result.fNameType := m.Groups[1].value;
+    if Result.fNameType = 'TXT' then
+      Result.fType := 1
+    else if Result.fNameType = 'PEX' then
+      Result.fType := 2
+    else if Result.fNameType = 'STR' then
+      Result.fType := 3
+    else if Result.fNameType = 'ESP' then
+      Result.fType := 4
+    else if Result.fNameType = 'BSA' then
+      Result.fType := 5;
   end
   else
   begin
-    result.fNameFull := filename;
-    result.fNameFile := extractFilename(filename);
-    result.fNameFolder := ExtractFilePath(filename);
-    result.fNameType := '???';
-    result.fType := 0;
+    Result.fNameFull := filename;
+    Result.fNameFile := extractFilename(filename);
+    Result.fNameFolder := ExtractFilePath(filename);
+    Result.fNameType := '???';
+    Result.fType := 0;
   end;
 end;
 
@@ -2419,42 +2533,42 @@ var
   r1, r2: TRegEx;
   m: TMatch;
 begin
-  r1 := TRegEx.Create('^(.+)\\(.+?)\.(\w+)');
+  r1 := TRegEx.Create('^(.+)\\(.+?)\.(\w+)$');
   m := r1.Match(filename);
 
-  if m.success then
+  if m.Success then
   begin
-    result.fPath := m.Groups[1].value;
-    result.fName := m.Groups[2].value;
-    result.fExt := '.' + m.Groups[3].value;
+    Result.fPath := m.Groups[1].value;
+    Result.fName := m.Groups[2].value;
+    Result.fExt := '.' + m.Groups[3].value;
   end
   else
   begin
-    result.fPath := ERRORTXT;
-    result.fName := ERRORTXT;
-    result.fExt := ERRORTXT;
+    Result.fPath := ERRORTXT;
+    Result.fName := ERRORTXT;
+    Result.fExt := ERRORTXT;
   end;
-  result.fPathSlash := result.fPath + '\';
+  Result.fPathSlash := Result.fPath + '\';
 
   r2 := TRegEx.Create('^(.+)_(\w+)$');
-  m := r2.Match(result.fName);
+  m := r2.Match(Result.fName);
 
-  if m.success then
+  if m.Success then
   begin
-    result.fNameStrict := m.Groups[1].value;
-    result.fLang := m.Groups[2].value;
+    Result.fNameStrict := m.Groups[1].value;
+    Result.fLang := m.Groups[2].value;
   end
   else
   begin
-    result.fNameStrict := result.fName;
-    result.fLang := '';
+    Result.fNameStrict := Result.fName;
+    Result.fLang := '';
   end;
 
 end;
 
 function appendDatetoName(s: string; tag: string = ''): string;
 begin
-  result := s + '.' + tag + FormatDateTime('yyyy_mm_dd_hh_nn_ss', now);
+  Result := s + '.' + tag + FormatDateTime('yyyy_mm_dd_hh_nn_ss', now);
 end;
 
 function ShortenStringEx(DC: HDC; const s: UnicodeString; width: integer; EllipsisWidth: integer = 0): UnicodeString;
@@ -2472,7 +2586,7 @@ var
 begin
   Len := length(s);
   if (Len = 0) or (width <= 0) then
-    result := ''
+    Result := ''
   else
   begin
     // Determine width of triple point using the current DC settings (if not already done).
@@ -2483,7 +2597,7 @@ begin
     end;
 
     if width <= EllipsisWidth then
-      result := ''
+      Result := ''
     else
     begin
       // Do a binary search for the optimal string length which fits into the given width.
@@ -2499,7 +2613,7 @@ begin
         else
           h := N - 1;
       end;
-      result := copy(s, 1, l) + '...';
+      Result := copy(s, 1, l) + '...';
     end;
   end;
 end;
@@ -2526,52 +2640,52 @@ begin
     end;
   end
   else
-    result := s;
+    Result := s;
 end;
 
 function TESVTsstCustom: boolean;
 begin
-  result := (CurrentTESVmode = sTESVTsstCustom);
+  Result := (CurrentTESVmode = sTESVTsstCustom);
 end;
 
 function TESVTsst: boolean;
 begin
-  result := (CurrentTESVmode = sTESVTsstCustom) or (CurrentTESVmode = sTESVTsstEdit);
+  Result := (CurrentTESVmode = sTESVTsstCustom) or (CurrentTESVmode = sTESVTsstEdit);
 end;
 
 function TESVTmodLoaded: boolean;
 begin
-  result := (CurrentTESVmode = sTESVPex) or (CurrentTESVmode = sTESVMCM) or (CurrentTESVmode = sTESVStrings) or (CurrentTESVmode = sTESVEsp) or (CurrentTESVmode = sTESVEspStrings);
+  Result := (CurrentTESVmode = sTESVPex) or (CurrentTESVmode = sTESVMCM) or (CurrentTESVmode = sTESVStrings) or (CurrentTESVmode = sTESVEsp) or (CurrentTESVmode = sTESVEspStrings);
 end;
 
 function TESVTmodEspLoaded: boolean;
 begin
-  result := CurrentTESVmode in [sTESVEsp, sTESVEspStrings];
+  Result := CurrentTESVmode in [sTESVEsp, sTESVEspStrings];
 end;
 
 function TESVTmodLoadedHeaderProc: boolean;
 begin
-  result := CurrentTESVmode in [sTESVEsp, sTESVEspStrings, sTESVMCM];
+  Result := CurrentTESVmode in [sTESVEsp, sTESVEspStrings, sTESVMCM];
 end;
 
 function TESVTmodSaveEsp: boolean;
 begin
-  result := (CurrentTESVmode = sTESVEsp);
+  Result := (CurrentTESVmode = sTESVEsp);
 end;
 
 function getMenuCaptionId: integer;
 begin
   if CurrentTESVmode = sTESVPex then
-    result := 3
+    Result := 3
   else if CurrentTESVmode = sTESVMCM then
-    result := 2
+    Result := 2
   else
-    result := ord(TESVTmodSaveEsp);
+    Result := ord(TESVTmodSaveEsp);
 end;
 
 function getCaptionLabel: string;
 begin
-  result := format('%s - %s - [' + getres('CaptionMode') + ': %s]', [ProgName, ProgVersion, sModeLabel[ord(CurrentTESVmode)]]);
+  Result := format('%s - %s - [' + getres('CaptionMode') + ': %s]', [ProgName, ProgVersion, sModeLabel[ord(CurrentTESVmode)]]);
 end;
 
 procedure setTreeSortAndSort(column: integer);
@@ -2591,9 +2705,9 @@ end;
 function IfThenStr(AValue: boolean; const ATrue: string; const AFalse: string): string;
 begin
   if AValue then
-    result := ATrue
+    Result := ATrue
   else
-    result := AFalse;
+    Result := AFalse;
 end;
 
 
@@ -2660,20 +2774,20 @@ begin
   if bFbk then
     doFeedback('iVersion: ' + inttostr(iVersion));
   if iVersion = 131 then // fallout4
-    result := 0
+    Result := 0
   else if inrange(iVersion, 40, 43) then // Skyrim
-    result := 1
+    Result := 1
   else if inrange(iVersion, 2, 15) then // FNV
-    result := 2
+    Result := 2
   else if iVersion = 44 then // SSE
-    result := 3
+    Result := 3
   else if inrange(iVersion, 182, 200) then // f76
-    result := 4
+    Result := 4
   else if inrange(iVersion, 552, 559) then // Starfield
-    result := 5
+    Result := 5
   else
   begin
-    result := -1;
+    Result := -1;
   end;
 end;
 
@@ -2695,7 +2809,7 @@ end;
 
 function getMasterIndex(formID: cardinal): byte;
 begin
-  result := byte(formID shr 24);
+  Result := byte(formID shr 24);
 end;
 
 function TrimExtended(const s: string; CharSet: TSysCharSet): string;
@@ -2707,12 +2821,12 @@ begin
   while (i <= l) and (charinset(s[i], CharSet)) do
     inc(i);
   if i > l then
-    result := ''
+    Result := ''
   else
   begin
     while (charinset(s[l], CharSet)) do
-      Dec(l);
-    result := copy(s, i, l - i + 1);
+      dec(l);
+    Result := copy(s, i, l - i + 1);
   end;
 end;
 
@@ -2723,7 +2837,7 @@ begin
   if bVTSimpleLine or (X = -1) then
     exit(GlobalFontHeight + additionalRecMargin);
   l := round(min(length(s), MAXSIZESTRING_IN_TREE[0]) * X) div SPLITSIZETTHRESHOLD + 1;
-  result := GlobalFontHeight * min(l, MAXSIZESTRING_IN_TREE[0]) + additionalRecMargin;
+  Result := GlobalFontHeight * min(l, MAXSIZESTRING_IN_TREE[0]) + additionalRecMargin;
 end;
 
 function checkStringWOnlyWhiteChar(s: string): boolean;
@@ -2734,7 +2848,7 @@ begin
   for i := 1 to l do
     if not(charinset(s[i], sCleanChar)) then
       exit(false);
-  result := true;
+  Result := true;
 end;
 
 procedure replaceLineBreak(var s: string);

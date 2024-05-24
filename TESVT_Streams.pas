@@ -155,50 +155,9 @@ type
     function Write(const Buffer; Count: Longint): Longint; override;
   end;
 
-  // Fstream/Buffer Standard routine-------------------------------------------------
-procedure fReadBuffer(fStream: TStream; p: Pointer; l: Integer; endPos: Int64);
-procedure fRead(fStream: TStream; p: Pointer; l: Integer; endPos: Int64);
-procedure getBufferData(b: tbytes; p: Pointer; var startpos: Cardinal; const datasize, endPos: Cardinal);
+
 
 implementation
-
-// Fstream/Buffer Standard routine-------------------------------------------------
-
-procedure fReadBuffer(fStream: TStream; p: Pointer; l: Integer; endPos: Int64);
-begin
-  if l = 0 then
-    exit;
-  if (fStream.Position + l > endPos) then
-    Raise Exception.Create(READDATAERROR)
-  else
-    fStream.ReadBuffer(p^, l);
-end;
-
-procedure fRead(fStream: TStream; p: Pointer; l: Integer; endPos: Int64);
-begin
-  if l = 0 then
-    exit;
-  if (fStream.Position + l > endPos) then
-    Raise Exception.Create(READDATAERROR)
-  else
-    fStream.read(p^, l);
-end;
-
-procedure getBufferData(b: tbytes; p: Pointer; var startpos: Cardinal; const datasize, endPos: Cardinal);
-begin
-  if datasize = 0 then
-    exit;
-  if (startpos + datasize > endPos) then
-    Raise Exception.Create(READDATAERROR)
-  else
-  begin
-    move(b[startpos], p^, datasize);
-    startpos := startpos + datasize;
-  end;
-end;
-
-// ----------------------------------------------------
-
 function GetFileSizeEx(hFile: THandle; var FileSize: Int64): BOOL; stdcall; external kernel32;
 function SetFilePointerEx(hFile: THandle; DistanceToMove: Int64; lpNewFilePointer: PInt64; dwMoveMethod: DWORD): BOOL; stdcall; external kernel32;
 

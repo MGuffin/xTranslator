@@ -32,7 +32,7 @@ interface
 
 uses Windows, SysUtils, Classes, forms, math, TESVT_Threads, TESVT_Const, TESVT_Typedef, TESVT_espDefinition, TESVT_HeuristicSearch,
   TESVT_Ressources, TESVT_FastSearch, Generics.Collections, TESVT_fstreamSave, TESVT_Undo, VirtualTrees, SyncObjs, regularexpressions, TESVT_RegexUtils,
-  TESVT_Utils, System.Character;
+  TESVT_Utils, System.Character, ArabicShaper;
 
 Type
   rCharMapTCSC = record
@@ -59,8 +59,8 @@ procedure generateDerivedStringData(bforceDerived: boolean = false);
 procedure generateOneWordList;
 
 function addRTLTag(const RTLString: string): string;
-function ReverseRTLString(const Str: string): string;
-function ReverseRTLStringEx(const Str: string): string;
+function ReverseRTLString(const Str: string; index, linesize: integer; bResize, bRemovetag: boolean): string;
+function ReverseRTLStringEx(const Str: string; var bIsArabic: boolean; index: integer): string;
 
 var
   HeuristicList: tlist;
@@ -73,6 +73,34 @@ begin
   Result := WideChar(UCODE_START_RTL) + RTLString;
 end;
 
+function ConvertRTLToLTR(const RTLText: string): string;
+begin
+  Result := UCODE_RLE + RTLText + UCODE_PDF;
+end;
+
+function IsUnicodeControleChar(ch: char): boolean;
+begin
+  Result := ((ch >= #$0000) and (ch <= #$001F)) or //
+    ((ch >= #$007F) and (ch <= #$009F)) or //
+    ((ch >= #$202A) and (ch <= #$202E)) or //
+    ((ch >= #$2060) and (ch <= #$206F)) or //
+    (ch = #$200E) or (ch = #$200F);
+end;
+
+function RemoveUnicodeControlChars(const Input: string): string;
+var
+  i: integer;
+  Output: string;
+begin
+  Output := '';
+  for i := 1 to Length(Input) do
+  begin
+    if not IsUnicodeControleChar(Input[i]) then
+      Output := Output + Input[i];
+  end;
+  Result := Output;
+end;
+
 function IsArabicLetter(ch: char): boolean;
 begin
   Result := ((ch >= #$0600) and (ch <= #$06FF)) or //
@@ -81,27 +109,121 @@ begin
     ((ch >= #$FE70) and (ch <= #$FEFF));
 end;
 
-function ReverseRTLString(const Str: string): string;
-var
-  lString: tstringList;
-  j: integer;
+function MirrorSymbol(ch: char): char;
 begin
-  lString := tstringList.Create;
-  lString.Text := Str;
-  for j := 0 to lString.count - 1 do
-    lString[j] := ReverseRTLStringEx(lString[j]);
-
-  Result := lString.Text;
-  Result := trim(cleanString(copy(Result, 1, min(length(Result), MAXSIZESTRING_GLOBALCAP)), aCleanChar));
-
-  lString.Free;
+  case ch of
+    '(': Result := ')';
+    ')': Result := '(';
+    '{': Result := '}';
+    '}': Result := '{';
+    '[': Result := ']';
+    ']': Result := '[';
+    // '<': Result := '>';  //exclude Alias/tag for bethesda games
+    // '>': Result := '<';
+    '«': Result := '»';
+    '»': Result := '«';
+  else
+    Result := ch;
+  end;
 end;
 
-function ReverseRTLStringEx(const Str: string): string;
+procedure MirrorSymbols(var text: string);
+var
+  i: integer;
+begin
+  for i := 1 to Length(text) do
+    text[i] := MirrorSymbol(text[i]);
+end;
+
+function ReverseRTLString(const Str: string; index, linesize: integer; bResize, bRemovetag: boolean): string;
+var
+  lString, lReverted, lOut: tstringList;
+  i, j: integer;
+  bIsArabic: boolean;
+begin
+  lString := tstringList.Create;
+  lReverted := tstringList.Create;
+  lOut := tstringList.Create;
+  lString.text := Str;
+
+  bIsArabic := false;
+  for j := 0 to lString.count - 1 do
+  begin
+    if bRemovetag then
+      lReverted.text := ReverseRTLStringEx(RemoveUnicodeControlChars(lString[j]), bIsArabic, index)
+    else
+      lReverted.text := ReverseRTLStringEx(lString[j], bIsArabic, index);
+    if bResize then
+      WrapStringList(lReverted, linesize);
+    for i := 0 to lReverted.count - 1 do
+      lOut.add(lReverted[i]);
+  end;
+
+  if bIsArabic then
+  begin
+    Result := lOut.text;
+    Result := Result.TrimRight([#10, #13]);
+  end
+  else
+    Result := Str;
+
+  lString.Free;
+  lReverted.Free;
+  lOut.Free;
+end;
+
+procedure splitBlock(const Str: string; l: tstringList);
+var
+  block: string;
+  i: integer;
+  iType, iTypePred: integer; // 0 notdefined, 1: white, 2 arabic, 3 not arabic
+
+  function getIType(ch: char): integer;
+  begin
+    if getcharinArray(ch, aWhiteChar) then
+      Result := 1
+    else if getcharinArray(ch, aSymbols) then
+      Result := 2
+    else if IsArabicLetter(ch) then
+      Result := 3
+    else
+      Result := 4;
+  end;
+
+begin
+  if Str = '' then
+    exit;
+  iType := getIType(Str[1]);
+  iTypePred := iType;
+  block := Str[1];
+  for i := 2 to Length(Str) do
+  begin
+    iType := getIType(Str[i]);
+    // confirm whitechar
+    if iType = 1 then
+    begin
+      if not(IsArabicLetter(Str[i - 1]) or ((i + 1 <= Length(Str)) and IsArabicLetter(Str[i + 1]))) then
+        iType := 4;
+    end;
+
+    if iTypePred <> iType then
+    begin
+      l.add(block);
+      block := '';
+    end;
+    iTypePred := iType;
+    block := block + Str[i];
+  end;
+  l.add(block);
+end;
+
+function ReverseRTLStringEx(const Str: string; var bIsArabic: boolean; index: integer): string;
 var
   i, j: integer;
-  CurrentSegment: string;
+  CurrentSegment, tmpstr: string;
   Segments: tstringList;
+const
+  maxSegment = 5;
 begin
   Result := '';
   if Str = '' then
@@ -110,50 +232,35 @@ begin
   Segments := tstringList.Create;
 
   try
-    CurrentSegment := Str[1];
-    for i := 2 to length(Str) do
-    begin
-      if IsArabicLetter(Str[i]) then
-      begin
-        if not IsArabicLetter(Str[i - 1]) then
-        begin
-          Segments.Add(CurrentSegment);
-          CurrentSegment := '';
-        end;
-      end
-      else
-      begin
-        if IsArabicLetter(Str[i - 1]) then
-        begin
-          Segments.Add(CurrentSegment);
-          CurrentSegment := '';
-        end;
-      end;
-      CurrentSegment := CurrentSegment + Str[i];
-    end;
+    if index = 1 then
+      tmpstr := Shape(Str)
+    else if index = 2 then
+      tmpstr := deshape(Str)
+    else
+      tmpstr := Str;
 
-    Segments.Add(CurrentSegment);
+    splitBlock(tmpstr, Segments);
 
     for i := Segments.count - 1 downto 0 do
     begin
       CurrentSegment := Segments[i];
       if IsArabicLetter(CurrentSegment[1]) then
       begin
-        for j := length(CurrentSegment) downto 1 do
+        bIsArabic := true;
+        for j := Length(CurrentSegment) downto 1 do
           Result := Result + CurrentSegment[j];
       end
       else
+      begin
+        MirrorSymbols(CurrentSegment);
         Result := Result + CurrentSegment;
+      end;
     end;
 
   finally
     Segments.Free;
   end;
 end;
-
-
-
-
 
 // -TC->SC
 
@@ -173,14 +280,14 @@ var
   i: integer;
   p: pCharMapTCSC;
 begin
-  if length(scstr) <> length(tcstr) then
+  if Length(scstr) <> Length(tcstr) then
     exit(false);
-  for i := 0 to length(scstr) do
+  for i := 0 to Length(scstr) do
   begin
     new(p);
     p.sc := scstr[i];
     p.tc := tcstr[i];
-    l.Add(p);
+    l.add(p);
   end;
   Result := true;
   // l.Sort(compareCharCodeSC);
@@ -214,8 +321,8 @@ begin
           if tSkyStr(listArray[k][i]).lockedStatus then
             continue;
           tmpstr1 := tSkyStr(listArray[k][i]).sTrans;
-          if length(tmpstr1) > 0 then
-            for j := 0 to length(tmpstr1) do
+          if Length(tmpstr1) > 0 then
+            for j := 0 to Length(tmpstr1) do
             begin
               p.tc := tmpstr1[j];
               if FastListSearch(l, compareCharCodeTC, p, newindex, false) then
@@ -234,8 +341,8 @@ begin
           if tSkyStr(listArray[k][i]).lockedStatus then
             continue;
           tmpstr1 := tSkyStr(listArray[k][i]).sTrans;
-          if length(tmpstr1) > 0 then
-            for j := 0 to length(tmpstr1) do
+          if Length(tmpstr1) > 0 then
+            for j := 0 to Length(tmpstr1) do
             begin
               p.sc := tmpstr1[j];
               if FastListSearch(l, compareCharCodeSC, p, newindex, false) then
@@ -284,14 +391,14 @@ var
 begin
   sOut.clear;
   Result := false;
-  if length(s) = 0 then
+  if Length(s) = 0 then
     exit;
   try
     m := RegEx.Match(s);
     if m.success then
     begin
       for i := 1 to m.Groups.count - 1 do
-        sOut.Add(m.Groups[i].value);
+        sOut.add(m.Groups[i].value);
       Result := true;
     end;
   except
@@ -320,14 +427,14 @@ begin
   begin
     UpdatePBar(1000);
     if CancelStuff then
-      Break;
+      break;
     sk := vocabBaseList[i];
     if sk.sInternalparams * [derivedComputed] = [] then
     begin
       // Basic Selection
-      if not inrange(length(sk.s), 2, StrictStringDataLimit) then
+      if not inrange(Length(sk.s), 2, StrictStringDataLimit) then
         continue;
-      if not inrange(length(sk.sTrans), 2, StrictStringDataLimit) then
+      if not inrange(Length(sk.sTrans), 2, StrictStringDataLimit) then
         continue;
       if DerivedMatch(RegEx, sk.s, pattern, matchList1, bBreak) and DerivedMatch(RegEx, sk.sTrans, pattern, matchList2, bBreak) and (matchList1.count = matchList2.count) then
       begin
@@ -338,7 +445,7 @@ begin
           if bDerivedverbose then
             doFeedBack(format('[%s][%s] --> [%s][%s]', [sk.s, sk.sTrans, s1, s2]));
           if (s1 <> '') and (s2 <> '') then
-            tmpList.Add(tSkyStr.init(0, 0, s1, s2, sk.listIndex, 0, [], [isCache, derivedComputed], nil, false));
+            tmpList.add(tSkyStr.init(0, 0, s1, s2, sk.listIndex, 0, [], [isCache, derivedComputed], nil, false));
         end;
       end;
     end;
@@ -364,7 +471,7 @@ begin
   begin
     if is_comment(derivedParseList[j]) then
       continue;
-    Inc(c);
+    inc(c);
   end;
 
   ProgressBar.Max := vocabBaseList.count * c;
@@ -395,7 +502,7 @@ begin
     if not addPointertoSortedList(vocabBaseList, compareallHashesAndSources, sk, index) then
       sk.Free
     else
-      Inc(count);
+      inc(count);
   end;
   ProgressBar.position := ProgressBar.Max;
   doFeedBack(formatRes('DerivedStringsKept%d', [count]));
@@ -411,7 +518,7 @@ begin
   for i := 0 to vocabBaseList.count - 1 do
     if isOneWord in tSkyStr(vocabBaseList[i]).sInternalparams then
       forcedPointertoSortedList(onewordList, compareHashTrans, vocabBaseList[i]);
-  doFeedBack('OneWords: ' + inttostr(onewordList.count));
+  doFeedBack('OneWords: ' + IntToStr(onewordList.count));
 end;
 
 procedure generateHeuristicList;
@@ -431,7 +538,7 @@ begin
     begin
       tSkyStr(vocabBaseList[i]).initStrings(false);
       if tSkyStr(vocabBaseList[i]).awords.count > 0 then
-        HeuristicList.Add(vocabBaseList[i]);
+        HeuristicList.add(vocabBaseList[i]);
       UpdatePBar(1000);
     end;
     idleVocabCounter := vocabBaseList.count;
@@ -476,14 +583,14 @@ var
   sSize, lSize: integer;
 begin
   Result := false;
-  if length(sk1.s) < 8 then
+  if Length(sk1.s) < 8 then
     lSize := getLongestCommonStrInt_Header(ansilowercase(sk1.s), ansilowercase(sk2.s))
   else
     lSize := getLongestCommonStrInt(ansilowercase(sk1.s), ansilowercase(sk2.s));
-  if ((length(sk1.s) - lSize) <= getSubTringThresholdDec(length(sk1.s))) and (abs((length(sk2.s) - length(sk1.s))) <= getSubTringThresholdInc(length(sk1.s))) then
+  if ((Length(sk1.s) - lSize) <= getSubTringThresholdDec(Length(sk1.s))) and (abs((Length(sk2.s) - Length(sk1.s))) <= getSubTringThresholdInc(Length(sk1.s))) then
   begin
     Result := true;
-    sSize := Max(length(sk1.s), length(sk2.s)) - lSize;
+    sSize := Max(Length(sk1.s), Length(sk2.s)) - lSize;
     ldOut := sSize * 0.1 + ifThen(sSize = 0, 0.1, 0.55) + GetStringProxy(sk1.s, sk2.sTrans) * proxybaseRatio;
   end;
 end;
@@ -515,7 +622,7 @@ begin
   end;
 
   // Uppercase check
-  if (length(sk1.s) = length(sk2.s)) then
+  if (Length(sk1.s) = Length(sk2.s)) then
   begin
     if ansilowercase(sk1.s) = ansilowercase(sk2.s) then
     begin
@@ -539,7 +646,7 @@ begin
   for i := 0 to sk1.awords.count - 1 do
   begin
     if not getWordFromIndex(sk2.awords, i, resultThreshold + 1, (sk1.awords[i])) then
-      Inc(cMatches);
+      inc(cMatches);
     if cMatches >= resultThreshold then
       exit;
   end;
@@ -596,7 +703,7 @@ begin
       LDTree.NodeHeight[node] := getHeightforCell(sk2.s, -1, GlobalFontHeight);
     end;
     if bBreak then
-      Break;
+      break;
   end;
   ProgressBar.position := ProgressBar.Max;
 end;
@@ -616,14 +723,14 @@ begin
   begin
     sk := l[i];
     if (sk.hash <> h1) then
-      Break;
+      break;
     if (count > 0) then
     begin
       bnTrans := true;
-      Break;
+      break;
     end;
     skOut := sk;
-    Inc(count);
+    inc(count);
   end;
   Result := assigned(skOut);
 end;
@@ -643,16 +750,16 @@ begin
   begin
     sk := l[i];
     if (sk.hash <> h1) then
-      Break;
+      break;
     if sk.isRefRec(r, f, true) then
     begin
       if (count > 0) then
       begin
         bnTrans := true;
-        Break;
+        break;
       end;
       skOut := sk;
-      Inc(count);
+      inc(count);
     end;
   end;
   Result := assigned(skOut);
@@ -749,7 +856,7 @@ begin
       if not TESVTSameLanguage then
       begin
         sk1.resetTrans(bVmad);
-        Inc(Result);
+        inc(Result);
       end;
     end;
   end;
@@ -846,7 +953,7 @@ begin
       sk1.assignSame
     else if not TESVTSameLanguage then
     begin
-      Inc(Result);
+      inc(Result);
     end;
   end;
   searchP.Free;

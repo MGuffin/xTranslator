@@ -250,7 +250,7 @@ object Form2: TForm2
           item
             Position = 2
             Text = 'Translated'
-            Width = 288
+            Width = 284
           end
           item
             Alignment = taCenter
@@ -388,14 +388,8 @@ object Form2: TForm2
         Font.Name = 'Courier New'
         Font.Pitch = fpFixed
         Font.Style = []
+        Font.Quality = fqClearTypeNatural
         TabOrder = 2
-        CodeFolding.GutterShapeSize = 11
-        CodeFolding.CollapsedLineColor = clGrayText
-        CodeFolding.FolderBarLinesColor = clGrayText
-        CodeFolding.IndentGuidesColor = clGray
-        CodeFolding.IndentGuides = True
-        CodeFolding.ShowCollapsedLine = False
-        CodeFolding.ShowHintMark = True
         UseCodeFolding = False
         BookMarkOptions.GlyphsVisible = False
         Gutter.BorderStyle = gbsRight
@@ -406,8 +400,27 @@ object Form2: TForm2
         Gutter.Font.Height = -11
         Gutter.Font.Name = 'Courier New'
         Gutter.Font.Style = []
-        Gutter.Width = 20
         Gutter.GradientEndColor = clWindow
+        Gutter.Bands = <
+          item
+            Kind = gbkMarks
+            Visible = True
+            Width = 13
+          end
+          item
+            Kind = gbkLineNumbers
+          end
+          item
+            Kind = gbkFold
+          end
+          item
+            Kind = gbkTrackChanges
+          end
+          item
+            Kind = gbkMargin
+            Visible = True
+            Width = 3
+          end>
         Options = [eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
         ReadOnly = True
         RightEdge = 0
@@ -415,7 +428,6 @@ object Form2: TForm2
         WordWrap = True
         WordWrapGlyph.Visible = False
         OnGutterClick = Memo2GutterClick
-        FontSmoothing = fsmNone
         RemovedKeystrokes = <
           item
             Command = ecContextHelp
@@ -507,11 +519,11 @@ object Form2: TForm2
           end>
         AddedKeystrokes = <
           item
-            Command = ecUpperCaseBlock
+            Command = ecNone
             ShortCut = 116
           end
           item
-            Command = ecLowerCaseBlock
+            Command = ecNone
             ShortCut = 117
           end
           item
@@ -639,7 +651,7 @@ object Form2: TForm2
         Columns = <
           item
             Position = 0
-            Width = 1227
+            Width = 1223
           end>
       end
     end
@@ -1084,16 +1096,10 @@ object Form2: TForm2
           Font.Name = 'Courier New'
           Font.Pitch = fpFixed
           Font.Style = []
+          Font.Quality = fqClearTypeNatural
           PopupMenu = PopupMenu1
           TabOrder = 0
           OnMouseUp = memo1MouseUp
-          CodeFolding.GutterShapeSize = 11
-          CodeFolding.CollapsedLineColor = clGrayText
-          CodeFolding.FolderBarLinesColor = clGrayText
-          CodeFolding.IndentGuidesColor = clGray
-          CodeFolding.IndentGuides = True
-          CodeFolding.ShowCollapsedLine = False
-          CodeFolding.ShowHintMark = True
           UseCodeFolding = False
           BookMarkOptions.GlyphsVisible = False
           Gutter.BorderStyle = gbsRight
@@ -1106,7 +1112,26 @@ object Form2: TForm2
           Gutter.Font.Name = 'Courier New'
           Gutter.Font.Style = []
           Gutter.ShowLineNumbers = True
-          Gutter.Width = 20
+          Gutter.Bands = <
+            item
+              Kind = gbkMarks
+              Visible = True
+              Width = 13
+            end
+            item
+              Kind = gbkLineNumbers
+            end
+            item
+              Kind = gbkFold
+            end
+            item
+              Kind = gbkTrackChanges
+            end
+            item
+              Kind = gbkMargin
+              Visible = True
+              Width = 3
+            end>
           Options = [eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoSmartTabDelete, eoSmartTabs, eoTabIndent]
           ReadOnly = True
           RightEdge = 0
@@ -1115,7 +1140,6 @@ object Form2: TForm2
           WordWrapGlyph.Visible = False
           OnGutterClick = Memo1GutterClick
           OnGutterGetText = Memo2GutterGetText
-          FontSmoothing = fsmNone
           RemovedKeystrokes = <
             item
               Command = ecContextHelp
@@ -1209,7 +1233,6 @@ object Form2: TForm2
           Width = 285
           Height = 36
           Align = alBottom
-          BorderWidth = 5
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1363,16 +1386,10 @@ object Form2: TForm2
               Font.Name = 'Courier New'
               Font.Pitch = fpFixed
               Font.Style = []
+              Font.Quality = fqClearTypeNatural
               PopupMenu = PopupMenu1
               TabOrder = 0
               OnMouseUp = Memo2MouseUp
-              CodeFolding.GutterShapeSize = 11
-              CodeFolding.CollapsedLineColor = clGrayText
-              CodeFolding.FolderBarLinesColor = clGrayText
-              CodeFolding.IndentGuidesColor = clGray
-              CodeFolding.IndentGuides = True
-              CodeFolding.ShowCollapsedLine = False
-              CodeFolding.ShowHintMark = True
               UseCodeFolding = False
               BookMarkOptions.GlyphsVisible = False
               BorderStyle = bsNone
@@ -1386,8 +1403,27 @@ object Form2: TForm2
               Gutter.Font.Name = 'Courier New'
               Gutter.Font.Style = []
               Gutter.ShowLineNumbers = True
-              Gutter.Width = 20
               Gutter.GradientEndColor = clWindow
+              Gutter.Bands = <
+                item
+                  Kind = gbkMarks
+                  Visible = True
+                  Width = 13
+                end
+                item
+                  Kind = gbkLineNumbers
+                end
+                item
+                  Kind = gbkFold
+                end
+                item
+                  Kind = gbkTrackChanges
+                end
+                item
+                  Kind = gbkMargin
+                  Visible = True
+                  Width = 3
+                end>
               Options = [eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoHideShowScrollbars, eoSmartTabDelete, eoSmartTabs, eoTabIndent]
               RightEdge = 0
               SearchEngine = SynEditSearch1
@@ -1399,7 +1435,6 @@ object Form2: TForm2
               OnGutterGetText = Memo2GutterGetText
               OnStatusChange = Memo2StatusChange
               OnPaintTransient = Memo2PaintTransient
-              FontSmoothing = fsmNone
               ExplicitWidth = 904
               RemovedKeystrokes = <
                 item
@@ -1492,11 +1527,11 @@ object Form2: TForm2
                 end>
               AddedKeystrokes = <
                 item
-                  Command = ecUpperCaseBlock
+                  Command = ecUpperCase
                   ShortCut = 116
                 end
                 item
-                  Command = ecLowerCaseBlock
+                  Command = ecLowerCase
                   ShortCut = 117
                 end
                 item
@@ -1534,13 +1569,14 @@ object Form2: TForm2
               Width = 908
               Height = 36
               Align = alBottom
+              BiDiMode = bdLeftToRight
               BorderStyle = bsNone
-              BorderWidth = 5
               Font.Charset = ANSI_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
               Font.Name = 'Tahoma'
               Font.Style = []
+              ParentBiDiMode = False
               ParentFont = False
               PlainText = True
               PopupMenu = PopupMenu1
@@ -1707,6 +1743,18 @@ object Form2: TForm2
         Caption = 'ZoomDefault'
         ImageIndex = 12
         OnClick = Zoom1Click
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object UseSimpleMemo1: TMenuItem
+        Caption = 'UseLiteEditor'
+        OnClick = UseSimpleMemo1Click
+      end
+      object BidiModeRTL1: TMenuItem
+        Caption = 'BidiMode: RTL'
+        Visible = False
+        OnClick = BidiModeRTL1Click
       end
     end
   end

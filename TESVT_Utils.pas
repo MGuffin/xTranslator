@@ -30,11 +30,10 @@ unit TESVT_Utils;
 
 interface
 
-uses forms, classes, Graphics, SysUtils, shellApi, Windows, tesvt_Const;
+uses forms, classes, Graphics, SysUtils, shellApi, Windows;
 
 type
   sArray = array of string;
-
 
   tmcStringList = class(tStringList)
   private
@@ -123,9 +122,6 @@ type
     property PairSorted: Boolean read fPairSorted write SetPairSorted;
   end;
 
-
-
-
 function SwapEndian32asm(Value: integer): integer;
 function SwapEndian32uasm(Value: cardinal): cardinal;
 function SwapEndian16uasm(Value: word): word;
@@ -133,18 +129,17 @@ function SwapEndian32(i, Value: integer): integer;
 function SwapEndian32u(i, Value: cardinal): cardinal;
 function SwapEndian32f(i, Value: single): single;
 function SwapEndian16u(i, Value: word): word;
-function Explode(const S: string; out a: sArray; separator: char): integer;
+function Explode(const s: string; out a: sArray; separator: char): integer;
 function GetBit(const aValue: cardinal; const Bit: Byte): Boolean;
 Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean; var process: cardinal): Boolean;
 procedure decPositive(var i: integer);
-function GetStringProxy(gs, gTrans: string): integer;
-procedure ClearTmpFiles;
 function DelFileOperation(const Source, dest: string; op, flags: integer): Boolean;
-function getbyteCount(encoding: word; S: string): integer;
-function getEncodingString(encoding: word; S: tbytes): string;
-function getEncodingTBytes(encoding: word; S: string): tbytes;
-procedure RandomizeListOrder(var List: TstringList);
+function getbyteCount(encoding: word; s: string): integer;
+function getEncodingString(encoding: word; s: tbytes): string;
+function getEncodingTBytes(encoding: word; s: string): tbytes;
+procedure RandomizeListOrder(var List: tStringList);
 function MidStrReplace(sInput, sReplace: string; iOffset, iLength: integer): string;
+procedure WrapStringList(Strings: tStringList; MaxWidth: integer);
 
 implementation
 
@@ -153,82 +148,42 @@ begin
   result := copy(sInput, 1, iOffset - 1) + sReplace + copy(sInput, iOffset + iLength, length(sInput));
 end;
 
-function getEncodingTBytes(encoding: word; S: string): tbytes;
+function getEncodingTBytes(encoding: word; s: string): tbytes;
 var
   e: tEncoding;
 begin
   e := tEncoding.GetEncoding(encoding);
   try
-    result := e.GetBytes(S);
+    result := e.GetBytes(s);
   finally
     e.free;
   end;
 end;
 
-function getEncodingString(encoding: word; S: tbytes): string;
+function getEncodingString(encoding: word; s: tbytes): string;
 var
   e: tEncoding;
 begin
   e := tEncoding.GetEncoding(encoding);
   try
-    result := e.GetString(S);
+    result := e.GetString(s);
   finally
     e.free;
   end;
 end;
 
-function getbyteCount(encoding: word; S: string): integer;
+function getbyteCount(encoding: word; s: string): integer;
 var
   e: tEncoding;
 begin
   e := tEncoding.GetEncoding(encoding);
   try
-    result := e.getbyteCount(S);
+    result := e.getbyteCount(s);
   finally
     e.free;
   end;
 end;
 
-function GetStringProxy(gs, gTrans: string): integer;
-var
-  num1, num2, punc1, punc2: Boolean;
-  i: integer;
-begin
-  // if length(gs) > iLengthCaseCompareThreshold then
-  // exit(0);
-  result := 3;
-  // check Uppercase
-  if (ansiUpperCase(gTrans) = gTrans) = (ansiUpperCase(gs) = gs) then
-    dec(result);
-  // hasNumber
-  num1 := false;
-  num2 := false;
-  punc1 := false;
-  punc2 := false;
-
-  for i := 1 to length(gs) do
-  begin
-    if charinset(gs[i], ['0' .. '9']) then
-      num1 := true;
-    if charinset(gs[i], sPunctuation) then
-      punc1 := true;
-    if num1 and punc1 then
-      break;
-  end;
-  for i := 1 to length(gTrans) do
-  begin
-    if charinset(gTrans[i], ['0' .. '9']) then
-      num2 := true;
-    if charinset(gTrans[i], sPunctuation) then
-      punc2 := true;
-    if num2 and punc2 then
-      break;
-  end;
-  if num1 = num2 then
-    dec(result);
-  if punc1 = punc2 then
-    dec(result);
-end;
 
 // Usage  NewColor:= Blend(Color1, Color2, blending level 0 to 100);
 
@@ -244,13 +199,13 @@ begin
   result := (aValue and (1 shl Bit)) <> 0;
 end;
 
-function Explode(const S: string; out a: sArray; separator: char): integer;
+function Explode(const s: string; out a: sArray; separator: char): integer;
 var
   iStr: integer;
   iLen: integer;
   iBegin: integer;
 begin
-  if length(S) = 0 then
+  if length(s) = 0 then
   begin
     SetLength(a, 1);
     result := 0;
@@ -259,10 +214,10 @@ begin
   end;
 
   iLen := 0;
-  for iStr := 1 to length(S) do
-    if S[iStr] = separator then
+  for iStr := 1 to length(s) do
+    if s[iStr] = separator then
       Inc(iLen);
-  if S[length(S)] <> separator then
+  if s[length(s)] <> separator then
     Inc(iLen);
 
   SetLength(a, iLen);
@@ -270,11 +225,11 @@ begin
   iLen := 0;
   result := 0;
 
-  for iStr := 1 to length(S) do
+  for iStr := 1 to length(s) do
   begin
-    if S[iStr] = separator then
+    if s[iStr] = separator then
     begin
-      a[result] := copy(S, iBegin, iLen);
+      a[result] := copy(s, iBegin, iLen);
       Inc(result);
       iBegin := iStr + 1;
       iLen := 0;
@@ -284,15 +239,15 @@ begin
   end;
 
   if result < length(a) then
-    a[result] := copy(S, iBegin, MaxInt);
+    a[result] := copy(s, iBegin, MaxInt);
 end;
 
-function AddQuotesIfNeeded(const S: String): String;
+function AddQuotesIfNeeded(const s: String): String;
 begin
-  if (S = '') or (Pos(' ', S) <> 0) or (Pos('"', S) <> 0) then
-    result := AnsiQuotedStr(S, '"')
+  if (s = '') or (Pos(' ', s) <> 0) or (Pos('"', s) <> 0) then
+    result := AnsiQuotedStr(s, '"')
   else
-    result := S;
+    result := s;
 end;
 
 Function RunExecutable(const FileName: String; const Params: array of String; const WorkingDirectory: String; WaitForIt: Boolean; var process: cardinal): Boolean;
@@ -324,20 +279,6 @@ begin
   else
     result := false;
 End;
-
-procedure ClearTmpFiles;
-var
-  ShOp: TSHFileOpStruct;
-begin
-  ShOp.Wnd := application.Handle;
-  ShOp.wFunc := FO_DELETE;
-  ShOp.pFrom := PChar(tmpFuzPath + #0);
-  ShOp.pTo := nil;
-  ShOp.fFlags := FOF_NO_UI;
-  // ShOp.fFlags := FOF_NOCONFIRMATION; //progressbar
-  // ShOp.fFlags := FOF_ALLOWUNDO;  //trashCan
-  SHFileOperation(ShOp);
-end;
 
 // delete file
 function DelFileOperation(const Source, dest: string; op, flags: integer): Boolean;
@@ -428,7 +369,7 @@ begin
   Bytes(result)[1] := Bytes(Value)[0];
 end;
 
-procedure RandomizeListOrder(var List: TstringList);
+procedure RandomizeListOrder(var List: tStringList);
 var
   Index, Item: integer;
 begin
@@ -441,7 +382,7 @@ begin
 end;
 
 
-//--------------
+// --------------
 
 function compareCardinal(a, b: cardinal): integer;
 begin
@@ -449,19 +390,19 @@ begin
     exit(-1)
   else if a > b then
     exit(1);
-  result:= 0;
+  result := 0;
 end;
 
 function CardinalPairListCompareX(p1, p2: pointer): integer;
 begin
-  result:= compareCardinal(pCardinalPair(p1).a, pCardinalPair(p2).a);
+  result := compareCardinal(pCardinalPair(p1).a, pCardinalPair(p2).a);
 end;
 
 function CardinalPairListCompare(p1, p2: pointer): integer;
 begin
-  result:= CardinalPairListCompareX(p1, p2);
+  result := CardinalPairListCompareX(p1, p2);
   if result = 0 then
-    result:= compareCardinal(pCardinalPair(p1).b, pCardinalPair(p2).b);
+    result := compareCardinal(pCardinalPair(p1).b, pCardinalPair(p2).b);
 end;
 
 function tmcCardinalPairList.AddPair(x, y: cardinal): integer;
@@ -469,21 +410,21 @@ var
   pC: pCardinalPair;
   Index: integer;
 begin
-  result:= -1;
+  result := -1;
   new(pC);
-  pC^.a:= x;
-  pC^.b:= y;
+  pC^.a := x;
+  pC^.b := y;
   if fPairSorted then
   begin
     if addPointer(pC, index) then
-      result:= index
+      result := index
     else
       dispose(pC);
   end
   else
   begin
     add(pC);
-    result:= count - 1;
+    result := Count - 1;
   end;
 end;
 
@@ -497,18 +438,18 @@ var
   Index, i: integer;
   dummy, pC: pCardinalPair;
 begin
-  setlength(result, 0);
+  SetLength(result, 0);
   new(dummy);
-  dummy.a:= Value;
+  dummy.a := Value;
   if FastSearch(CardinalPairListCompareX, dummy, index, true) then
   begin
-    for i:= index to pred(count) do
+    for i := index to pred(Count) do
     begin
-      pC:= List[i];
+      pC := List[i];
       if pC^.a <> Value then
         break;
-      setlength(result, length(result) + 1);
-      result[length(result) - 1]:= pC^.b;
+      SetLength(result, length(result) + 1);
+      result[length(result) - 1] := pC^.b;
     end;
   end;
   dispose(dummy);
@@ -519,13 +460,13 @@ var
   Index: integer;
   dummy: pCardinalPair;
 begin
-  result:= false;
+  result := false;
   new(dummy);
-  dummy.a:= Value;
+  dummy.a := Value;
   if FastSearch(CardinalPairListCompareX, dummy, index, true) then
   begin
-    ValueOut:= pCardinalPair(List[index])^.b;
-    result:= true;
+    ValueOut := pCardinalPair(List[index])^.b;
+    result := true;
   end;
   dispose(dummy);
 end;
@@ -534,7 +475,7 @@ procedure tmcCardinalPairList.Clear;
 var
   i: integer;
 begin
-  for i:= 0 to pred(count) do
+  for i := 0 to pred(Count) do
     dispose(pCardinalPair(List[i]));
 
   SetCount(0);
@@ -543,11 +484,11 @@ end;
 
 function tmcCardinalPairList.addPointer(p: pointer; var Index: integer): Boolean;
 begin
-  result:= false;
+  result := false;
   if not FastSearch(CardinalPairListCompare, p, index, false) then
   begin
     Insert(index, p);
-    result:= true
+    result := true
   end;
 end;
 
@@ -557,12 +498,12 @@ var
   c: integer;
   function getlowest(p: pointer; startID: integer): integer;
   begin
-    result:= startID;
+    result := startID;
     dec(startID);
     while (startID >= 0) do
     begin
       if (Compare(List[startID], p) = 0) then
-        result:= startID
+        result := startID
       else
         exit;
       dec(startID);
@@ -570,29 +511,29 @@ var
   end;
 
 begin
-  result:= false;
-  L:= 0;
-  H:= count - 1;
+  result := false;
+  L := 0;
+  H := Count - 1;
   while (L <= H) do
   begin
-    i:= (L + H) shr 1;
-    c:= Compare(List[i], p);
+    i := (L + H) shr 1;
+    c := Compare(List[i], p);
     if c < 0 then
-      L:= i + 1
+      L := i + 1
     else
     begin
-      H:= i - 1;
+      H := i - 1;
       if c = 0 then
       begin
-        L:= i;
+        L := i;
         if b then
-          L:= getlowest(p, L);
-        result:= true;
+          L := getlowest(p, L);
+        result := true;
         break;
       end;
     end;
   end;
-  newindex:= L;
+  newindex := L;
 end;
 
 procedure tmcCardinalPairList.SetPairSorted(Value: Boolean);
@@ -601,7 +542,7 @@ begin
   begin
     if Value then
       sortPair;
-    fPairSorted:= Value;
+    fPairSorted := Value;
   end;
 end;
 
@@ -614,31 +555,31 @@ end;
 
 function tmcStringList.valueInt(s: string; default: integer = 0): integer;
 begin
-  result:= strtoIntdef(trim(values[s]), default);
+  result := strtoIntdef(trim(values[s]), default);
 end;
 
 procedure tmcStringList.valueIntAdd(s: string; add: integer = 0);
 begin
-  values[s]:= inttostr(valueInt(s) + add);
+  values[s] := inttostr(valueInt(s) + add);
 end;
 
 function tmcStringList.valueBoolean(s: string; default: Boolean = false): Boolean;
 begin
-  result:= strtoBooldef(trim(values[s]), default);
+  result := strtoBooldef(trim(values[s]), default);
 end;
 
 function tmcStringList.valueStr(s: string; default: string = ''): string;
 begin
-  result:= values[s];
+  result := values[s];
   if result = '' then
-    result:= default;
+    result := default;
 end;
 
 function tmcStringList.valueTrim(s: string; default: string = ''): string;
 begin
-  result:= trim(values[s]);
+  result := trim(values[s]);
   if result = '' then
-    result:= default;
+    result := default;
 end;
 
 procedure tmcStringList.SetObjSorted(Value: Boolean);
@@ -647,7 +588,7 @@ begin
   begin
     if Value then
       ObjSort;
-    FObjSorted:= Value;
+    FObjSorted := Value;
   end;
 end;
 
@@ -655,32 +596,32 @@ function tmcStringList.ObjFind(const Value: integer; var Index: integer): Boolea
 var
   L, H, i, c: integer;
 begin
-  result:= false;
-  L:= 0;
-  H:= count - 1;
+  result := false;
+  L := 0;
+  H := Count - 1;
   while L <= H do
   begin
-    i:= (L + H) shr 1;
-    c:= integer(Objects[i]) - Value;
+    i := (L + H) shr 1;
+    c := integer(Objects[i]) - Value;
     if c < 0 then
-      L:= i + 1
+      L := i + 1
     else
     begin
-      H:= i - 1;
+      H := i - 1;
       if c = 0 then
       begin
-        result:= true;
+        result := true;
         if Duplicates <> dupAccept then
-          L:= i;
+          L := i;
       end;
     end;
   end;
-  Index:= L;
+  Index := L;
 end;
 
 function StringListCompareObjAsInt(List: tStringList; Index1, Index2: integer): integer;
 begin
-  result:= integer(List.Objects[Index1]) - integer(List.Objects[Index2])
+  result := integer(List.Objects[Index1]) - integer(List.Objects[Index2])
 end;
 
 procedure tmcStringList.ObjSort;
@@ -694,37 +635,37 @@ var
   s: string;
 begin
   if bInitCache then
-    FCachedIndex:= 0;
+    FCachedIndex := 0;
 
-  for result:= FCachedIndex to GetCount - 1 do
+  for result := FCachedIndex to GetCount - 1 do
   begin
-    s:= Get(result);
-    p:= AnsiPos(NameValueSeparator, s);
-    if (p <> 0) and (CompareStrings(Copy(s, 1, p - 1), Name) = 0) then
+    s := Get(result);
+    p := AnsiPos(NameValueSeparator, s);
+    if (p <> 0) and (CompareStrings(copy(s, 1, p - 1), Name) = 0) then
     begin
-      FCachedIndex:= result;
+      FCachedIndex := result;
       exit;
     end;
   end;
-  result:= -1;
+  result := -1;
 end;
 
 function tmcStringList.GetValue_Cache(const Name: string; bInitCache: Boolean): string;
 var
   i: integer;
 begin
-  i:= IndexOfName_Cache(Name, bInitCache);
+  i := IndexOfName_Cache(Name, bInitCache);
   if i >= 0 then
-    result:= Copy(Get(i), length(Name) + 2, MaxInt)
+    result := copy(Get(i), length(Name) + 2, MaxInt)
   else
-    result:= '';
+    result := '';
 end;
 
 // =================
 
 function CardinalPointerListCompare(p1, p2: pointer): integer;
 begin
-  result:= compareCardinal(pCardinalPointer(p1).a, pCardinalPointer(p2).a);
+  result := compareCardinal(pCardinalPointer(p1).a, pCardinalPointer(p2).a);
 end;
 
 function tmcCardinalPointerList.AddPair(x: cardinal; y: pointer): integer;
@@ -732,21 +673,21 @@ var
   pC: pCardinalPointer;
   Index: integer;
 begin
-  result:= -1;
+  result := -1;
   new(pC);
-  pC^.a:= x;
-  pC^.p:= y;
+  pC^.a := x;
+  pC^.p := y;
   if fPairSorted then
   begin
     if addPointer(pC, index) then
-      result:= index
+      result := index
     else
       dispose(pC);
   end
   else
   begin
     add(pC);
-    result:= count - 1;
+    result := Count - 1;
   end;
 end;
 
@@ -760,11 +701,11 @@ var
   Index: integer;
   dummy: pCardinalPointer;
 begin
-  result:= nil;
+  result := nil;
   new(dummy);
-  dummy.a:= Value;
+  dummy.a := Value;
   if FastSearch(CardinalPointerListCompare, dummy, index) then
-    result:= pCardinalPointer(List[index])^.p;
+    result := pCardinalPointer(List[index])^.p;
   dispose(dummy);
 end;
 
@@ -772,7 +713,7 @@ procedure tmcCardinalPointerList.Clear;
 var
   i: integer;
 begin
-  for i:= 0 to pred(count) do
+  for i := 0 to pred(Count) do
     dispose(pCardinalPointer(List[i]));
 
   SetCount(0);
@@ -781,11 +722,11 @@ end;
 
 function tmcCardinalPointerList.addPointer(p: pointer; var Index: integer): Boolean;
 begin
-  result:= false;
+  result := false;
   if not FastSearch(CardinalPointerListCompare, p, index) then
   begin
     Insert(index, p);
-    result:= true
+    result := true
   end;
 end;
 
@@ -794,27 +735,27 @@ var
   i, L, H: integer;
   c: integer;
 begin
-  result:= false;
-  L:= 0;
-  H:= count - 1;
+  result := false;
+  L := 0;
+  H := Count - 1;
   while (L <= H) do
   begin
-    i:= (L + H) shr 1;
-    c:= Compare(List[i], p);
+    i := (L + H) shr 1;
+    c := Compare(List[i], p);
     if c < 0 then
-      L:= i + 1
+      L := i + 1
     else
     begin
-      H:= i - 1;
+      H := i - 1;
       if c = 0 then
       begin
-        L:= i;
-        result:= true;
+        L := i;
+        result := true;
         break;
       end;
     end;
   end;
-  newindex:= L;
+  newindex := L;
 end;
 
 procedure tmcCardinalPointerList.SetPairSorted(Value: Boolean);
@@ -823,7 +764,7 @@ begin
   begin
     if Value then
       sortPair;
-    fPairSorted:= Value;
+    fPairSorted := Value;
   end;
 end;
 
@@ -836,7 +777,7 @@ end;
 
 function CardinalStringListCompare(p1, p2: pointer): integer;
 begin
-  result:= compareCardinal(pCardinalString(p1).a, pCardinalString(p2).a);
+  result := compareCardinal(pCardinalString(p1).a, pCardinalString(p2).a);
 end;
 
 function tmcCardinalStringList.AddPair(x: cardinal; s: string): integer;
@@ -844,21 +785,21 @@ var
   pC: pCardinalString;
   Index: integer;
 begin
-  result:= -1;
+  result := -1;
   new(pC);
-  pC^.a:= x;
-  pC^.s:= s;
+  pC^.a := x;
+  pC^.s := s;
   if fPairSorted then
   begin
     if addPointer(pC, index) then
-      result:= index
+      result := index
     else
       dispose(pC);
   end
   else
   begin
     add(pC);
-    result:= count - 1;
+    result := Count - 1;
   end;
 end;
 
@@ -872,11 +813,11 @@ var
   Index: integer;
   dummy: pCardinalString;
 begin
-  result:= '';
+  result := '';
   new(dummy);
-  dummy.a:= Value;
+  dummy.a := Value;
   if FastSearch(CardinalStringListCompare, dummy, index) then
-    result:= pCardinalString(List[index])^.s;
+    result := pCardinalString(List[index])^.s;
   dispose(dummy);
 end;
 
@@ -884,7 +825,7 @@ procedure tmcCardinalStringList.Clear;
 var
   i: integer;
 begin
-  for i:= 0 to pred(count) do
+  for i := 0 to pred(Count) do
     dispose(pCardinalString(List[i]));
 
   SetCount(0);
@@ -893,11 +834,11 @@ end;
 
 function tmcCardinalStringList.addPointer(p: pointer; var Index: integer): Boolean;
 begin
-  result:= false;
+  result := false;
   if not FastSearch(CardinalStringListCompare, p, index) then
   begin
     Insert(index, p);
-    result:= true
+    result := true
   end;
 end;
 
@@ -906,27 +847,27 @@ var
   i, L, H: integer;
   c: integer;
 begin
-  result:= false;
-  L:= 0;
-  H:= count - 1;
+  result := false;
+  L := 0;
+  H := Count - 1;
   while (L <= H) do
   begin
-    i:= (L + H) shr 1;
-    c:= Compare(List[i], p);
+    i := (L + H) shr 1;
+    c := Compare(List[i], p);
     if c < 0 then
-      L:= i + 1
+      L := i + 1
     else
     begin
-      H:= i - 1;
+      H := i - 1;
       if c = 0 then
       begin
-        L:= i;
-        result:= true;
+        L := i;
+        result := true;
         break;
       end;
     end;
   end;
-  newindex:= L;
+  newindex := L;
 end;
 
 procedure tmcCardinalStringList.SetPairSorted(Value: Boolean);
@@ -935,13 +876,78 @@ begin
   begin
     if Value then
       sortPair;
-    fPairSorted:= Value;
+    fPairSorted := Value;
   end;
 end;
 
 destructor tmcCardinalStringList.Destroy;
 begin
   Clear;
+end;
+
+// --------
+
+function WordWrap(const AText: string; MaxWidth: integer): tStringList;
+var
+  List: tStringList;
+  Line, word: string;
+  Pos: integer;
+begin
+  List := tStringList.Create;
+  try
+    Line := '';
+    Pos := 1;
+    while Pos <= length(AText) do
+    begin
+      word := '';
+      while (Pos <= length(AText)) and (AText[Pos] = ' ') do
+        Inc(Pos);
+      while (Pos <= length(AText)) and (AText[Pos] <> ' ') do
+      begin
+        word := word + AText[Pos];
+        Inc(Pos);
+      end;
+      if length(Line) + length(word) + 1 > MaxWidth then
+      begin
+        List.add(Line);
+        Line := word;
+      end
+      else
+      begin
+        if Line <> '' then
+          Line := Line + ' ';
+        Line := Line + word;
+      end;
+    end;
+    if Line <> '' then
+      List.add(Line);
+  except
+    List.free;
+    raise;
+  end;
+  result := List;
+end;
+
+procedure WrapStringList(Strings: tStringList; MaxWidth: integer);
+var
+  TempList, WrappedList: tStringList;
+  i: integer;
+begin
+  TempList := tStringList.Create;
+  try
+    for i := 0 to Strings.Count - 1 do
+    begin
+      WrappedList := WordWrap(Strings[i], MaxWidth);
+      try
+        TempList.AddStrings(WrappedList);
+      finally
+        WrappedList.free;
+      end;
+    end;
+    Strings.Assign(TempList);
+  finally
+    TempList.free;
+  end;
 end;
 
 end.

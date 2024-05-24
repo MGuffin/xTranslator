@@ -160,7 +160,7 @@ begin
   begin
     if currentTESVmode = sTESVStrings then
       Result := compareEspStrRefStringID
-    else if not TESVTmodEspLoaded then
+    else if not TESVTmodLoadedHeaderProc then // TESVTmodEspLoaded
       Result := nil
   end;
 end;
@@ -481,11 +481,6 @@ begin
   if Result = 0 then
     Result := compareSource(p1, p2);
 end;
-
-
-
-
-
 
 function compareHashSourceAndInternalId(p1, p2: pointer): integer;
 begin

@@ -116,9 +116,9 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BT_BuildType>Debug</BT_BuildType>
         <AppDPIAwarenessMode>system</AppDPIAwarenessMode>
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_Release>1</VerInfo_Release>
+        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -142,7 +142,6 @@
         <AppDPIAwarenessMode>system</AppDPIAwarenessMode>
         <BT_BuildType>Debug</BT_BuildType>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_Define>madExcept;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -202,8 +201,6 @@
         <DCCReference Include="TESVT_regex.pas">
             <Form>Form13</Form>
         </DCCReference>
-        <DCCReference Include="TESVT_Streams.pas"/>
-        <DCCReference Include="TESVT_Utils.pas"/>
         <DCCReference Include="TESVT_XMLExportOpts.pas">
             <Form>FormXmlOpt</Form>
         </DCCReference>
@@ -288,6 +285,10 @@
             <Form>Form25</Form>
         </DCCReference>
         <DCCReference Include="TESVT_RegexUtils.pas"/>
+        <DCCReference Include="TESVT_RtlPreview.pas">
+            <Form>FormRtl</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

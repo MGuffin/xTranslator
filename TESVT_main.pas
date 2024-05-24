@@ -251,7 +251,7 @@ type
     AlwaysSkyrimSE1: TMenuItem;
     Restart4: TMenuItem;
     ForceCP21: TMenuItem;
-    ComboBox2: TComboBox;
+    ComboBox_changeCP: TComboBox;
     N6: TMenuItem;
     ArrayTranslatorApi_2: TMenuItem;
     PopupMenu5: TPopupMenu;
@@ -282,7 +282,6 @@ type
     Panel28: TPanel;
     ListBox3: TListBox;
     ListBox4: TListBox;
-    debug1: TMenuItem;
     N23: TMenuItem;
     menuReverseSST1: TMenuItem;
     LoadCurrentXML2: TMenuItem;
@@ -572,7 +571,7 @@ type
     procedure ToolButton43MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure ToolButton27Click(Sender: TObject);
     procedure ForceCP21Click(Sender: TObject);
-    procedure ComboBox2Change(Sender: TObject);
+    procedure ComboBox_changeCPChange(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure ArrayTranslatorApi_2Click(Sender: TObject);
     procedure ListBox4DrawItem(Control: TWinControl; Index: integer; Rect: TRect; State: TOwnerDrawState);
@@ -586,7 +585,6 @@ type
     procedure ToolButton46Click(Sender: TObject);
     procedure ToolButton54Click(Sender: TObject);
     procedure ButtonedEdit6Change(Sender: TObject);
-    procedure debug1Click(Sender: TObject);
     procedure menuReverseSST1Click(Sender: TObject);
     procedure PopupMenu4Popup(Sender: TObject);
     procedure LoadCurrentXML2Click(Sender: TObject);
@@ -611,7 +609,7 @@ type
     procedure TagNoTrans1Click(Sender: TObject);
     procedure ToolButton59bClick(Sender: TObject);
     procedure headerWizard1Click(Sender: TObject);
-    function executeWizard(filename, lang: string; bTemplateFolder: boolean = false): boolean;
+    function executeWizard(filename, lang: string; bResetString, bTemplateFolder: boolean): boolean;
     function executeWizardMCM(bsaName, filename, lang, ext: string; bTemplateFolder: boolean = false): boolean;
     procedure loadListRulesWizard(filename: string = '');
     procedure CloseAndFinalyseAllClick(Sender: TObject);
@@ -844,7 +842,7 @@ type
       var bNeedMaster: boolean): integer;
     function getDnamInfoData(loader: tTranslatorLoader; dnamref: cardinal; var n: string; var bNeedMaster: boolean): boolean;
     procedure ConvertTCSC(loader: tTranslatorLoader; Mode: boolean);
-    procedure ConvertRTL(loader: tTranslatorLoader);
+    procedure ConvertRTL(loader: tTranslatorLoader; Index, linesize: integer; bResize, bRemovetag: boolean);
     procedure CompareStringsSD(loader: tTranslatorLoader; fProc: tcompareproc);
     procedure CompareStringsSDEx(dlist: tlist; fProc: tcompareproc);
     procedure validateLD(fixNum: boolean);
@@ -895,7 +893,6 @@ type
   public
     procedure SaveFile(overrideOutputFolder: string = ''; overrideMethod: integer = 0);
     procedure OpenOptions(tTab: integer);
-    procedure useSimpleMemo(b: boolean);
     procedure f76_doRestoreBackup(gamePath: string);
     procedure f76_PatchFileWizard(dataPath, lang: string);
     procedure f76_doBackup(gamePath: string);
@@ -917,7 +914,7 @@ implementation
 uses TESVT_EspCompareOpts, TESVT_replaceAll, SynHighlighterPex, TESVT_AddId, TESVT_OldDialog, TESVT_EspStruct, TESVT_batch,
   TESVT_ApplySSTOpts, TESVT_regex, TESVT_XMLExportOpts,
   TESVT_delocOpts, TESVT_Browser, TESVT_Colab, TESVT_ColabFilter, TESVT_Codepage, TESVT_ChooseCP, TESVT_ToolBox, TESVT_AdvSearch,
-  TESVT_DefUIGen, TESVT_FormData, TESVT_HeaderWizard, TESVT_commandProcessor, TESVT_TranslatorApiDialog;
+  TESVT_DefUIGen, TESVT_FormData, TESVT_HeaderWizard, TESVT_commandProcessor, TESVT_TranslatorApiDialog, TESVT_RtlPreview;
 {$R *.dfm}
 // ------------------------------
 
@@ -1331,8 +1328,8 @@ begin
     codepageFiles[i] := ansilowercase(codepageFiles[i]);
 
   for i := 0 to high(supportedCodepage) do
-    ComboBox2.items.add(supportedCodepage[i]);
-  ComboBox2.itemIndex := 0;
+    ComboBox_changeCP.items.add(supportedCodepage[i]);
+  ComboBox_changeCP.itemIndex := 0;
 
   bGameHasWizardProc := authFileAccess(mainpath + CURRENT_GAME_SUBFOLDER + HeaderWizardIni);
 
@@ -1466,7 +1463,7 @@ begin
   fillchar(mainLoaderStat, SizeOf(mainLoaderStat), 0);
   checkAllSearchOpt(true);
 
-  findCurrentCodepage(ComboBox2, nil);
+  findCurrentCodepage(ComboBox_changeCP, nil);
 
   // updateCaption  for XML import
   LoadCurrentXML1.caption := getRes('lbl_XML') + format(' (%s)', [basePROG_NAME]);
@@ -1477,7 +1474,6 @@ begin
   MenuFinalizeEspsc1.ShortCut := $6053;
   validateExternalDecompiler;
 {$IFDEF DEBUG}
-  debug1.visible := true;
   UsageAudit1.visible := true;
   derived1.visible := true;
   AltDisplay1.visible := true;
@@ -1514,12 +1510,12 @@ begin
   globalUIlockOFF(1);
 end;
 
-procedure TForm1.ComboBox2Change(Sender: TObject);
+procedure TForm1.ComboBox_changeCPChange(Sender: TObject);
 begin
   if assigned(MainLoader) then
   begin
     globalUIlockON(10);
-    updateLoaderForCacheUpdate(MainLoader, ComboBox2.items[ComboBox2.itemIndex]);
+    updateLoaderForCacheUpdate(MainLoader, ComboBox_changeCP.items[ComboBox_changeCP.itemIndex]);
     loaderList.OnChange(loaderList);
     globalUIlockOFF(10);
   end;
@@ -1607,6 +1603,8 @@ begin
   else
   begin
     t.add('isFirstLaunch2=' + booltostr(isfirstLaunch));
+    t.add('bUseSimpleMemo=' + booltostr(bUseSimpleMemo));
+    t.add('bSimpleMemoRTL=' + booltostr(bSimpleMemoRTL));
     t.add('HEADERFONT=' + HeaderComponentFont);
     t.add('Game_CacheStringFolder=' + Game_CacheStringFolder);
     t.add('Game_CacheDataFolder=' + Game_CacheDataFolder);
@@ -1943,6 +1941,9 @@ begin
     bEnableDerived := strtobooldef(t.Values['bEnableDerived'], false);
     bHeaderAdvanced := strtobooldef(t.Values['bHeaderAdvanced'], false);
     bForceAltHeaderDisplay := strtobooldef(t.Values['bForceAltHeaderDisplay'], false);
+
+    bUseSimpleMemo := strtobooldef(t.Values['bUseSimpleMemo'], false);
+    bSimpleMemoRTL := strtobooldef(t.Values['bSimpleMemoRTL'], false);
 
     getStrValue(t.Values['sPref_rxPatternNumber'], sPref_rxPatternNumber);
     getStrValue(t.Values['sPref_rxPatternAliasStrict'], sPref_rxPatternAliasStrict);
@@ -2574,7 +2575,7 @@ begin
       form23.cancloseW(false);
 
     ComboBox1.Enabled := false;
-    ComboBox2.Enabled := false;
+    ComboBox_changeCP.Enabled := false;
     enableChildMenu(File1, false, false);
     enableChildMenu(TranslationMenu1, false, false);
     enableChildMenu(Tools1, false, false);
@@ -2726,8 +2727,8 @@ begin
     MenuImport1.Enabled := TESVTmodLoaded;
     validGamesMenu;
     ComboBox1.Enabled := true;
-    ComboBox2.visible := currentTesvMode in [sTESVEsp, sTESVEspStrings];
-    ComboBox2.Enabled := ComboBox2.visible;
+    ComboBox_changeCP.visible := TESVTmodLoadedHeaderProc; // TESVTmodEspLoaded
+    ComboBox_changeCP.Enabled := ComboBox_changeCP.visible;
     if assigned(MainLoader) then
     begin
       MainLoader.bStatsUpdated := false;
@@ -2888,7 +2889,7 @@ var
 begin
   c.itemIndex := 0;
   for i := 0 to pred(c.items.count) do
-    if c.items[i] = cp then
+    if lowercase(c.items[i]) = lowercase(cp) then
     begin
       c.itemIndex := i;
       exit;
@@ -2904,7 +2905,7 @@ begin
     latest := loader.lastestUsedCodepage
   else
     latest := '';
-  codepageIn := getcodepage('_' + Sourcelanguage, codepageFiles, bforceCpOnLoad, latest);
+  codepageIn := getcodepage('_' + Sourcelanguage, codepageFiles, bforceCpOnLoad, latest, isMcMLoader(loader));
   SelectCodepage(c, ansilowercase(codepageIn.s));
 end;
 
@@ -3966,7 +3967,7 @@ begin
     b := initializeLoader(MainLoader);
     setTESVMode(true);
     MainLoader.AddonLoadfillTree;
-    findCurrentCodepage(ComboBox2, MainLoader);
+    findCurrentCodepage(ComboBox_changeCP, MainLoader);
     MainLoader.lockTES4;
     applyLoaderSettings(MainLoader);
     // wrongWorkSpace
@@ -4837,7 +4838,7 @@ begin
     if TESVTSameLanguage or (MainLoader.addon_Lang = '') or not MainLoader.McMData.useLangSuffixe then
       FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_Filename, true, false)
     else
-      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_name, false, false)
+      FinalizeMCM(override_ExportFolder(overrideMethod, MainLoader.addon_folder, overrideOutputFolder), MainLoader.addon_NameWithSuffixe, false, false)
   end
   else if TESVTmodSaveEsp then
   begin
@@ -4883,11 +4884,13 @@ begin
     if bskipSuffixe then
       tmpFilename := extractFileName(MainLoader.addon_Filename)
     else
-      tmpFilename := MainLoader.addon_name;
+      tmpFilename := MainLoader.addon_NameWithSuffixe;
 
     filename := SaveFileDialog(getRes('Dia_SaveMCMAs'), MainLoader.addon_folder, tmpFilename, formatres('FilterTXT2%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
+
     if filename <> '' then
       FinalizeMCM(ExtractFilePath(filename), extractFileName(filename), bskipSuffixe, true);
+
   end
   else if TESVTmodSaveEsp then
   begin
@@ -5001,10 +5004,10 @@ begin
   okSave := true;
   iGlobalLastError := 0;
 
-  if bOriginalName then
-    tmpOutput := folder + extractFileName(filename)
-  else
-    tmpOutput := folder + filename + '_' + Destlanguage + '.txt';
+  // if bOriginalName then
+  tmpOutput := folder + extractFileName(filename);
+  // else
+  // tmpOutput := folder + filename + '_' + Destlanguage + '.txt';
 
   if FileExists(tmpOutput) and not bSuspendstringwarning then
     okSave := askDialog(formatres('Fbk_FinalizeConfirm', [tmpOutput, tag]), Form1, 4, true, [askYes, askNo]) = mrYes;
@@ -7141,6 +7144,12 @@ begin
     loader.resetForCacheUpdate(true);
     loader.GetEspStrings(forcedCodepage);
   end
+  else if loader.fLoaderMode = sTESVMcM then
+  begin
+    ClearArrayList(loader.listArray, true, false);
+    loader.resetForCacheUpdate(false);
+    loader.lastestUsedCodepage := loader.McMData.parseMCM(loader.listArray[0], false, forcedCodepage);
+  end
   else
     loader.resetForCacheUpdate(false);
 end;
@@ -8917,7 +8926,7 @@ begin
         begin
           fs.WriteBuffer(buffer[0], length(buffer));
           fs.Position := 0;
-          loader.McMData.parseMCM(fs, baselist, bIsOnCompare);
+          loader.lastestUsedCodepage := loader.McMData.parseMCM(fs, baselist, bIsOnCompare);
           Result := true;
         end
         else
@@ -8936,17 +8945,18 @@ end;
 
 function TForm1.loadAddonMCM(loader: tTranslatorLoader; folder, filename, lang, ext: string; baselist: tlist; bIsOnCompare: boolean): boolean;
 var
-  f: tstringlist;
+  // f: tstringlist;
+  f: tmemoryStream;
 begin
   Result := false;
-  f := tstringlist.create;
+  f := tmemoryStream.create;
   try
     try
       if lang <> '' then
         f.loadfromfile(format('%s%s_%s%s', [folder, filename, lang, ext]))
       else
         f.loadfromfile(format('%s%s%s', [folder, filename, ext]));
-      loader.McMData.parseMCM(f, baselist, bIsOnCompare);
+      loader.lastestUsedCodepage := loader.McMData.parseMCM(f, baselist, bIsOnCompare);
       Result := true;
     except
       On E: Exception do
@@ -8955,6 +8965,7 @@ begin
   finally
     f.free;
   end;
+
 end;
 
 // mcmcompare
@@ -8997,7 +9008,6 @@ begin
     end;
   finally
     clearSkList(LocalVocabBaseList, true);
-    MainLoader.McMData.MCMheaderListCompare.clear;
     stopStuff;
   end;
 end;
@@ -9163,7 +9173,7 @@ begin
       currentloader.addon_name := fData.fNameStrict;
       currentloader.loaderType := sLoaderTypeMcM;
       currentloader.addon_Lang := fData.fLang;
-      currentloader.McMData.parseMCM(fstream, currentloader.listArray[0], false);
+      currentloader.lastestUsedCodepage := currentloader.McMData.parseMCM(fstream, currentloader.listArray[0], false);
       if currentloader.listArray[0].count > 0 then
       begin
         currentloader.fLoaderMode := sTESVMcM;
@@ -9746,7 +9756,7 @@ begin
   stopStuff;
 end;
 
-procedure TForm1.ConvertRTL(loader: tTranslatorLoader);
+procedure TForm1.ConvertRTL(loader: tTranslatorLoader; Index, linesize: integer; bResize, bRemovetag: boolean);
 var
   i, k: integer;
   tmpStr: string;
@@ -9765,7 +9775,7 @@ begin
 
       tmpStr := sk.strans;
 
-      tmpStr := ReverseRTLString(tmpStr);
+      tmpStr := ReverseRTLString(tmpStr, Index, linesize, bResize, bRemovetag);
       // tmpStr := addRTLTag(tmpStr);
       if tmpStr <> sk.strans then
         sk.resetStatus([incompleteTrans]);
@@ -9827,48 +9837,6 @@ begin
 end;
 // ----------------------------
 
-procedure TForm1.useSimpleMemo(b: boolean);
-begin
-  bUseSimpleMemo := b;
-  if bUseSimpleMemo then
-  begin
-    form2.memo4.Text := form2.memo2.Text;
-    form2.memo2.Text := '';
-    form2.memo5.Text := form2.memo1.Text;
-    form2.memo1.Text := '';
-    form2.ListBox1.visible := false;
-    form2.memo4.Align := alClient;
-    form2.memo5.Align := alClient;
-    form2.memo1.visible := false;
-    form2.memo2.visible := false;
-    form2.memo4.visible := true;
-    form2.memo5.visible := true;
-    form2.memo4.OnChange(form2.memo4);
-  end
-  else
-  begin
-    form2.memo2.Text := form2.memo4.Text;
-    form2.memo4.Text := '';
-    form2.memo1.Text := form2.memo5.Text;
-    form2.memo5.Text := '';
-    form2.ListBox1.visible := true;
-    form2.memo2.Align := alClient;
-    form2.memo1.Align := alClient;
-    form2.memo4.visible := false;
-    form2.memo5.visible := false;
-    form2.memo1.visible := true;
-    form2.memo2.visible := true;
-    form2.memo2.OnChange(form2.memo2);
-  end;
-
-  form2.ToolButton1.Enabled := not bUseSimpleMemo;
-  form2.ToolButton2.Enabled := not bUseSimpleMemo;
-  form2.ToolButton4.Enabled := not bUseSimpleMemo;
-  form2.ToolButton5.Enabled := not bUseSimpleMemo;
-  form2.ToolButton6.Enabled := not bUseSimpleMemo;
-  form2.ToolButton7.Enabled := not bUseSimpleMemo;
-end;
-
 procedure TForm1.Experimental1Click(Sender: TObject);
 var
   j: integer;
@@ -9876,15 +9844,9 @@ begin
   form2.close;
   ClearHeuristicData(true);
   if bBiDiBase = bdLeftToRight then
-  begin
-    useSimpleMemo(true);
-    bBiDiBase := bdRightToLeft;
-  end
+    bBiDiBase := bdRightToLeft
   else
-  begin
-    useSimpleMemo(false);
     bBiDiBase := bdLeftToRight;
-  end;
   InitBIDITreeOpts(form2.searchTree, bBiDiBase);
   InitBIDITreeOpts(form2.espRecordtree, bBiDiBase);
   InitBIDITreeOpts(form2.DialogTree, bBiDiBase);
@@ -11000,19 +10962,32 @@ begin
 end;
 
 procedure TForm1.RtlToLtr1Click(Sender: TObject);
+var
+  sk: tskystr;
+  modalR: integer;
 begin
-  ConvertRTL(MainLoader);
+  form2.close; // security
+  FormRtl := tFormRtl.create(self);
+  try
+    sk := getFocusedString(currentEditedTree);
+    if assigned(sk) then
+      FormRtl.memo1.lines.Text := sk.strans;
+    FormRtl.CheckBox2.checked := bRtlRemoveControl;
+    FormRtl.RadioGroup1.itemIndex := iRtlMethod;
+    FormRtl.TrackBar1.Position := iRtlLineSize;
+    modalR := FormRtl.showmodal;
+    bRtlRemoveControl := FormRtl.CheckBox2.checked;
+    iRtlMethod := FormRtl.RadioGroup1.itemIndex;
+    bUseLineSize := FormRtl.TrackBar1.Position < FormRtl.TrackBar1.max;
+    iRtlLineSize := FormRtl.TrackBar1.Position;
+    if modalR = mrOK then
+      ConvertRTL(MainLoader, iRtlMethod, iRtlLineSize, bUseLineSize, bRtlRemoveControl);
+  finally
+    FormRtl.free;
+  end;
 end;
-
-
 
 // -------UsageAuditdebug------------
-
-procedure TForm1.debug1Click(Sender: TObject);
-begin
-  useSimpleMemo(not bUseSimpleMemo);
-
-end;
 
 procedure TForm1.derived1Click(Sender: TObject);
 begin
@@ -12689,7 +12664,7 @@ begin
   end;
 end;
 
-function TForm1.executeWizard(filename, lang: string; bTemplateFolder: boolean = false): boolean;
+function TForm1.executeWizard(filename, lang: string; bResetString, bTemplateFolder: boolean): boolean;
 begin
   Result := false;
   SetLanguagePair(lang, lang);
@@ -12706,6 +12681,12 @@ begin
 
     form23.addinfoLine(getRes('Fbk_ComputeData'));
     LoadAllMasters;
+
+    if bResetString then
+    begin
+      MainLoader.ResetallTrans(false);
+      MainLoader.lockTES4;
+    end;
     Result := executeWizardEX(lang, bTemplateFolder);
     if Result then
       form23.addinfoLine(getRes('Fbk_File_Success'), 2)

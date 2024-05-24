@@ -327,7 +327,6 @@ type
     procedure adjustData;
   end;
 
-
 var
   focusedNode: rfocusedNode;
   searchdata: rSearchData;
@@ -402,7 +401,6 @@ function getTmpDialInfo(id: Cardinal; response: integer): rDialInfo;
 implementation
 
 uses TESVT_FastSearch;
-
 
 function getDummyDialInfo: rDialInfo;
 begin
@@ -1015,7 +1013,7 @@ begin
       result := trecord(esp.rec).edidname;
   end
   else
-    result := format('%.8x|%.5x|%d|%d', [esp.formID, esp.strId, esp.index, esp.indexMax]);
+    result := format('%.8x|%.8x|%d|%d', [esp.formID, esp.rHash, esp.index, esp.indexMax]);
 end;
 
 function tSkyStr.isDialog: boolean;
@@ -1337,16 +1335,14 @@ begin
   result := gSNormalized;
 end;
 
-
 procedure tSkyStr.updateNormalizedSourceForRetry;
 begin
-    gSNormalized := gS;
-    if regExUtil.regExNormalizeAlias(gSNormalized) then
-      include(self.sInternalparams, bHasAliasStrict);
-    include(self.sInternalparams, isNormalized);
-    exclude(self.sInternalparams, bHasNumber);
+  gSNormalized := gS;
+  if regExUtil.regExNormalizeAlias(gSNormalized) then
+    include(self.sInternalparams, bHasAliasStrict);
+  include(self.sInternalparams, isNormalized);
+  exclude(self.sInternalparams, bHasNumber);
 end;
-
 
 procedure tSkyStr.resetNormalizedHash;
 begin
