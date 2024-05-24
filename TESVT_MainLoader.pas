@@ -285,8 +285,8 @@ begin
     exit;
   // cleanup;
   MCMheaderListCompare.Clear;
-  MCMheaderList.Clear;
-  customTextNormalizedList.Clear;
+  //MCMheaderList.Clear;
+  //customTextNormalizedList.Clear;
   // pbar
   pBar := 0;
 

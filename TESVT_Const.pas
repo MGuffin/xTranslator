@@ -139,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.7';
+  aPROG_CURRENTVERSION = 'v1.5.7a';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
