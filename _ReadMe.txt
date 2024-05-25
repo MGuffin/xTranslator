@@ -100,13 +100,15 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
-version 1.5.7:
+version 1.5.7b:
 -Custom txt (McM): Sst Dictionaries have been improved for custom txt. 
 -Custom txt (McM): Some parsing regex have been added and adjusted 
 -Custom txt (McM): It's now possible to change text codepage on load, on the fly.
 -UI/internal: The synedit component has been updated to the TurboPack update https://github.com/TurboPack/SynEdit
 -UI: In the edit windows, it's now possible de change the text editor to a LiteVersion (ie: TRichEdit), which can handle RTL display (the option is available in the editor context menu->display). This lite editior is faster for heavy unicode language (east, farsi etc...) but doesn't handle hightlight and search, dynamic corrections etc...
 -Arabic: arabic RTLtoLRT conversion (menu ->tool -> language specific tools) has been improved, so it's possible to choose the method, and see a preview of the result. 
+-Internal: Fixed an issue with McM/customTxt compare tool.
+-UI/Internal: loading a lot of PexScripts from outside BSA at the same time has been optimized and now offers the possibility to discard Pex without translation needed.
 
 version 1.5.6:
 -Custom txt import: Fixed an issue with lang suffixe not applied correctly when extracting a txt file from a bsa.

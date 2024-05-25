@@ -834,8 +834,8 @@ type
       bAllowMulti: boolean = true): boolean;
     procedure loadMCMCompare(filename: string);
     procedure applySst(loader: tTranslatorLoader);
-    procedure loadpex(filename: string; savefolder: boolean);
-    function doloadpex(filename: string; savefolder: boolean; var Index: integer): boolean;
+    procedure loadpex(filename: string; savefolder, buildMenu: boolean);
+    function doloadpex(filename: string; savefolder, buildMenu, bDiscard: boolean; var Index: integer): boolean;
     procedure startLoadsMultiPex(filenames: tstringlist);
     procedure dosearchinPexText(opt: TSynSearchOptions);
     function assignDialogNAM(loader: tTranslatorLoader; r: trecord; fProc: tcompareproc; sl: tstringlist; fstring: string; skipmax, adjust: integer; doAll, keepChange, aliasCopy, copyall: boolean;
@@ -1069,7 +1069,7 @@ begin
   Application.ProcessMessages;
   ext := ansilowercase(extractFileExt(filename));
   if (ext = '.pex') then
-    loadpex(filename, false)
+    loadpex(filename, false, true)
   else if (ext = '.sst') then
     importSSTDirect(filename)
   else if (ext = '.xml') then
@@ -3470,7 +3470,7 @@ begin
   else if (ext = '.esp') or (ext = '.esm') or (ext = '.esl') then
     loadSingleEsp(r.fNameFull, false, true)
   else if (ext = '.pex') then
-    loadpex(r.fNameFull, false)
+    loadpex(r.fNameFull, false, true)
   else if (ext = '.bsa') or (ext = '.ba2') then
     OpenBSA(r.fNameFull, false)
   else
@@ -3984,6 +3984,8 @@ begin
     // -------------
     if (MainLoader.loaderType = sloaderTypePex) then
     begin
+      if bUseExternalDecompiler then
+        MainLoader.SavePexFiletoTmp;
       openScriptFromExternal(extractFileName(MainLoader.addon_name), removefileext(extractFileName(MainLoader.addon_name)) + '.psc');
       updatePexFeedback(MainLoader.PexDecompiler, 1);
     end;
@@ -6897,7 +6899,7 @@ begin
   ResetFocusedData;
   for i := 0 to pred(filenames.count) do
     if FileExists(filenames[i]) then
-      index := doloadEsp(filenames[i], true, true);
+      index := doloadEsp(filenames[i], true, filenames.count<iLoadedFilesThreshold);
   stopStuff;
 
   if (filenames.count > 1) or (index = -1) then
@@ -9116,7 +9118,7 @@ begin
 
     globalUIlockOFF(10);
     if (LoadedFiles <> TotalFiles) and (TotalFiles > 0) then
-      askDialog(formatres('noFileFromBSA', [TotalFiles - LoadedFiles, TotalFiles]), Form1, 2, true, [askOK])
+      askDialog(formatres('noFileFromBSA', [TotalFiles - LoadedFiles, TotalFiles]), Form1, [askOK])
   end;
 end;
 
@@ -9163,8 +9165,9 @@ begin
       begin
         currentloader.getPexString(ToolButton40.down);
         currentloader.fLoaderMode := sTESVPex;
+        if bUseExternalDecompiler then
+          currentloader.PexDecompiler.saveContentStream(fstream);
         loaderList.items.AddObject(currentloader.getcaption, currentloader);
-        SavePexFiletoTmp(fstream, bUseExternalDecompiler, extractFileName(currentloader.addon_name));
         Result := true;
       end;
     end
@@ -9219,16 +9222,29 @@ end;
 procedure TForm1.startLoadsMultiPex(filenames: tstringlist);
 var
   i, Index: integer;
+  bDiscard: boolean;
+  LoadedFiles: integer;
 begin
   if (askDialog(getRes('Ask_pexDisclaimerb'), Form1, 1, true, [askYes, askNo]) = mrNo) then
     exit;
   globalUIlockON(10, getRes('Fbk_LoadPex'));
   UpdateLoaderSetting(MainLoader);
   ResetFocusedData;
+  bDiscard := false;
+  LoadedFiles := 0;
+  if filenames.count > iLoadedFilesThreshold then
+    bDiscard := (askDialog(getRes('Ask_pexDiscard'), Form1, [askYes, askNo]) = mrYes);
+
   for i := 0 to pred(filenames.count) do
     if FileExists(filenames[i]) then
-      doloadpex(filenames[i], true, index);
-  stopStuff;
+    begin
+      if doloadpex(filenames[i], true, filenames.count < iLoadedFilesThreshold, bDiscard, index) then
+        inc(LoadedFiles);
+    end;
+    stopStuff;
+
+  if (LoadedFiles <> filenames.count) and (filenames.count > 0) then
+    askDialog(formatres('noFileFromBSA', [filenames.count - LoadedFiles, filenames.count]), Form1, [askOK]);
 
   loaderList.itemIndex := loaderList.items.count - 1;
   loaderList.OnChange(loaderList);
@@ -9236,7 +9252,7 @@ begin
   globalUIlockOFF(10);
 end;
 
-procedure TForm1.loadpex(filename: string; savefolder: boolean);
+procedure TForm1.loadpex(filename: string; savefolder, buildMenu: boolean);
 var
   Index: integer;
 begin
@@ -9246,7 +9262,7 @@ begin
   UpdateLoaderSetting(MainLoader);
   ResetFocusedData;
 
-  doloadpex(filename, true, index);
+  doloadpex(filename, true, buildMenu, false, index);
   stopStuff;
   if index = -1 then
     index := loaderList.items.count - 1;
@@ -9255,7 +9271,7 @@ begin
   globalUIlockOFF(10);
 end;
 
-function TForm1.doloadpex(filename: string; savefolder: boolean; var Index: integer): boolean;
+function TForm1.doloadpex(filename: string; savefolder, buildMenu, bDiscard: boolean; var Index: integer): boolean;
 var
   currentloader: tTranslatorLoader;
   r: rFileData;
@@ -9272,14 +9288,15 @@ begin
   currentloader.addon_name := r.fName + r.fExt;
   currentloader.addon_Fullpath := filename;
   updateStatus(currentloader.addon_name);
-  Result := currentloader.openPex;
+  Result := currentloader.openPex(bDiscard);
   if Result then
   begin
     currentloader.getPexString(ToolButton40.down);
-    loaderList.items.AddObject(currentloader.getcaption, currentloader);
     currentloader.fLoaderMode := sTESVPex;
-    // change silent
-    recentMenuUpdate(filename, 2);
+    loaderList.items.AddObject(currentloader.getcaption, currentloader);
+
+    if buildMenu then
+      recentMenuUpdate(filename, 2);
     if savefolder then
       Game_PexFolder := currentloader.addon_folder;
   end
@@ -11231,7 +11248,7 @@ begin
   if bBsa then
     Result := getVMADScriptFromMaster(loader, scriptname, index)
   else
-    Result := doloadpex(scriptname, false, index);
+    Result := doloadpex(scriptname, false, false, false, index);
   Result := Result or (index <> -1);
   if index = -1 then
     index := loaderList.items.count - 1;

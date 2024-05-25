@@ -136,6 +136,9 @@ Type
     aColab: array [1 .. MAXCOLAB_ID] of integer;
     aColabLabel: array [1 .. MAXCOLAB_ID] of String;
     lColabLabel: tstringlist;
+    // -------
+    constructor create(filename: string; var t: TVirtualStringTree; bOneList: boolean = false);
+    destructor Destroy; override;
     // undo -----------
     procedure clearUndoList;
     procedure addUndo(skUndo: tSkyStr; t: cardinal; bAntiFlood: boolean; bUpdateNotif: boolean = true);
@@ -166,9 +169,9 @@ Type
     procedure getPexString(bOptcheck: boolean);
     procedure addBestLDMatch(sIn, sOut: tSkyStr);
     function getBestLDMatchString(sIn: tSkyStr): String;
-    function openPex: boolean;
-    constructor create(filename: string; var t: TVirtualStringTree; bOneList: boolean = false);
-    destructor Destroy; override;
+    function openPex(bDiscard: boolean): boolean;
+    procedure SavePexFiletoTmp;
+
     property addon_bsaPath: string read sAddon_BsaPath write setAddonBsaPath;
     property loaderType: sLoaderType read floaderType write setloaderType;
     property LoaderMode: sTESVTMode read fLoaderMode write setLoaderMode;
@@ -285,8 +288,8 @@ begin
     exit;
   // cleanup;
   MCMheaderListCompare.Clear;
-  //MCMheaderList.Clear;
-  //customTextNormalizedList.Clear;
+  // MCMheaderList.Clear;
+  // customTextNormalizedList.Clear;
   // pbar
   pBar := 0;
 
@@ -448,7 +451,7 @@ begin
   f := tstringlist.create;
   try
     try
-      pbar:=0;
+      pBar := 0;
       ProgressBar.Max := l.count;
       if CustomTxtParams.isSearchByLine(McmIdType) then
       begin
@@ -818,6 +821,9 @@ var
   i: integer;
 begin
   espTree := t;
+  PexDecompiler := nil;
+  EspLoader := nil;
+  McMData := nil;
   addonCanBeCached := false;
   addonSizeForCache := 0;
   uGuid := GetTickCount;
@@ -1666,7 +1672,7 @@ begin
   end;
 end;
 
-function tTranslatorLoader.openPex: boolean;
+function tTranslatorLoader.openPex(bDiscard: boolean): boolean;
 var
   fstream: tmemorystream;
 begin
@@ -1675,9 +1681,9 @@ begin
   try
     try
       fstream.loadfromfile(addon_Fullpath);
-      result := PexDecompiler.readPex(fstream, false);
-      if result then
-        SavePexFiletoTmp(fstream, bUseExternalDecompiler, ExtractFileName(addon_Name));
+      result := PexDecompiler.readPex(fstream, bDiscard);
+      if result and bUseExternalDecompiler then
+        PexDecompiler.saveContentStream(fstream);
     except
       On E: Exception do
         dofeedback(E.Message, true);
@@ -1685,6 +1691,12 @@ begin
   finally
     fstream.free;
   end;
+end;
+
+procedure tTranslatorLoader.SavePexFiletoTmp;
+begin
+  if assigned(PexDecompiler) then
+    PexDecompiler.saveContentStreamToTmp(addon_Name);
 end;
 
 procedure tTranslatorLoader.resetForCacheUpdate(resetLocalizedData: boolean);

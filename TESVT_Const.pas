@@ -139,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.7a';
+  aPROG_CURRENTVERSION = 'v1.5.b';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -375,6 +375,8 @@ const
   defaultReplacePattern = '[%REPLACE%] %ORIG%';
   pexDrawDebug = false;
 
+  iLoadedFilesThreshold = 5;
+
   sDEFUIRegEx1: Array [0 .. 5] of string = ('^(.+)\{\{\{.+\}\}\}$', '', '', '', '^(.+)\(.+\)$', '^(.+)\{\{\{.+\}\}\}$');
   sDEFUIRegEx2: string = '^[\[\(\{\|].+?[\|\]\}\)](.+)$';
   sDEFUIOut: Array [0 .. 5] of string = ('%BASE% {{{%COMPOS%}}}', '', '', '', '%BASE% (%COMPOS%)', '%BASE% {{{%COMPOS%}}}');
@@ -496,12 +498,12 @@ const
     'DC4 ', 'NAK ', 'SYN ', 'ETB ', 'CAN ', 'EM ', 'SUB ', 'ESC ', 'FS ', 'GS ', 'RS ', 'US ', 'SPACECHAR ');
   aCleanChar: array [0 .. 33] of char = (#0, #1, #2, #3, #4, #5, #6, #7, #8, #9, #10, #11, #12, #13, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25, #26, #26, #28, #29, #30, #31,
     #32, #$3000);
-  aSymbols : array [0 .. 4] of char = (',','-','.',':',';');
+  aSymbols: array [0 .. 4] of char = (',', '-', '.', ':', ';');
   aWhiteChar: array [0 .. 1] of char = (#$0020, #$00A0);
   cWidgetColor: array [1 .. 6] of cardinal = ($00FFFFFF, $00DDBBAA, $00DD77DD, $00AACCAA, $005555FF, $0088DDDD);
 
   sPunctuation = [#0 .. #31, #33 .. #47, #58 .. #64, #91 .. #96, #123 .. #127];
-  sSymbols = [#33 .. #47, #58 .. #59, #63, #64, #91 .. #96, #123 .. #127];  //without <,=,>
+  sSymbols = [#33 .. #47, #58 .. #59, #63, #64, #91 .. #96, #123 .. #127]; // without <,=,>
   sPunctuationEx = [#0 .. #47, #58 .. #64, #91 .. #96, #123 .. #127];
   sBlank = [#0 .. #32, #160];
   sBracketEx = [#34, #40, #41, #91, #93, #123, #125];
@@ -673,16 +675,15 @@ var
   sUseExternalDecompilerPath: string = '';
   bUseExternalDecompiler: boolean;
 
-
   bGetVMADStrings: boolean = false; // set to true to analyse VMAD
   bApplyVMADOpt: boolean = true; // autoapply VMAD on string
 
-  //ArabicRtl----->
+  // ArabicRtl----->
   bRtlRemoveControl: boolean = true;
-  iRtlMethod: integer =1;
+  iRtlMethod: integer = 1;
   bUseLineSize: boolean = false;
   iRtlLineSize: integer = 75;
-  //<----ArabicRtl
+  // <----ArabicRtl
 
   genericTreeImageList: timagelist;
   bBidiBase: TBiDiMode = bdLeftToRight;

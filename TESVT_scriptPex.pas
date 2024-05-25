@@ -164,6 +164,7 @@ type
   tPexDecompiler = class
   private
     forcedLoadCp: word;
+    fContentStream: tmemoryStream;
     headerPexBuffer, dataPexBuffer: tbytes;
     pexObjList: tlist;
     internalIdentList: tstringlist;
@@ -210,16 +211,17 @@ type
     pFbData: tpexFeedbackData;
     pexStringList: tlist;
     fExportStream: tmemoryStream;
+
     function hasAuthString: boolean;
     constructor create(filename: string);
     destructor Destroy; Override;
     procedure clearList;
+    procedure saveContentStream(fstream: tmemoryStream);
+    procedure saveContentStreamToTmp(filename: string);
     procedure decompilationFeedback;
     function readPex(fstream: tstream; bDiscardNoAuth: boolean): boolean;
     function dosavePex(t: tstringlist; filename: string): boolean;
   end;
-
-procedure SavePexFiletoTmp(fstream: tmemoryStream; bAuth: boolean; filename: string);
 
 const
   // info on http://www.uesp.net/wiki/Tes5Mod:Compiled_Script_File_Format
@@ -232,8 +234,8 @@ const
   extendedproc = [$17, $18, $19, $30, $31, $32];
   getIdProc = [$0D, $17, $18, $19, $24, $2F, $30, $31, $32];
   compareProc = [$0F .. $13];
-  instructionData: array [0 .. $32] of integer = (0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 1, 2, 2, 4, 3, 4, 1, 3, 3, 3, 2, 2, 3, 3, 4, 4, 3, 1, 3, 3, 5, 5, 3,
-    3, 1, 3, 1, 6, 1, 1, 2);
+  instructionData: array [0 .. $32] of integer = (0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 1, 2, 2, 4, 3, 4, 1, 3, 3, 3, 2, 2, 3, 3, 4, 4, 3, 1, 3, 3, 5, 5, 3, 3, 1, 3, 1,
+    6, 1, 1, 2);
   // fallout4 new OP
 
 implementation
@@ -242,14 +244,14 @@ function getCodepagepexOnload: word;
 var
   forceCp: string;
 begin
-  result:= 65001;
+  result := 65001;
   if bAllowPexCodepage then
   begin
-    forceCp:= bforceCpOnLoad;
+    forceCp := bforceCpOnLoad;
     if forceCp = 'utf8' then
-      result:= 65001
+      result := 65001
     else
-      result:= strtointdef(forceCp, 65001);
+      result := strtointdef(forceCp, 65001);
   end;
 end;
 
@@ -257,41 +259,41 @@ function getCodepagepexOnSave: word;
 var
   forceCp: string;
 begin
-  result:= 65001;
+  result := 65001;
   if bAllowPexCodepage then
   begin
-    forceCp:= bforceCpOnSave;
+    forceCp := bforceCpOnSave;
     if forceCp = 'utf8' then
-      result:= 65001
+      result := 65001
     else
-      result:= strtointdef(forceCp, 65001);
+      result := strtointdef(forceCp, 65001);
   end;
 end;
 
 // -pex Classe
 constructor TpexObject.init(n: string);
 begin
-  name:= n;
-  variables:= tlist.create;
-  properties:= tlist.create;
-  states:= tlist.create;
-  guard:= tlist.create;
-  struct:= tlist.create;
+  name := n;
+  variables := tlist.create;
+  properties := tlist.create;
+  states := tlist.create;
+  guard := tlist.create;
+  struct := tlist.create;
 end;
 
 destructor TpexObject.Destroy;
 var
   i: integer;
 begin
-  for i:= 0 to variables.Count - 1 do
+  for i := 0 to variables.Count - 1 do
     TpexVar(variables[i]).Free;
-  for i:= 0 to properties.Count - 1 do
+  for i := 0 to properties.Count - 1 do
     TpexVar(properties[i]).Free;
-  for i:= 0 to states.Count - 1 do
+  for i := 0 to states.Count - 1 do
     TpexVar(states[i]).Free;
-  for i:= 0 to struct.Count - 1 do
+  for i := 0 to struct.Count - 1 do
     TpexStruct(struct[i]).Free;
-  for i:= 0 to guard.Count - 1 do
+  for i := 0 to guard.Count - 1 do
     TPexGuard(guard[i]).Free;
 
   variables.Free;
@@ -305,15 +307,15 @@ end;
 // tpexstruct
 constructor TpexStruct.init(n: string);
 begin
-  name:= n;
-  vList:= tlist.create;
+  name := n;
+  vList := tlist.create;
 end;
 
 destructor TpexStruct.Destroy;
 var
   i: integer;
 begin
-  for i:= 0 to vList.Count - 1 do
+  for i := 0 to vList.Count - 1 do
     TpexVar(vList[i]).Free;
   vList.Free;
   inherited;
@@ -322,12 +324,12 @@ end;
 // -----
 constructor tpexFeedbackData.init;
 begin
-  header:= tstringlist.create;
-  LineList:= tlist.create;
-  varOpen:= true;
-  structOpen:= true;
-  propOpen:= true;
-  guardOpen:= true;
+  header := tstringlist.create;
+  LineList := tlist.create;
+  varOpen := true;
+  structOpen := true;
+  propOpen := true;
+  guardOpen := true;
 end;
 
 destructor tpexFeedbackData.Destroy;
@@ -341,30 +343,30 @@ procedure tpexFeedbackData.reset;
 begin
   header.clear;
   clearLineList;
-  varOpen:= true;
-  propOpen:= true;
+  varOpen := true;
+  propOpen := true;
 end;
 
 procedure tpexFeedbackData.clearLineList;
 var
   i: integer;
 begin
-  for i:= 0 to LineList.Count - 1 do
+  for i := 0 to LineList.Count - 1 do
     tpexObjLine(LineList[i]).Free;
   LineList.clear;
 end;
 
 constructor tpexObjLine.init(data: byte; p: pointer; s: string);
 begin
-  datatype:= data; // type of data
-  pdata:= p;
-  sFeedback:= s;
+  datatype := data; // type of data
+  pdata := p;
+  sFeedback := s;
 end;
 
 constructor TpexVarData.init;
 begin
-  ident:= 0;
-  value:= 0;
+  ident := 0;
+  value := 0;
 end;
 
 function TpexVarData.getStrValue(addEqual: boolean = false): string;
@@ -372,38 +374,38 @@ var
   tag: string;
 begin
   if addEqual then
-    tag:= '= '
+    tag := '= '
   else
-    tag:= '';
+    tag := '';
   case ident of
     0:
       if not addEqual then
-        result:= 'none'
+        result := 'none'
       else
-        result:= '';
-    1: result:= format('%s%s', [tag, string(value)]);
-    2: result:= format('%s"%s"', [tag, string(value)]);
-    3: result:= format('%s%d', [tag, integer(value)]);
-    4: result:= format('%s%.4f', [tag, single(value)]);
-    5: result:= format('%s%s', [tag, booltostr(boolean(value), true)]);
+        result := '';
+    1: result := format('%s%s', [tag, string(value)]);
+    2: result := format('%s"%s"', [tag, string(value)]);
+    3: result := format('%s%d', [tag, integer(value)]);
+    4: result := format('%s%.4f', [tag, single(value)]);
+    5: result := format('%s%s', [tag, booltostr(boolean(value), true)]);
   end;
 end;
 
 // ---------
 constructor TpexVarType.init(n, v: string);
 begin
-  name:= n;
-  vType:= v;
+  name := n;
+  vType := v;
 end;
 
 // -----------
 constructor TpexVar.init(n, v, d: string; f: cardinal);
 begin
-  name:= n;
-  vType:= v;
-  sDoc:= d;
-  flag:= f;
-  data:= TpexVarData.init;
+  name := n;
+  vType := v;
+  sDoc := d;
+  flag := f;
+  data := TpexVarData.init;
 end;
 
 destructor TpexVar.Destroy;
@@ -414,49 +416,49 @@ end;
 // -----------
 constructor TpexOp.init(op: byte);
 begin
-  opCode:= op;
-  args:= tlist.create;
+  opCode := op;
+  args := tlist.create;
 end;
 
 destructor TpexOp.Destroy;
 var
   i: integer;
 begin
-  for i:= 0 to args.Count - 1 do
+  for i := 0 to args.Count - 1 do
     TpexVarData(args[i]).Free;
   args.Free;
 end;
 
 constructor TpexFunc.init;
 begin
-  name:= '';
-  returnType:= '';
-  docString:= '';
-  uflags:= 0;
-  flags:= 0;
-  open:= true;
-  params:= tlist.create;
-  locals:= tlist.create;
-  instructions:= tlist.create;
+  name := '';
+  returnType := '';
+  docString := '';
+  uflags := 0;
+  flags := 0;
+  open := true;
+  params := tlist.create;
+  locals := tlist.create;
+  instructions := tlist.create;
 end;
 
 function TpexFunc.getReturnType: string;
 begin
   if rtype = 'None' then
-    result:= ''
+    result := ''
   else
-    result:= rtype + ' ';
+    result := rtype + ' ';
 end;
 
 destructor TpexFunc.Destroy;
 var
   i: integer;
 begin
-  for i:= 0 to params.Count - 1 do
+  for i := 0 to params.Count - 1 do
     TpexVarData(params[i]).Free;
-  for i:= 0 to locals.Count - 1 do
+  for i := 0 to locals.Count - 1 do
     TpexVarData(locals[i]).Free;
-  for i:= 0 to instructions.Count - 1 do
+  for i := 0 to instructions.Count - 1 do
     TpexOp(instructions[i]).Free;
 
   params.Free;
@@ -466,14 +468,14 @@ end;
 
 constructor TpexProp.init(n, p, d: string; uf: cardinal; f: byte);
 begin
-  name:= n;
-  pType:= p;
-  docString:= d;
-  uflags:= uf;
-  flags:= f;
-  AutoVarName:= '';
-  readHandler:= nil;
-  writeHandler:= nil;
+  name := n;
+  pType := p;
+  docString := d;
+  uflags := uf;
+  flags := f;
+  AutoVarName := '';
+  readHandler := nil;
+  writeHandler := nil;
 end;
 
 destructor TpexProp.Destroy;
@@ -484,22 +486,22 @@ end;
 
 constructor TPexGuard.init(n: string);
 begin
-  name:= n;
-  open:= true;
+  name := n;
+  open := true;
 end;
 
 constructor TPexState.init(n: string);
 begin
-  name:= n;
-  open:= true;
-  func:= tlist.create;
+  name := n;
+  open := true;
+  func := tlist.create;
 end;
 
 destructor TPexState.Destroy;
 var
   i: integer;
 begin
-  for i:= 0 to func.Count - 1 do
+  for i := 0 to func.Count - 1 do
     TpexFunc(func[i]).Free;
   func.Free;
 end;
@@ -507,27 +509,28 @@ end;
 // ----------------------------------
 Constructor tPexDecompiler.create(filename: string);
 begin
-  iPexByteOrder:= 1;
-  forcedLoadCp:= getCodepagepexOnload;
-  pexStringList:= tlist.create;
-  internalIdentList:= tstringlist.create;
-  globalIdentList:= tstringlist.create;
-  pexGlobalVarsList:= tlist<word>.create;
-  pexGlobalStrList:= tlist<word>.create;
-  globalIdentList.Sorted:= true;
-  globalIdentList.Duplicates:= dupIgnore;
-  pexObjList:= tlist.create;
-  fExportStream:= tmemorystream.Create;
-  pFbData:= tpexFeedbackData.init;
-  pexname:= filename;
+  iPexByteOrder := 1;
+  forcedLoadCp := getCodepagepexOnload;
+  pexStringList := tlist.create;
+  internalIdentList := tstringlist.create;
+  globalIdentList := tstringlist.create;
+  pexGlobalVarsList := tlist<word>.create;
+  pexGlobalStrList := tlist<word>.create;
+  globalIdentList.Sorted := true;
+  globalIdentList.Duplicates := dupIgnore;
+  pexObjList := tlist.create;
+  fExportStream := tmemoryStream.create;
+  pFbData := tpexFeedbackData.init;
+  fContentStream := nil;
+  pexname := filename;
 end;
 
 function tPexDecompiler.hasAuthString: boolean;
 var
   i: integer;
 begin
-  result:= false;
-  for i:= 0 to pexStringList.Count - 1 do
+  result := false;
+  for i := 0 to pexStringList.Count - 1 do
     if pPex(pexStringList[i]).auth then
       exit(true);
 end;
@@ -536,10 +539,10 @@ procedure tPexDecompiler.clearList;
 var
   i: integer;
 begin
-  for i:= 0 to pexStringList.Count - 1 do
+  for i := 0 to pexStringList.Count - 1 do
     dispose(pPex(pexStringList[i]));
   pexStringList.clear;
-  for i:= 0 to pexObjList.Count - 1 do
+  for i := 0 to pexObjList.Count - 1 do
     TpexObject(pexObjList[i]).Free;
   pexObjList.clear;
   SetLength(headerPexBuffer, 0);
@@ -562,6 +565,8 @@ begin
   pexObjList.Free;
   pFbData.Free;
   fExportStream.Free;
+  if assigned(fContentStream) then
+    fContentStream.Free;
 end;
 
 // --------------
@@ -569,13 +574,13 @@ end;
 function tPexDecompiler.readValue_Word(fstream: tstream): word;
 begin
   fstream.read(result, 2);
-  result:= SwapEndian16u(iPexByteOrder, result);
+  result := SwapEndian16u(iPexByteOrder, result);
 end;
 
 function tPexDecompiler.readValue_Int(fstream: tstream): integer;
 begin
   fstream.read(result, 4);
-  result:= SwapEndian32(iPexByteOrder, result);
+  result := SwapEndian32(iPexByteOrder, result);
 end;
 
 function tPexDecompiler.readValue_float(fstream: tstream): single;
@@ -583,7 +588,7 @@ var
   tmp: single;
 begin
   fstream.read(tmp, 4);
-  result:= SwapEndian32f(iPexByteOrder, tmp);
+  result := SwapEndian32f(iPexByteOrder, tmp);
 end;
 
 { function tPexDecompiler.ReadValue_String(fstream: tstream): string;
@@ -606,15 +611,15 @@ var
   dump: string;
 begin
   dofeedback(format('fStream.pos=%d', [fstream.position]));
-  fstream.position:= fstream.position - 10;
-  for i:= 1 to 100 do
+  fstream.position := fstream.position - 10;
+  for i := 1 to 100 do
   begin
     if fstream.position < fstream.size then
     begin
       fstream.read(b, 1);
-      dump:= dump + inttohex(b, 2) + ' ';
+      dump := dump + inttohex(b, 2) + ' ';
       if (i mod 10 = 0) then
-        dump:= dump + #13;
+        dump := dump + #13;
     end;
   end;
   dofeedback('dump:' + #13 + dump, false);
@@ -626,13 +631,13 @@ var
   s: tbytes;
 begin
   SetLength(s, 0);
-  len:= readValue_Word(fstream);
+  len := readValue_Word(fstream);
   SetLength(s, len);
   fstream.ReadBuffer(s[0], len);
   try
-    result:= getEncodingString(forcedLoadCp,s) ;
+    result := getEncodingString(forcedLoadCp, s);
   except
-    result:= '<<Codepage Error>>';
+    result := '<<Codepage Error>>';
   end;
 end;
 
@@ -646,11 +651,11 @@ var
   r: rPexheader;
   p: pPex;
 begin
-  fbDiscardNoAuth:= bDiscardNoAuth;
-  result:= false;
-  endPos:= fstream.size;
-  fstream.position:= 0;
-  ProgressBar.Max:= Int64Rec(endPos).lo;
+  fbDiscardNoAuth := bDiscardNoAuth;
+  result := false;
+  endPos := fstream.size;
+  fstream.position := 0;
+  ProgressBar.Max := Int64Rec(endPos).lo;
   try
     // header
     fstream.read(h, 4);
@@ -659,44 +664,44 @@ begin
       fstream.read(r, sizeOf(r));
       pFbData.header.add(format('PapyrusVersion: %d.%d - %.4x - (TimeData: %.16x)', [r.v1, r.v2, r.v3, r.timeData]));
 
-      iPexVersion:= r.v3;
+      iPexVersion := r.v3;
       if iPexVersion = $0100 then
-        iPexByteOrder:= 1
+        iPexByteOrder := 1
       else
-        iPexByteOrder:= 2;
+        iPexByteOrder := 2;
 
       // psc/user/machine
-      tmpStr:= ReadValue_String(fstream);
+      tmpStr := ReadValue_String(fstream);
       pFbData.header.add(format('Script: %s', [tmpStr]));
-      tmpStr:= ReadValue_String(fstream);
+      tmpStr := ReadValue_String(fstream);
       // pFbData.header.add(format('User: %s', [tmpStr]));
-      tmpStr:= ReadValue_String(fstream);
+      tmpStr := ReadValue_String(fstream);
       // pFbData.header.add(format('Computer: %s', [tmpStr]));
       // -tablecount
-      tableCount:= readValue_Word(fstream);
+      tableCount := readValue_Word(fstream);
       pFbData.header.add(format('StringTableCount: %d', [tableCount]));
       // storing Header;
       SetLength(headerPexBuffer, fstream.position);
-      fstream.position:= 0;
+      fstream.position := 0;
       fstream.ReadBuffer(headerPexBuffer[0], length(headerPexBuffer));
       // stringtable
       while (fstream.position < endPos) and (tableCount > 0) do
       begin
         new(p);
-        p.s:= ReadValue_String(fstream);
-        p.auth:= true;
-        p.warn:= false;
-        p.seen:= false;
+        p.s := ReadValue_String(fstream);
+        p.auth := true;
+        p.warn := false;
+        p.seen := false;
         pexStringList.add(p);
         dec(tableCount);
       end;
       // storing Data
-      i64DataStart:= fstream.position;
-      dataLen:= endPos - i64DataStart;
+      i64DataStart := fstream.position;
+      dataLen := endPos - i64DataStart;
       SetLength(dataPexBuffer, dataLen);
       fstream.ReadBuffer(dataPexBuffer[0], dataLen);
       // -----------
-      fstream.position:= i64DataStart;
+      fstream.position := i64DataStart;
       stringAuthProc(fstream);
 
       if fbDiscardNoAuth and not hasAuthString then
@@ -704,7 +709,7 @@ begin
       // ---
       decompilationFeedback;
       // ----------
-      result:= true;
+      result := true;
     end;
   except
     On E: Exception do
@@ -715,15 +720,15 @@ end;
 // strAuth
 function tPexDecompiler.idIsValid(id: word): boolean;
 begin
-  result:= id < pexStringList.Count;
+  result := id < pexStringList.Count;
   if result then
-    pPex(pexStringList[id]).seen:= true;
+    pPex(pexStringList[id]).seen := true;
 end;
 
 procedure tPexDecompiler.setNoTrans(id: word; fstream: tstream);
 begin
   if idIsValid(id) then
-    pPex(pexStringList[id]).auth:= false
+    pPex(pexStringList[id]).auth := false
   else
   begin
     dofeedback(pexname, false);
@@ -736,29 +741,29 @@ function tPexDecompiler.checkProcNoTrans(t: tstringlist): boolean;
 var
   i, index: integer;
 begin
-  for i:= 0 to t.Count - 1 do
+  for i := 0 to t.Count - 1 do
     if pexNoTransProcList.Find(t[i], index) then
       exit(true);
-  result:= false;
+  result := false;
 end;
 
 procedure tPexDecompiler.globalNoTransCheckList;
 var
   i, index: integer;
 begin
-  for i:= 0 to pexGlobalVarsList.Count - 1 do
+  for i := 0 to pexGlobalVarsList.Count - 1 do
   begin
     if not pPex(pexStringList[pexGlobalStrList[i]]).seen then
     begin
-      pPex(pexStringList[pexGlobalStrList[i]]).auth:= bPexUnLockGlobalVar; //
-      pPex(pexStringList[pexGlobalStrList[i]]).warn:= bPexUnLockGlobalVar;
+      pPex(pexStringList[pexGlobalStrList[i]]).auth := bPexUnLockGlobalVar; //
+      pPex(pexStringList[pexGlobalStrList[i]]).warn := bPexUnLockGlobalVar;
     end;
     if not pPex(pexStringList[pexGlobalStrList[i]]).auth then
       continue;
     if globalIdentList.Find(pPex(pexStringList[pexGlobalVarsList[i]]).s, index) then
     begin
-      pPex(pexStringList[pexGlobalStrList[i]]).auth:= bPexUnLockGlobalVar;
-      pPex(pexStringList[pexGlobalStrList[i]]).warn:= bPexUnLockGlobalVar;
+      pPex(pexStringList[pexGlobalStrList[i]]).auth := bPexUnLockGlobalVar;
+      pPex(pexStringList[pexGlobalStrList[i]]).warn := bPexUnLockGlobalVar;
     end;
   end;
 end;
@@ -794,24 +799,24 @@ begin
   pFbData.header.add(strSeparator);
   fstream.read(tmp64, 8);
   // func
-  tableCount:= readValue_Word(fstream);
+  tableCount := readValue_Word(fstream);
   pFbData.header.add(format('debugFuncCount: %d', [tableCount]));
-  for i:= 1 to tableCount do
+  for i := 1 to tableCount do
   begin
-    tmp:= readValue_Word(fstream);
+    tmp := readValue_Word(fstream);
     setNoTrans(tmp, fstream);
     if pexDrawDebug then
       pFbData.header.add(format('%.2x' + #9 + 'Object: %s', [i, pPex(pexStringList[tmp]).s]));
-    tmp:= readValue_Word(fstream);
+    tmp := readValue_Word(fstream);
     setNoTrans(tmp, fstream);
     if pexDrawDebug then
       pFbData.header.add(format(#9 + 'State: "%s"', [pPex(pexStringList[tmp]).s]));
-    tmp:= readValue_Word(fstream);
+    tmp := readValue_Word(fstream);
     setNoTrans(tmp, fstream);
     if pexDrawDebug then
       pFbData.header.add(format(#9 + 'Function: %s', [pPex(pexStringList[tmp]).s]));
     fstream.read(tmpByte, 1);
-    tmpCount:= readValue_Word(fstream);
+    tmpCount := readValue_Word(fstream);
     if pexDrawDebug then
       pFbData.header.add(format(#9 + 'FunctionType: %d - DataCount: %d', [tmpByte, tmpCount]));
     fstream.Seek(tmpCount * 2, soCurrent);
@@ -820,42 +825,42 @@ begin
   if iPexByteOrder = 2 then
   begin
     // group
-    tableCount:= readValue_Word(fstream);
+    tableCount := readValue_Word(fstream);
     pFbData.header.add(format('debugpropGroupCount: %d', [tableCount]));
-    for i:= 1 to tableCount do
+    for i := 1 to tableCount do
     begin
-      tmp:= readValue_Word(fstream);
+      tmp := readValue_Word(fstream);
       setNoTrans(tmp, fstream);
       if pexDrawDebug then
         pFbData.header.add(format('%.2x' + #9 + 'Object: %s', [i, pPex(pexStringList[tmp]).s]));
-      tmp:= readValue_Word(fstream);
+      tmp := readValue_Word(fstream);
       setNoTrans(tmp, fstream);
       if pexDrawDebug then
         pFbData.header.add(format(#9 + 'State: "%s"', [pPex(pexStringList[tmp]).s]));
-      tmp:= readValue_Word(fstream);
+      tmp := readValue_Word(fstream);
       setNoTrans(tmp, fstream);
       if pexDrawDebug then
         pFbData.header.add(format(#9 + 'Function: %s', [pPex(pexStringList[tmp]).s]));
       fstream.read(tmp32, 4);
-      tmpCount:= readValue_Word(fstream);
+      tmpCount := readValue_Word(fstream);
       if pexDrawDebug then
         pFbData.header.add(format(#9 + 'Type: %d - propCount: %d', [tmp32, tmpCount]));
       fstream.Seek(tmpCount * 2, soCurrent);
     end;
     // structorder
-    tableCount:= readValue_Word(fstream);
+    tableCount := readValue_Word(fstream);
     pFbData.header.add(format('debugStructCount: %d', [tableCount]));
-    for i:= 1 to tableCount do
+    for i := 1 to tableCount do
     begin
-      tmp:= readValue_Word(fstream);
+      tmp := readValue_Word(fstream);
       setNoTrans(tmp, fstream);
       if pexDrawDebug then
         pFbData.header.add(format('%.2x' + #9 + 'Object: %s', [i, pPex(pexStringList[tmp]).s]));
-      tmp:= readValue_Word(fstream);
+      tmp := readValue_Word(fstream);
       setNoTrans(tmp, fstream);
       if pexDrawDebug then
         pFbData.header.add(format(#9 + 'State: "%s"', [pPex(pexStringList[tmp]).s]));
-      tmpCount:= readValue_Word(fstream);
+      tmpCount := readValue_Word(fstream);
       if pexDrawDebug then
         pFbData.header.add(format(#9 + 'structCount: %d', [tmpCount]));
       fstream.Seek(tmpCount * 2, soCurrent);
@@ -870,11 +875,11 @@ var
   i: integer;
 begin
   pFbData.header.add(strSeparator);
-  tableCount:= readValue_Word(fstream);
+  tableCount := readValue_Word(fstream);
   pFbData.header.add(format('userFlagsCount: %d', [tableCount]));
-  for i:= 1 to tableCount do
+  for i := 1 to tableCount do
   begin
-    tmp:= readValue_Word(fstream);
+    tmp := readValue_Word(fstream);
     setNoTrans(tmp, fstream);
     fstream.read(tmpByte, 1);
     pFbData.header.add(format(#9 + '%s %d', [pPex(pexStringList[tmp]).s, tmpByte]));
@@ -888,13 +893,13 @@ var
   i: integer;
   pObj: TpexObject;
 begin
-  tableCount:= readValue_Word(fstream);
-  for i:= 1 to tableCount do
+  tableCount := readValue_Word(fstream);
+  for i := 1 to tableCount do
   begin
-    tmp:= readValue_Word(fstream);
+    tmp := readValue_Word(fstream);
     setNoTrans(tmp, fstream);
-    tmpSize:= readValue_Int(fstream) - 4;
-    pObj:= TpexObject.init(pPex(pexStringList[tmp]).s);
+    tmpSize := readValue_Int(fstream) - 4;
+    pObj := TpexObject.init(pPex(pexStringList[tmp]).s);
     pexObjList.add(pObj);
     checkObjectData(fstream, tmpSize, pObj);
   end;
@@ -906,38 +911,38 @@ var
   tmp: word;
   tmpFloat: single;
 begin
-  result:= 0;
+  result := 0;
   // typeflag
   fstream.read(vflag, 1);
-  pVarData.ident:= vflag;
+  pVarData.ident := vflag;
   case vflag of
     1:
       begin
-        tmp:= readValue_Word(fstream); // identifier
+        tmp := readValue_Word(fstream); // identifier
         setNoTrans(tmp, fstream);
-        pVarData.value:= pPex(pexStringList[tmp]).s;
+        pVarData.value := pPex(pexStringList[tmp]).s;
         if getIdentId then
         begin
           internalIdentList.add(ansilowercase(pPex(pexStringList[tmp]).s));
-          procId:= tmp;
+          procId := tmp;
         end;
       end;
     2:
       begin
-        tmp:= readValue_Word(fstream);
+        tmp := readValue_Word(fstream);
         if idIsValid(tmp) then
         begin
-          pVarData.value:= pPex(pexStringList[tmp]).s;
+          pVarData.value := pPex(pexStringList[tmp]).s;
           if refID >= 0 then
           begin
             pexGlobalVarsList.add(refID);
             pexGlobalStrList.add(tmp)
           end
           else if getIdentId then
-            pPex(pexStringList[tmp]).auth:= false;
+            pPex(pexStringList[tmp]).auth := false;
 
           if warnCompare then
-            pPex(pexStringList[tmp]).warn:= true;
+            pPex(pexStringList[tmp]).warn := true;
         end
         else
         begin
@@ -947,18 +952,18 @@ begin
       end;
     3:
       begin
-        result:= readValue_Int(fstream); // int
-        pVarData.value:= result;
+        result := readValue_Int(fstream); // int
+        pVarData.value := result;
       end;
     4:
       begin
-        tmpFloat:= readValue_float(fstream);
-        pVarData.value:= tmpFloat;
+        tmpFloat := readValue_float(fstream);
+        pVarData.value := tmpFloat;
       end;
     5:
       begin
         fstream.read(tmpByte, 1); // byte
-        pVarData.value:= boolean(tmpByte);
+        pVarData.value := boolean(tmpByte);
       end;
   end;
 end;
@@ -972,15 +977,15 @@ var
   tmpByte: byte;
 begin
   // name
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
   // typename
-  tmp2:= readValue_Word(fstream);
+  tmp2 := readValue_Word(fstream);
   setNoTrans(tmp2, fstream);
   // uFlags
   fstream.read(tmpInt, 4);
   // val
-  pVar:= TpexVar.init(pPex(pexStringList[tmp1]).s, pPex(pexStringList[tmp2]).s, '', tmpInt);
+  pVar := TpexVar.init(pPex(pexStringList[tmp1]).s, pPex(pexStringList[tmp2]).s, '', tmpInt);
   varlist.add(pVar);
   checkVariableData(fstream, tmp1, false, false, procId, pVar.data);
 
@@ -991,9 +996,9 @@ begin
     if useDocString then // used for struct
     begin
       // typename
-      tmp3:= readValue_Word(fstream);
+      tmp3 := readValue_Word(fstream);
       setNoTrans(tmp3, fstream);
-      pVar.sDoc:= pPex(pexStringList[tmp3]).s
+      pVar.sDoc := pPex(pexStringList[tmp3]).s
     end;
   end;
 end;
@@ -1004,14 +1009,14 @@ var
   pStruct: TpexStruct;
 begin
   // name
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
-  pStruct:= TpexStruct.init(pPex(pexStringList[tmp1]).s);
+  pStruct := TpexStruct.init(pPex(pexStringList[tmp1]).s);
   pObj.struct.add(pStruct);
 
   // variable
-  varCount:= readValue_Word(fstream);
-  for i:= 1 to varCount do
+  varCount := readValue_Word(fstream);
+  for i := 1 to varCount do
     checkVariables(fstream, i, '', pStruct.vList, true);
 end;
 
@@ -1020,10 +1025,10 @@ var
   tmp1, tmp2: word;
 begin
   // name
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
   // type
-  tmp2:= readValue_Word(fstream);
+  tmp2 := readValue_Word(fstream);
   setNoTrans(tmp2, fstream);
   l.add(TpexVarType.init(pPex(pexStringList[tmp1]).s, pPex(pexStringList[tmp2]).s));
 end;
@@ -1036,47 +1041,47 @@ var
   pOp: TpexOp;
   pVarData: TpexVarData;
 begin
-  extraArg:= 0;
+  extraArg := 0;
   internalIdentList.clear;
   // flag------------------------
   fstream.read(vflag, 1);
   if vflag > high(instructionData) then
     Raise Exception.create(formatres('fbk_pexError', [getres('fbk_pexErrorDetail1')]));
   // -----------------------------
-  pOp:= TpexOp.init(vflag);
+  pOp := TpexOp.init(vflag);
   l.add(pOp);
-  nbArgs:= instructionData[vflag];
+  nbArgs := instructionData[vflag];
 
-  getAssignVar:= -1;
-  getIdentId:= (vflag in getIdProc);
+  getAssignVar := -1;
+  getIdentId := (vflag in getIdProc);
   // ----parse var data
-  for i:= 1 to nbArgs do
+  for i := 1 to nbArgs do
   begin
-    pVarData:= TpexVarData.init;
+    pVarData := TpexVarData.init;
     pOp.args.add(pVarData);
-    procId:= -1;
-    extraArg:= checkVariableData(fstream, getAssignVar, getIdentId, vflag in compareProc, procId, pVarData);
+    procId := -1;
+    extraArg := checkVariableData(fstream, getAssignVar, getIdentId, vflag in compareProc, procId, pVarData);
     // proc_assign
     // if (vflag in [$0D, $30, $31, $32]) and (procId >= 0) then
     if (vflag in [$0D]) and (procId >= 0) then
-      getAssignVar:= procId;
+      getAssignVar := procId;
   end;
   // callmethod
   if (vflag in extendedproc) then
   begin
-    getIdentId:= checkProcNoTrans(internalIdentList);
-    for i:= 1 to extraArg do
+    getIdentId := checkProcNoTrans(internalIdentList);
+    for i := 1 to extraArg do
     begin
-      pVarData:= TpexVarData.init;
+      pVarData := TpexVarData.init;
       pOp.args.add(pVarData);
-      procId:= -1;
+      procId := -1;
       checkVariableData(fstream, -1, getIdentId, false, procId, pVarData);
       if (procId >= 0) then
         globalIdentList.add(pPex(pexStringList[procId]).s);
     end;
   end;
   internalIdentList.clear;
-  ProgressBar.position:= Int64Rec(fstream.position).lo;
+  ProgressBar.position := Int64Rec(fstream.position).lo;
 end;
 
 procedure tPexDecompiler.checkFunction(fstream: tstream; getFirst: boolean; id: integer; pfunc: TpexFunc);
@@ -1088,35 +1093,35 @@ var
 begin
   if getFirst then // only in state
   begin
-    tmp1:= readValue_Word(fstream);
+    tmp1 := readValue_Word(fstream);
     setNoTrans(tmp1, fstream);
-    pfunc.name:= pPex(pexStringList[tmp1]).s
+    pfunc.name := pPex(pexStringList[tmp1]).s
   end;
   // return type
-  tmp2:= readValue_Word(fstream);
+  tmp2 := readValue_Word(fstream);
   setNoTrans(tmp2, fstream);
-  pfunc.returnType:= pPex(pexStringList[tmp2]).s;
+  pfunc.returnType := pPex(pexStringList[tmp2]).s;
   // doc string
-  tmp3:= readValue_Word(fstream);
+  tmp3 := readValue_Word(fstream);
   setNoTrans(tmp3, fstream);
-  pfunc.docString:= pPex(pexStringList[tmp3]).s;
+  pfunc.docString := pPex(pexStringList[tmp3]).s;
   // uFlags
   fstream.read(tmpInt, 4);
-  pfunc.uflags:= tmpInt;
+  pfunc.uflags := tmpInt;
   // Flags
   fstream.read(tmpByte, 1);
-  pfunc.flags:= tmpByte;
+  pfunc.flags := tmpByte;
   // param1 funcparams
-  tmp1:= readValue_Word(fstream);
-  for i:= 1 to tmp1 do
+  tmp1 := readValue_Word(fstream);
+  for i := 1 to tmp1 do
     checkVariabletype(fstream, pfunc.params);
   // param2  local
-  tmp1:= readValue_Word(fstream);
-  for i:= 1 to tmp1 do
+  tmp1 := readValue_Word(fstream);
+  for i := 1 to tmp1 do
     checkVariabletype(fstream, pfunc.locals);
   // instructions
-  tmp1:= readValue_Word(fstream);
-  for i:= 1 to tmp1 do
+  tmp1 := readValue_Word(fstream);
+  for i := 1 to tmp1 do
     checkInstructions(fstream, pfunc.instructions, i);
 end;
 
@@ -1133,119 +1138,119 @@ var
   pguard: TPexGuard;
 begin
   // extend
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
-  pObj.parentClassName:= pPex(pexStringList[tmp1]).s;
+  pObj.parentClassName := pPex(pexStringList[tmp1]).s;
   // docstring
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
-  pObj.docString:= pPex(pexStringList[tmp1]).s;
+  pObj.docString := pPex(pexStringList[tmp1]).s;
   if iPexByteOrder = 2 then
     fstream.read(tmpByte, 1); // uConst -- fallout
   // uFlags
   fstream.read(tmpInt, 4);
-  pObj.userFlags:= tmpInt;
+  pObj.userFlags := tmpInt;
   // autoStateName
-  tmp1:= readValue_Word(fstream);
+  tmp1 := readValue_Word(fstream);
   setNoTrans(tmp1, fstream);
-  pObj.autoStateName:= pPex(pexStringList[tmp1]).s;
+  pObj.autoStateName := pPex(pexStringList[tmp1]).s;
 
   if iPexByteOrder = 2 then
   begin
     // struct
-    structCount:= readValue_Word(fstream);
-    for i:= 1 to structCount do
+    structCount := readValue_Word(fstream);
+    for i := 1 to structCount do
       checkStruct(fstream, i, '', pObj);
   end;
 
   // variable
-  varCount:= readValue_Word(fstream);
-  for i:= 1 to varCount do
+  varCount := readValue_Word(fstream);
+  for i := 1 to varCount do
     checkVariables(fstream, i, '', pObj.variables);
 
-  ProgressBar.position:= Int64Rec(fstream.position).lo;
+  ProgressBar.position := Int64Rec(fstream.position).lo;
 
   if iPexVersion = 4 then
   begin
-    varCount:= readValue_Word(fstream); // guard section
-    for i:= 1 to varCount do
+    varCount := readValue_Word(fstream); // guard section
+    for i := 1 to varCount do
     begin
-      tmp1:= readValue_Word(fstream);
+      tmp1 := readValue_Word(fstream);
       setNoTrans(tmp1, fstream);
-      pguard:= TPexGuard.init(pPex(pexStringList[tmp1]).s);
+      pguard := TPexGuard.init(pPex(pexStringList[tmp1]).s);
       pObj.guard.add(pguard);
     end;
   end;
 
   // properties
-  varCount:= readValue_Word(fstream);
-  for i:= 1 to varCount do
+  varCount := readValue_Word(fstream);
+  for i := 1 to varCount do
   begin
     // name
-    tmp1:= readValue_Word(fstream);
+    tmp1 := readValue_Word(fstream);
     setNoTrans(tmp1, fstream);
     // typename
-    tmp2:= readValue_Word(fstream);
+    tmp2 := readValue_Word(fstream);
     setNoTrans(tmp2, fstream);
     // doc
-    tmp3:= readValue_Word(fstream);
+    tmp3 := readValue_Word(fstream);
     setNoTrans(tmp3, fstream);
     // uFlags
     fstream.read(tmpInt, 4);
     // flag
     fstream.read(vflag, 1);
-    pProp:= TpexProp.init(pPex(pexStringList[tmp1]).s, pPex(pexStringList[tmp2]).s, pPex(pexStringList[tmp3]).s, tmpInt, vflag);
+    pProp := TpexProp.init(pPex(pexStringList[tmp1]).s, pPex(pexStringList[tmp2]).s, pPex(pexStringList[tmp3]).s, tmpInt, vflag);
     pObj.properties.add(pProp);
 
     // auto var
     if vflag and 4 <> 0 then
     begin
-      tmp1:= readValue_Word(fstream);
+      tmp1 := readValue_Word(fstream);
       setNoTrans(tmp1, fstream);
-      pProp.AutoVarName:= pPex(pexStringList[tmp1]).s;
+      pProp.AutoVarName := pPex(pexStringList[tmp1]).s;
     end;
     // read
     if vflag and 5 = 1 then
     begin
-      pProp.readHandler:= TpexFunc.init;
+      pProp.readHandler := TpexFunc.init;
       checkFunction(fstream, false, 1, pProp.readHandler);
     end;
     // write
     if vflag and 6 = 2 then
     begin
-      pProp.writeHandler:= TpexFunc.init;
+      pProp.writeHandler := TpexFunc.init;
       checkFunction(fstream, false, 1, pProp.writeHandler);
     end;
-    ProgressBar.position:= Int64Rec(fstream.position).lo;
+    ProgressBar.position := Int64Rec(fstream.position).lo;
   end;
 
   // states
-  varCount:= readValue_Word(fstream);
-  for i:= 1 to varCount do
+  varCount := readValue_Word(fstream);
+  for i := 1 to varCount do
   begin
     // statesname
-    tmp1:= readValue_Word(fstream);
+    tmp1 := readValue_Word(fstream);
     setNoTrans(tmp1, fstream);
-    pState:= TPexState.init(pPex(pexStringList[tmp1]).s);
+    pState := TPexState.init(pPex(pexStringList[tmp1]).s);
     pObj.states.add(pState);
     // function
-    tmp1:= readValue_Word(fstream);
-    for j:= 1 to tmp1 do
+    tmp1 := readValue_Word(fstream);
+    for j := 1 to tmp1 do
     begin
-      pfunc:= TpexFunc.init;
+      pfunc := TpexFunc.init;
       pState.func.add(pfunc);
       checkFunction(fstream, true, j, pfunc);
     end;
-    ProgressBar.position:= Int64Rec(fstream.position).lo;
+    ProgressBar.position := Int64Rec(fstream.position).lo;
   end;
 end;
 
 function tPexDecompiler.getDocString(s: string): string;
 begin
   if s = '' then
-    result:= s
+    result := s
   else
-    result:= format('{%s}', [s]);
+    result := format('{%s}', [s]);
 end;
 
 // ------------Decompilation feedback
@@ -1262,7 +1267,7 @@ end;
 function tPexDecompiler.cleanVarStr(s: string): string;
 begin
   // var: ::name_var
-  result:= copy(s, 3, length(s) - 6);
+  result := copy(s, 3, length(s) - 6);
 end;
 
 Procedure tPexDecompiler.decompilationFeedback;
@@ -1278,20 +1283,20 @@ var
 begin
   pexLogClear;
   // header
-  for i:= 0 to pFbData.header.Count - 1 do
+  for i := 0 to pFbData.header.Count - 1 do
     pexLogAddLine(0, nil, pFbData.header[i]);
   // objects
   pexLogAddLine(0, nil, strSeparator);
-  for i:= 0 to pexObjList.Count - 1 do
+  for i := 0 to pexObjList.Count - 1 do
   begin
-    pObj:= pexObjList[i];
+    pObj := pexObjList[i];
     pexLogAddLine(0, nil, format('objectName %s extends %s', [pObj.name, pObj.parentClassName]));
     pexLogAddLine(0, nil, format('autoStateName: "%s"', [pObj.autoStateName]));
     pexLogAddLine(0, nil, format('flags: 0x%.8x', [pObj.userFlags]));
     if pObj.docString <> '' then
       pexLogAddLine(0, nil, format('{%s}', [pObj.docString]));
     // --------
-    tabStr:= #9;
+    tabStr := #9;
     if iPexByteOrder = 2 then
     begin
       // struct
@@ -1299,20 +1304,20 @@ begin
       pexLogAddLine(22, nil, format('%sStruct [count: %d]', [tagLineOpen[ord(pFbData.structOpen)], pObj.struct.Count]));
       if pFbData.structOpen then
       begin
-        for iVar:= 0 to pObj.struct.Count - 1 do
+        for iVar := 0 to pObj.struct.Count - 1 do
         begin
-          tabStr:= #9;
-          pStruct:= pObj.struct[iVar];
+          tabStr := #9;
+          pStruct := pObj.struct[iVar];
           pexLogAddLine(5, pStruct, format('%s%.2x %s', [tabStr, iVar, pStruct.name]));
-          tabStr:= #9#9;
-          for iVar2:= 0 to pStruct.vList.Count - 1 do
+          tabStr := #9#9;
+          for iVar2 := 0 to pStruct.vList.Count - 1 do
           begin
-            pVar:= pStruct.vList[iVar2];
+            pVar := pStruct.vList[iVar2];
             pexLogAddLine(1, pVar, format('%s%.2x %s %s %s', [tabStr, iVar2, pVar.vType, pVar.name, pVar.data.getStrValue(true)]));
           end;
         end;
       end;
-      tabStr:= #9;
+      tabStr := #9;
     end;
     if iPexVersion = 4 then
     begin
@@ -1321,14 +1326,14 @@ begin
       pexLogAddLine(23, nil, format('%sGuard [count: %d]', [tagLineOpen[ord(pFbData.guardOpen)], pObj.guard.Count]));
       if pFbData.guardOpen then
       begin
-        for iVar:= 0 to pObj.guard.Count - 1 do
+        for iVar := 0 to pObj.guard.Count - 1 do
         begin
-          tabStr:= #9;
-          pguard:= pObj.guard[iVar];
+          tabStr := #9;
+          pguard := pObj.guard[iVar];
           pexLogAddLine(6, pguard, format('%s%.2x %s', [tabStr, iVar, pguard.name]));
         end;
       end;
-      tabStr:= #9;
+      tabStr := #9;
     end;
 
     // variables
@@ -1336,9 +1341,9 @@ begin
     pexLogAddLine(20, nil, format('%svars [count: %d]', [tagLineOpen[ord(pFbData.varOpen)], pObj.variables.Count]));
     if pFbData.varOpen then
     begin
-      for iVar:= 0 to pObj.variables.Count - 1 do
+      for iVar := 0 to pObj.variables.Count - 1 do
       begin
-        pVar:= pObj.variables[iVar];
+        pVar := pObj.variables[iVar];
         pexLogAddLine(1, pVar, format('%s%.2x %s %s %s', [tabStr, iVar, pVar.vType, cleanVarStr(pVar.name), pVar.data.getStrValue(true)]));
       end;
     end;
@@ -1347,9 +1352,9 @@ begin
     pexLogAddLine(21, nil, format('%sproperties [count: %d]', [tagLineOpen[ord(pFbData.propOpen)], pObj.properties.Count]));
     if pFbData.propOpen then
     begin
-      for iVar:= 0 to pObj.properties.Count - 1 do
+      for iVar := 0 to pObj.properties.Count - 1 do
       begin
-        pProp:= pObj.properties[iVar];
+        pProp := pObj.properties[iVar];
 
         // simplifiy property
         if (pProp.name = cleanVarStr(pProp.AutoVarName)) then
@@ -1366,14 +1371,14 @@ begin
     end;
     // State
     pexLogAddLine(0, nil, strSeparator);
-    for iVar:= 0 to pObj.states.Count - 1 do
+    for iVar := 0 to pObj.states.Count - 1 do
     begin
-      pState:= pObj.states[iVar];
+      pState := pObj.states[iVar];
       pexLogAddLine(3, pState, format('%sstate: "%s"', [tagLineOpen[ord(pState.open)], pState.name]));
       if pState.open then
       begin
         if pState.func.Count > 0 then
-          for iFunc:= 0 to pState.func.Count - 1 do
+          for iFunc := 0 to pState.func.Count - 1 do
             drawFunction(TpexFunc(pState.func[iFunc]), #9);
         pexLogAddLine(0, nil, '   endState');
       end;
@@ -1388,21 +1393,21 @@ var
 begin
   if not assigned(pfunc) then
     exit;
-  strParam:= '';
-  for i:= 0 to pfunc.params.Count - 1 do
+  strParam := '';
+  for i := 0 to pfunc.params.Count - 1 do
   begin
-    strParam:= strParam + format('%s %s', [TpexVarType(pfunc.params[i]).vType, TpexVarType(pfunc.params[i]).name]);
+    strParam := strParam + format('%s %s', [TpexVarType(pfunc.params[i]).vType, TpexVarType(pfunc.params[i]).name]);
     if i < pfunc.params.Count - 1 then
-      strParam:= strParam + ', ';
+      strParam := strParam + ', ';
   end;
   pexLogAddLine(4, pfunc, format('%s%s function %s%s(%s)  %s', [tagLineOpen[ord(pfunc.open)], tabStr, pfunc.returnType, pfunc.name, strParam, getDocString(pfunc.docString)]));
 
   if pfunc.open then
   begin
-    for i:= 0 to pfunc.locals.Count - 1 do
+    for i := 0 to pfunc.locals.Count - 1 do
       pexLogAddLine(5, pfunc.locals[i], format('%slocal.%s %s', [tabStr + #9, TpexVarType(pfunc.locals[i]).vType, TpexVarType(pfunc.locals[i]).name]));
 
-    for i:= 0 to pfunc.instructions.Count - 1 do
+    for i := 0 to pfunc.instructions.Count - 1 do
       drawInstruction(tabStr + #9, pfunc.locals, pfunc.instructions[i]);
     pexLogAddLine(0, nil, tabStr + ' endFunction');
   end;
@@ -1413,50 +1418,50 @@ function tPexDecompiler.getVarType(vName: string; locals: tlist): string;
 var
   i: integer;
 begin
-  for i:= 0 to locals.Count - 1 do
+  for i := 0 to locals.Count - 1 do
     if TpexVarType(locals[i]).name = vName then
       exit(TpexVarType(locals[i]).vType);
-  result:= '';
+  result := '';
 end;
 
 function tPexDecompiler.getArg(pOp: TpexOp; id: integer): string;
 begin
   if id < pOp.args.Count then
-    result:= TpexVarData(pOp.args[id]).getStrValue
+    result := TpexVarData(pOp.args[id]).getStrValue
   else
-    result:= '';
+    result := '';
 end;
 
 function tPexDecompiler.setMethodResult(s: string): string;
 begin
   if s = '::NoneVar' then
-    result:= ''
+    result := ''
   else
-    result:= s + ' = '
+    result := s + ' = '
 end;
 
 function tPexDecompiler.includeNewArray(s, l: string): string;
 var
   i: integer;
 begin
-  result:= s;
-  i:= pos(']', s);
+  result := s;
+  i := pos(']', s);
   if i > 0 then
     insert(l, result, i)
   else
-    result:= s;
+    result := s;
 end;
 
 function tPexDecompiler.getMethodArgs(pOp: TpexOp; startId: integer): string;
 var
   i: integer;
 begin
-  result:= '';
-  for i:= startId to pOp.args.Count - 1 do
+  result := '';
+  for i := startId to pOp.args.Count - 1 do
   begin
-    result:= result + TpexVarData(pOp.args[i]).getStrValue;
+    result := result + TpexVarData(pOp.args[i]).getStrValue;
     if i < pOp.args.Count - 1 then
-      result:= result + ', ';
+      result := result + ', ';
   end;
 end;
 
@@ -1466,56 +1471,56 @@ var
 begin
 
   case pOp.opCode of
-    0: strtmp:= 'none';
-    1, 2: strtmp:= format('%s = %s + %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    3, 4: strtmp:= format('%s = %s - %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    5, 6: strtmp:= format('%s = %s * %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    7, 8: strtmp:= format('%s = %s / %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    9: strtmp:= format('%s = %s mod %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $0A: strtmp:= format('%s = not %s', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $0B, $0C: strtmp:= format('%s = -%s', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $0D: strtmp:= format('%s = %s', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $0E: strtmp:= format('%s = %s as %s', [getArg(pOp, 0), getArg(pOp, 1), getVarType(getArg(pOp, 0), locals)]);
-    $0F: strtmp:= format('%s = %s == %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $10: strtmp:= format('%s = %s < %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $11: strtmp:= format('%s = %s <= %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $12: strtmp:= format('%s = %s > %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $13: strtmp:= format('%s = %s >= %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $14: strtmp:= format('jump %s', [getArg(pOp, 0)]);
-    $15: strtmp:= format('if %s then jump %s', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $16: strtmp:= format('if not %s then jump %s', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $17: strtmp:= format('%s%s.%s(%s)', [setMethodResult(getArg(pOp, 2)), getArg(pOp, 1), getArg(pOp, 0), getMethodArgs(pOp, 4)]);
-    $18: strtmp:= format('%sparent.%s(%s)', [setMethodResult(getArg(pOp, 1)), getArg(pOp, 0), getMethodArgs(pOp, 3)]);
-    $19: strtmp:= format('%s%s.%s(%s)', [setMethodResult(getArg(pOp, 2)), getArg(pOp, 0), getArg(pOp, 1), getMethodArgs(pOp, 4)]);
-    $1A: strtmp:= format('return %s', [getArg(pOp, 0)]);
-    $1B: strtmp:= format('%s = %s + %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $1C: strtmp:= format('%s = %s.%s', [getArg(pOp, 2), getArg(pOp, 1), getArg(pOp, 0)]);
-    $1D: strtmp:= format('%s.%s = %s', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2)]);
-    $1E: strtmp:= format('%s = new %s', [getArg(pOp, 0), includeNewArray(getVarType(getArg(pOp, 0), locals), getArg(pOp, 1))]);
-    $1F: strtmp:= format('%s = %s.length', [getArg(pOp, 0), getArg(pOp, 1)]);
-    $20: strtmp:= format('%s = %s[%s] ', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $21: strtmp:= format('%s[%s] = %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $22: strtmp:= format('%s = %s.find(%s, %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3)]);
-    $23: strtmp:= format('%s = %s.rfind(%s, %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3)]);
+    0: strtmp := 'none';
+    1, 2: strtmp := format('%s = %s + %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    3, 4: strtmp := format('%s = %s - %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    5, 6: strtmp := format('%s = %s * %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    7, 8: strtmp := format('%s = %s / %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    9: strtmp := format('%s = %s mod %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $0A: strtmp := format('%s = not %s', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $0B, $0C: strtmp := format('%s = -%s', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $0D: strtmp := format('%s = %s', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $0E: strtmp := format('%s = %s as %s', [getArg(pOp, 0), getArg(pOp, 1), getVarType(getArg(pOp, 0), locals)]);
+    $0F: strtmp := format('%s = %s == %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $10: strtmp := format('%s = %s < %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $11: strtmp := format('%s = %s <= %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $12: strtmp := format('%s = %s > %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $13: strtmp := format('%s = %s >= %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $14: strtmp := format('jump %s', [getArg(pOp, 0)]);
+    $15: strtmp := format('if %s then jump %s', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $16: strtmp := format('if not %s then jump %s', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $17: strtmp := format('%s%s.%s(%s)', [setMethodResult(getArg(pOp, 2)), getArg(pOp, 1), getArg(pOp, 0), getMethodArgs(pOp, 4)]);
+    $18: strtmp := format('%sparent.%s(%s)', [setMethodResult(getArg(pOp, 1)), getArg(pOp, 0), getMethodArgs(pOp, 3)]);
+    $19: strtmp := format('%s%s.%s(%s)', [setMethodResult(getArg(pOp, 2)), getArg(pOp, 0), getArg(pOp, 1), getMethodArgs(pOp, 4)]);
+    $1A: strtmp := format('return %s', [getArg(pOp, 0)]);
+    $1B: strtmp := format('%s = %s + %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $1C: strtmp := format('%s = %s.%s', [getArg(pOp, 2), getArg(pOp, 1), getArg(pOp, 0)]);
+    $1D: strtmp := format('%s.%s = %s', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2)]);
+    $1E: strtmp := format('%s = new %s', [getArg(pOp, 0), includeNewArray(getVarType(getArg(pOp, 0), locals), getArg(pOp, 1))]);
+    $1F: strtmp := format('%s = %s.length', [getArg(pOp, 0), getArg(pOp, 1)]);
+    $20: strtmp := format('%s = %s[%s] ', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $21: strtmp := format('%s[%s] = %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $22: strtmp := format('%s = %s.find(%s, %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3)]);
+    $23: strtmp := format('%s = %s.rfind(%s, %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3)]);
     // fallout 4 new OpCode. Thx to Alexander Blade for their definitions
-    $24: strtmp:= format('%s = %s is %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $25: strtmp:= format('new %s', [getArg(pOp, 0)]);
-    $26: strtmp:= format('%s = %s.%s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // Struct GET
-    $27: strtmp:= format('%s.%s = %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // Struct SET
-    $28: strtmp:= format('%s = %s.findstruct(%s, %s , %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4)]);
-    $29: strtmp:= format('%s = %s.rfindstruct(%s , %s, %s) ', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4)]);
-    $2A: strtmp:= format('%s.Add(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // WIP  needs verification
-    $2B: strtmp:= format('%s.Insert(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // WIP  needs verification
-    $2C: strtmp:= format('%s.RemoveLast', [getArg(pOp, 0)]);
-    $2D: strtmp:= format('%s.Remove(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
-    $2E: strtmp:= format('%s.Clear', [getArg(pOp, 0)]);
+    $24: strtmp := format('%s = %s is %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $25: strtmp := format('new %s', [getArg(pOp, 0)]);
+    $26: strtmp := format('%s = %s.%s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // Struct GET
+    $27: strtmp := format('%s.%s = %s', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // Struct SET
+    $28: strtmp := format('%s = %s.findstruct(%s, %s , %s)', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4)]);
+    $29: strtmp := format('%s = %s.rfindstruct(%s , %s, %s) ', [getArg(pOp, 1), getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4)]);
+    $2A: strtmp := format('%s.Add(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // WIP  needs verification
+    $2B: strtmp := format('%s.Insert(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]); // WIP  needs verification
+    $2C: strtmp := format('%s.RemoveLast', [getArg(pOp, 0)]);
+    $2D: strtmp := format('%s.Remove(%s , %s)', [getArg(pOp, 0), getArg(pOp, 1), getArg(pOp, 2)]);
+    $2E: strtmp := format('%s.Clear', [getArg(pOp, 0)]);
     // Starfield
-    $2F: strtmp:= format('%s.GetAllMatchingStruct(%s , %s , %s , %s)', [getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4), getArg(pOp, 5)]);
-    $30: strtmp:= format('GuardLock(%s)', [getArg(pOp, 1)]);
-    $31: strtmp:= format('GuardUnlock(%s)', [getArg(pOp, 1)]);
-    $32: strtmp:= format('%s = GuardTryLock(%s)', [getArg(pOp, 0), getArg(pOp, 2)]);
+    $2F: strtmp := format('%s.GetAllMatchingStruct(%s , %s , %s , %s)', [getArg(pOp, 0), getArg(pOp, 2), getArg(pOp, 3), getArg(pOp, 4), getArg(pOp, 5)]);
+    $30: strtmp := format('GuardLock(%s)', [getArg(pOp, 1)]);
+    $31: strtmp := format('GuardUnlock(%s)', [getArg(pOp, 1)]);
+    $32: strtmp := format('%s = GuardTryLock(%s)', [getArg(pOp, 0), getArg(pOp, 2)]);
 
-  else strtmp:= format('unknown OpCode: %.2x)', [pOp.opCode]);
+  else strtmp := format('unknown OpCode: %.2x)', [pOp.opCode]);
   end;
   pexLogAddLine(10, pOp, tabStr + strtmp);
 end;
@@ -1541,10 +1546,10 @@ var
   tmpRaw: tbytes;
   sizeRaw, sizeRawEndian: word;
 begin
-  s:= limitStringSize(s, forcedCP, MAXSIZESTRING_GLOBALCAP_LOW);
-  tmpRaw:= getEncodingTBytes(forcedCP,s);
-  sizeRaw:= min(MAXSIZESTRING_GLOBALCAP_LOW, length(tmpRaw));
-  sizeRawEndian:= SwapEndian16u(Version, sizeRaw);
+  s := limitStringSize(s, forcedCP, MAXSIZESTRING_GLOBALCAP_LOW);
+  tmpRaw := getEncodingTBytes(forcedCP, s);
+  sizeRaw := min(MAXSIZESTRING_GLOBALCAP_LOW, length(tmpRaw));
+  sizeRawEndian := SwapEndian16u(Version, sizeRaw);
   fstream.Write(sizeRawEndian, 2);
   fstream.Write(tmpRaw[0], sizeRaw);
 end;
@@ -1554,25 +1559,31 @@ var
   i: integer;
   forcedCP: word;
 begin
-  fExportstream.clear;
-  forcedCP:= getCodepagepexOnSave;
-  result:= false;
+  fExportStream.clear;
+  forcedCP := getCodepagepexOnSave;
+  result := false;
   try
-    fExportstream.writebuffer(headerPexBuffer[0], length(headerPexBuffer));
-    for i:= 0 to t.Count - 1 do
-      WriteValue_utf8(iPexByteOrder, t[i], fExportstream, forcedCP);
-    fExportstream.writebuffer(dataPexBuffer[0], length(dataPexBuffer));
-    result:= true;
+    fExportStream.writebuffer(headerPexBuffer[0], length(headerPexBuffer));
+    for i := 0 to t.Count - 1 do
+      WriteValue_utf8(iPexByteOrder, t[i], fExportStream, forcedCP);
+    fExportStream.writebuffer(dataPexBuffer[0], length(dataPexBuffer));
+    result := true;
   except
   end;
 end;
 
-procedure SavePexFiletoTmp(fstream: tmemoryStream; bAuth: boolean; filename: string);
+procedure tPexDecompiler.saveContentStream(fstream: tmemoryStream);
 begin
-  if bAuth then
+  fContentStream := tmemoryStream.create;
+  fContentStream.CopyFrom(fstream, 0);
+end;
+
+procedure tPexDecompiler.saveContentStreamToTmp(filename: string);
+begin
+  if assigned(fContentStream) then
   begin
-    fstream.position:= 0;
-    fstream.SaveToFile(tmpFuzPath + filename);
+    fContentStream.position := 0;
+    fContentStream.SaveToFile(tmpFuzPath + filename);
   end;
 end;
 
