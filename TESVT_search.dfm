@@ -955,34 +955,6 @@ object Form2: TForm2
         DesignSize = (
           373
           36)
-        object Label1: TLabel
-          Left = 119
-          Top = 6
-          Width = 55
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'count 0/0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label3: TLabel
-          Left = 154
-          Top = 20
-          Width = 19
-          Height = 11
-          Alignment = taRightJustify
-          Caption = 'sel 0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -9
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-        end
         object Button2: TButton
           Left = 179
           Top = 6
@@ -1003,6 +975,38 @@ object Form2: TForm2
           Caption = 'Ok_(Ctrl-Enter)'
           TabOrder = 0
           OnClick = Button1Click
+        end
+        object StaticText3: TStaticText
+          Left = -4
+          Top = 6
+          Width = 177
+          Height = 17
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'StaticText3'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 2
+        end
+        object StaticText4: TStaticText
+          Left = -4
+          Top = 21
+          Width = 177
+          Height = 15
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'StaticText4'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -9
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
         end
       end
       object Panel19: TPanel
@@ -1279,6 +1283,8 @@ object Form2: TForm2
             ParentShowHint = False
             ShowHint = True
             TabOrder = 0
+            ExplicitLeft = 4
+            ExplicitTop = 3
             object ToolButton12: TToolButton
               Left = 0
               Top = 0

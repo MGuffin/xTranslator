@@ -1087,6 +1087,9 @@ begin
       move(f.buffer[0], result.rType, SizeOf(Cardinal)); // emotion
       result.rId := 1; // response always 1 in Starfield
       move(f.buffer[4], tmpVoiceID, SizeOf(Cardinal)); // formID audio for starfield
+
+      tmpVoiceID := (tmpVoiceID and $00FFFFFF) or (Cardinal(0) shl 24);
+
       result.sVoiceID := ansiLowerCase(inttohex(tmpVoiceID, 8));
       result.hVoiceID := stringHash(result.sVoiceID);
       break;

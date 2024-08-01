@@ -1,3 +1,5 @@
+# _xTranslator
+
 This software is an advanced tool for to translate Skyrim, SkyrimSE and Fallout4 mods from a language to another one.
 
 it's actually the same tool for each game, and comes with a different name:
@@ -7,9 +9,9 @@ it's actually the same tool for each game, and comes with a different name:
 -falloutNVTranslator for FalloutNV
 You can choose and change your game workspace on the fly, so it's not needed to get it from every pages.
 
-=========================================================
+------------------------------------------------------------	
 The home for this tool is the Nexus, it's made on freetime and the access is free. Please, do not upload it elsewhere.
-=========================================================
+------------------------------------------------------------	
 
 Features of the tool:
 
@@ -100,6 +102,13 @@ Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+
+version 1.5.8:
+-Internal: Added support for Medium & light Master analysis (fuzmap, npcmap, processing, keyword etc...). Note: the support is limited for now, and wont work correctly for more than one cascading master.
+-Internal: Updated Starfield and Fallout76 header version
+-Dictionary: Added new base game master to the vocabulary setting. 
+-UI: french UI resource updated. Thx to plplecuyer.
+
 version 1.5.7b:
 -Custom txt (McM): Sst Dictionaries have been improved for custom txt. 
 -Custom txt (McM): Some parsing regex have been added and adjusted 

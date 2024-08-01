@@ -73,9 +73,9 @@ begin
   Result := WideChar(UCODE_START_RTL) + RTLString;
 end;
 
-function ConvertRTLToLTR(const RTLText: string): string;
+function ConvertRTLToLTR(const s: string): string;
 begin
-  Result := UCODE_RLE + RTLText + UCODE_PDF;
+  Result := UCODE_RLE + s + UCODE_PDF;
 end;
 
 function IsUnicodeControleChar(ch: char): boolean;
@@ -87,18 +87,18 @@ begin
     (ch = #$200E) or (ch = #$200F);
 end;
 
-function RemoveUnicodeControlChars(const Input: string): string;
+function RemoveUnicodeControlChars(const s: string): string;
 var
   i: integer;
-  Output: string;
+  output: string;
 begin
-  Output := '';
-  for i := 1 to Length(Input) do
+  output := '';
+  for i := 1 to Length(s) do
   begin
-    if not IsUnicodeControleChar(Input[i]) then
-      Output := Output + Input[i];
+    if not IsUnicodeControleChar(s[i]) then
+      output := output + s[i];
   end;
-  Result := Output;
+  Result := output;
 end;
 
 function IsArabicLetter(ch: char): boolean;

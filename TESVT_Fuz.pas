@@ -31,7 +31,7 @@ unit TESVT_Fuz;
 
 interface
 
-uses classes, sysutils,  TESVT_Const, TESVT_Utils, TESVT_FastSearch, ioutils, regularexpressions, TESVT_TypeDef, TESVT_EspDefinition;
+uses classes, sysutils, TESVT_Const, TESVT_Utils, TESVT_FastSearch, ioutils, regularexpressions, TESVT_TypeDef, TESVT_EspDefinition;
 
 type
   tfuzExport = class
@@ -53,7 +53,7 @@ type
   tFuz = class
     List: tlist;
     BsaList, voiceType: tstringList;
-    current: cardinal;
+    current: Cardinal;
     function getFromRec(r: rdialInfo): boolean; overload;
     function getFromRec(r: rdialInfo; t: tstrings): boolean; overload;
     function getFromRec(r: rdialInfo; var index: integer): boolean; overload;
@@ -85,6 +85,20 @@ var
   lFuzBSA: tstringList;
 
 implementation
+
+// temp hack for first light / medium support for starfield.
+// Need fixing for extended medium master inheritance
+// works only with the base game medium esm for now.
+function getMasterIndextmp(formID: Cardinal): byte;
+begin
+  // starfield Light and medium master support
+  if byte(formID shr 24) = $FE then // light
+    Result := byte(formID shr 12)
+  else if byte(formID shr 24) = $FD then // medium
+    Result := 1
+  else
+    Result := byte(formID shr 24);
+end;
 
 constructor tfuzExport.Create(folder, filename: string; i, j: Cardinal; bsaIndex: integer);
 var
@@ -131,7 +145,7 @@ end;
 
 function tfuzExport.getSize: Cardinal;
 begin
-  result := retCardinal(instancesize + length(inFilename) + length(inExt) + length(inFolder)) * 2;
+  Result := retCardinal(instancesize + length(inFilename) + length(inExt) + length(inFolder)) * 2;
 end;
 
 // ==========tFuz===================
@@ -291,13 +305,13 @@ var
   i, index: integer;
   tf: tfuzExport;
 begin
-  result := false;
+  Result := false;
   if getFromRec(r, index) then
   begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndex(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
       begin
@@ -318,7 +332,7 @@ begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndex(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
         tf.used := true;
@@ -331,13 +345,13 @@ var
   i, index: integer;
   tf: tfuzExport;
 begin
-  result := getFromRec(r, index);
-  if result then
+  Result := getFromRec(r, index);
+  if Result then
   begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndex(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
       begin
@@ -355,11 +369,11 @@ var
   tfSearch: tfuzExport;
 begin
   tfSearch := tfuzExport.Create;
-  tfSearch.masterIndex := byte(r.rformID shr 24);
+  tfSearch.masterIndex := getMasterIndextmp(r.rformID); // byte(r.rformID shr 24);
   tfSearch.responseID := r.rID;
   tfSearch.sVoiceID := r.sVoiceID;
   tfSearch.hVoiceID := r.hVoiceID;
-  result := FastListSearch(List, compareFuz, tfSearch, index, true);
+  Result := FastListSearch(List, compareFuz, tfSearch, index, true);
   tfSearch.free;
 end;
 
@@ -367,7 +381,7 @@ function tFuz.getFromRec(r: rdialInfo): boolean;
 var
   index: integer;
 begin
-  result := getFromRec(r, index);
+  Result := getFromRec(r, index);
 end;
 
 procedure getFuzFromFile(folder, filename: string);
@@ -481,11 +495,11 @@ end;
 function getExpressionString(espLoader: tesploader; rEx: Cardinal): string;
 begin
   if bGameIsSF and assigned(espLoader) then
-    result := espLoader.findkeyword(rEx, nil, true)
+    Result := espLoader.findkeyword(rEx, nil, true)
   else
-    result := EmoteDefinitionList.values[inttohex(rEx, 8)];
-  if (result = '') then
-    result := EmoteDefinitionList.values['FFFFFFFF'];
+    Result := EmoteDefinitionList.values[inttohex(rEx, 8)];
+  if (Result = '') then
+    Result := EmoteDefinitionList.values['FFFFFFFF'];
 end;
 
 // ==============folder===============
@@ -495,9 +509,9 @@ var
   r: TRegEx;
 begin
   r := TRegEx.Create(sSearch);
-  result := false;
+  Result := false;
   try
-    result := r.ismatch(sFile);
+    Result := r.ismatch(sFile);
   except
   end;
 end;
@@ -551,29 +565,29 @@ end;
 // =FUZ quick sort & search=
 function compareFuzHashID(p1, p2: pointer): integer;
 begin
-  result := compareCardinal(tfuzExport(p1).hVoiceID, tfuzExport(p2).hVoiceID);
-  if result = 0 then
-    result := AnsiCompareText(tfuzExport(p1).sVoiceID, tfuzExport(p2).sVoiceID);
+  Result := compareCardinal(tfuzExport(p1).hVoiceID, tfuzExport(p2).hVoiceID);
+  if Result = 0 then
+    Result := AnsiCompareText(tfuzExport(p1).sVoiceID, tfuzExport(p2).sVoiceID);
 end;
 
 function compareFuzForSorting(p1, p2: pointer): integer;
 begin
-  result := compareFuzHashID(p1, p2);
-  if result = 0 then
-    result := tfuzExport(p1).responseID - tfuzExport(p2).responseID;
-  if result = 0 then
-    result := tfuzExport(p1).masterIndex - tfuzExport(p2).masterIndex;
-  if result = 0 then
-    result := tfuzExport(p2).bIsCurrent - tfuzExport(p1).bIsCurrent;
+  Result := compareFuzHashID(p1, p2);
+  if Result = 0 then
+    Result := tfuzExport(p1).responseID - tfuzExport(p2).responseID;
+  if Result = 0 then
+    Result := tfuzExport(p1).masterIndex - tfuzExport(p2).masterIndex;
+  if Result = 0 then
+    Result := tfuzExport(p2).bIsCurrent - tfuzExport(p1).bIsCurrent;
 end;
 
 function compareFuz(p1, p2: pointer): integer;
 begin
-  result := compareFuzHashID(p1, p2);
-  if result = 0 then
-    result := tfuzExport(p1).responseID - tfuzExport(p2).responseID;
-  if result = 0 then
-    result := tfuzExport(p1).masterIndex - tfuzExport(p2).masterIndex;
+  Result := compareFuzHashID(p1, p2);
+  if Result = 0 then
+    Result := tfuzExport(p1).responseID - tfuzExport(p2).responseID;
+  if Result = 0 then
+    Result := tfuzExport(p1).masterIndex - tfuzExport(p2).masterIndex;
 end;
 
 end.

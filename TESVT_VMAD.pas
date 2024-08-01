@@ -13,7 +13,7 @@
   under the License.
 
 
-  Note on extra Components used by this Tool: 
+  Note on extra Components used by this Tool:
   -SynEdit: https://github.com/SynEdit/SynEdit
   -VirtualStringTree: written by Mike Lischke (www.soft-gems.net).
   -Diff: Search Heuristic compare is using the Diff Unit http://www.angusj.com/delphi/textdiff.html credit to Angus Johnson
@@ -188,7 +188,7 @@ begin
       if bBreak then
         exit;
     end;
-    //Fragments
+    // Fragments
     if FragmentID >= 0 then
       case version of
         1 .. 5: readFragment_TES5; // skyrim
@@ -205,7 +205,10 @@ var
 begin
   // ScriptName - skip
   if bReadName then
+  begin
     getDataString(scriptList, currentScriptIndex); // skipLenString;
+    // dofeedback(scriptList[currentScriptIndex]);
+  end;
 
   // Status - Skip
   inc(startpos, 1);
@@ -269,7 +272,7 @@ begin
   // status -Skip
   inc(startpos, 1);
   case pType of
-    0: ;
+    0:;
     1: startpos := startpos + 8;
     2: getLenString; // PropString
     3: startpos := startpos + 4; // int - skip
@@ -321,11 +324,13 @@ begin
   if startpos >= bSize then
     exit;
   case FragmentID of
-    0: begin // PERK
+    0:
+      begin // PERK
         inc(startpos, 1);
         ReadScript;
       end;
-    1 .. 3: begin // PACK - SCEN  - INFO
+    1 .. 3:
+      begin // PACK - SCEN  - INFO
         inc(startpos, 2);
         ReadScript;
       end;

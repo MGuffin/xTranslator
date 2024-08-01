@@ -139,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.b';
+  aPROG_CURRENTVERSION = 'v1.5.8';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -220,7 +220,6 @@ const
   bDevDontInjectAllScripts: boolean = true; // if true, don't try to inject scripts with no editable strings.
   bWarnForUnconsistentFormIDVersion: boolean = false; // if true, shows a warning if some records version doesnt match the master version.
   bAskQuickLoad: boolean = false; // true to open a quick forcecodepage on wrong workSpace
-  // bMcmFormat: boolean = true; // false to use Csv parsing (devtest)
   bReadDoFUtf8Fallback: boolean = true; // Activate the Utf8Fallback
   bTagBatchedFiles: boolean = true; // tag Esp files that have been bathced in the wizard
   bAnalyzeOrphanString = false; // set to true to activate orphan loop search (enter data in getFieldfromBuffer function in espDefinition.pas
@@ -952,7 +951,6 @@ function loadStringList(f: string; sorted: boolean; clean: byte = 0): tstringLis
 procedure loadStringListEx(var l: tstringList; f: string; sorted: boolean; clean: byte = 0);
 procedure initRessources;
 procedure SaveBytesToFile(const Data: TBytes; const filename: string);
-function getMasterIndex(formID: cardinal): byte;
 function TrimExtended(const s: string; CharSet: TSysCharSet): string;
 function getHeightforCell(s: string; X: single; multiplier: integer = 1): integer;
 function isGameHandled(id: integer): boolean;
@@ -1020,6 +1018,30 @@ const // registry data
 implementation
 
 uses TESVT_Ressources;
+
+// ===========================
+function getGameByFormVersion(iVersion: integer; bFbk: boolean = false): integer;
+begin
+  if bFbk then
+    doFeedback('iVersion: ' + inttostr(iVersion));
+  if iVersion = 131 then // fallout4
+    Result := 0
+  else if inrange(iVersion, 40, 43) then // Skyrim
+    Result := 1
+  else if inrange(iVersion, 2, 15) then // FNV
+    Result := 2
+  else if iVersion = 44 then // SSE
+    Result := 3
+  else if inrange(iVersion, 182, 201) then // f76
+    Result := 4
+  else if inrange(iVersion, 552, 570) then // Starfield
+    Result := 5
+  else
+  begin
+    Result := -1;
+  end;
+end;
+// =====================
 
 function GetTEncoding(const EncodingName: string): tencoding;
 var
@@ -2770,31 +2792,7 @@ begin
   DeleteFile(tmpFuzPath + fuzTMPXMW);
 end;
 
-function getGameByFormVersion(iVersion: integer; bFbk: boolean = false): integer;
-begin
-  if bFbk then
-    doFeedback('iVersion: ' + inttostr(iVersion));
-  if iVersion = 131 then // fallout4
-    Result := 0
-  else if inrange(iVersion, 40, 43) then // Skyrim
-    Result := 1
-  else if inrange(iVersion, 2, 15) then // FNV
-    Result := 2
-  else if iVersion = 44 then // SSE
-    Result := 3
-  else if inrange(iVersion, 182, 200) then // f76
-    Result := 4
-  else if inrange(iVersion, 552, 559) then // Starfield
-    Result := 5
-  else
-  begin
-    Result := -1;
-  end;
-end;
-
-procedure SaveBytesToFile(const Data: TBytes;
-
-  const filename: string);
+procedure SaveBytesToFile(const Data: TBytes; const filename: string);
 var
   stream: TMemoryStream;
 begin
@@ -2806,11 +2804,6 @@ begin
   finally
     stream.Free;
   end;
-end;
-
-function getMasterIndex(formID: cardinal): byte;
-begin
-  Result := byte(formID shr 24);
 end;
 
 function TrimExtended(const s: string; CharSet: TSysCharSet): string;

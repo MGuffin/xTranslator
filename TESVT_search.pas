@@ -120,7 +120,6 @@ type
     Memo3: TSynEdit;
     TabSheet6: TTabSheet;
     DialogTree: TVirtualStringTree;
-    Label1: TLabel;
     ToolButton10: TToolButton;
     ToolButton11: TToolButton;
     Timer2: TTimer;
@@ -168,7 +167,6 @@ type
     ComboBox2: TComboBox;
     Button3: TButton;
     Panel18: TPanel;
-    Label3: TLabel;
     Panel15: TPanel;
     ListBox2: TListBox;
     ListBox3: TListBox;
@@ -198,6 +196,8 @@ type
     N8: TMenuItem;
     UseSimpleMemo1: TMenuItem;
     BidiModeRTL1: TMenuItem;
+    StaticText3: TStaticText;
+    StaticText4: TStaticText;
     procedure spSuggestionOnClick(Sender: TObject);
     procedure searchTreeGetText(Sender: TBaseVirtualTree; Node: pvirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure searchTreeFreeNode(Sender: TBaseVirtualTree; Node: pvirtualNode);
@@ -1891,15 +1891,15 @@ begin
     textLength := length(Memo2.Text);
   if (currentTESVmode = sTESVPex) or (currentTESVmode = sTESVMCM) then
   begin
-    Label1.caption := format('%d (%s: %d)', [textLength, currentDestCodepage.s, tEncoding.GetEncoding(currentDestCodepage.verif).GetByteCount(Memo2.Text)]);
+    staticText3.caption := format('%d (%s: %d)', [textLength, currentDestCodepage.s, tEncoding.GetEncoding(currentDestCodepage.verif).GetByteCount(Memo2.Text)]);
   end
   else
   begin
     b := (CurrentMaxStringLength > 0) and (textLength > CurrentMaxStringLength);
-    Label1.Font.color := ErrorColorFont[ord(b)];
+    staticText3.Font.color := ErrorColorFont[ord(b)];
     bCR := ((CurrentCRState = false) and (Memo2.Lines.count > 1));
     Memo2.Gutter.color := gradient(ErrorColor[ord(b or bCR)]);
-    Label1.caption := format('%d/%d %s (%s: %d)', [textLength, CurrentMaxStringLength, ErrorCR[ord(bCR)], currentDestCodepage.s, GetByteCount(currentDestCodepage.verif, GetEditedText(Memo2, Memo4))]);
+    staticText3.caption := format('%d/%d %s (%s: %d)', [textLength, CurrentMaxStringLength, ErrorCR[ord(bCR)], currentDestCodepage.s, GetByteCount(currentDestCodepage.verif, GetEditedText(Memo2, Memo4))]);
 
     // tEncoding.GetEncoding(currentDestCodepage.verif).GetByteCount(GetEditedText(Memo2, Memo4)))]);
   end;
@@ -2942,7 +2942,7 @@ begin
   end;
 
   if scSelection in Changes then
-    Label3.caption := formatRes('lbl_Selection', [length(Memo2.seltext)]);
+    staticText4.caption := formatRes('lbl_Selection', [length(Memo2.seltext)]);
 end;
 
 procedure TForm2.Memo4Change(Sender: TObject);
@@ -2955,7 +2955,7 @@ end;
 
 procedure TForm2.Memo4SelectionChange(Sender: TObject);
 begin
-  Label3.caption := formatRes('lbl_Selection', [length(Memo4.seltext)]);
+  staticText4.caption := formatRes('lbl_Selection', [length(Memo4.seltext)]);
 end;
 
 function TForm2.getCurrentTree: TVirtualStringTree;

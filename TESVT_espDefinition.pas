@@ -279,6 +279,7 @@ type
     VT: tvirtualStringTree;
     recordCompareList: tlist;
     VMADList: tlist;
+    ScriptList: tstringlist;
     espCompareCodepage: tespCompareCodepage;
     vtIteration: tvtIteration;
     masterNode: PVirtualNode;
@@ -429,9 +430,9 @@ Const
   aIGNOREDREC: array [0 .. 3] of sHeaderSig = ('NAVM', 'NAVI', 'NOCM', 'RFGP');
 
   // Important: all aUSEDREC_* ref must be stored in aFASTREC
-  aFASTREC: array [0 .. 48] of sHeaderSig = ('DMGT', 'RSPJ', 'CNDF', 'WTHR', 'KEYM', 'SHOU', 'WRLD', 'SPEL', 'GMST', 'PACK', 'FURN', 'CONT', 'CELL', 'RACE', 'LCTN', 'AVIF', 'DMGT', 'GBFM', 'DIAL', 'INFO', 'QUST', 'KYWD',
-    'BOOK', 'SCEN', 'PERK', 'DOOR', 'VTYP', 'NPC_', 'STAT', 'ACTI', 'LVLI', 'FLST', 'FACT', 'FLOR', 'TACT', 'CMPO', 'IRES', 'MISC', 'COBJ', 'GLOB', 'OMOD', 'ALCH', 'MGEF', 'ENCH', 'WEAP', 'LGDI',
-    'ARMO', 'INNR', 'TES4');
+  aFASTREC: array [0 .. 48] of sHeaderSig = ('DMGT', 'RSPJ', 'CNDF', 'WTHR', 'KEYM', 'SHOU', 'WRLD', 'SPEL', 'GMST', 'PACK', 'FURN', 'CONT', 'CELL', 'RACE', 'LCTN', 'AVIF', 'DMGT', 'GBFM', 'DIAL',
+    'INFO', 'QUST', 'KYWD', 'BOOK', 'SCEN', 'PERK', 'DOOR', 'VTYP', 'NPC_', 'STAT', 'ACTI', 'LVLI', 'FLST', 'FACT', 'FLOR', 'TACT', 'CMPO', 'IRES', 'MISC', 'COBJ', 'GLOB', 'OMOD', 'ALCH', 'MGEF',
+    'ENCH', 'WEAP', 'LGDI', 'ARMO', 'INNR', 'TES4');
   aFASTREFR: array [0 .. 1] of sHeaderSig = ('ACHR', 'REFR');
 
   aUSEDREC_ACHR: array [0 .. 0] of sHeaderSig = ('NAME');
@@ -476,6 +477,7 @@ function getCompressedFlag(f: cardinal): boolean;
 function getLocalizedFlag(f: cardinal): boolean;
 procedure ValidateEsp(filename: String; var iLocalized: integer; var iVersion: integer);
 procedure doValidateEsp(fStream: tstream; var iLocalized: integer; var iVersion: integer);
+function getMasterIndex(formID: cardinal): byte;
 function sanitizeFormID(const formID: cardinal; bS: byte = $01; bNoSanitize: boolean = false): cardinal;
 
 Implementation
@@ -504,6 +506,18 @@ begin
     result := lFastrec.BinarySearch(cardinal(h), index);
 end;
 
+
+function getMasterIndex(formID: cardinal): byte;
+begin
+  // starfield Light and medium master support
+  if byte(formID shr 24) = $FE then // light
+    Result := byte(formID shr 12)
+  else if byte(formID shr 24) = $FD then // medium
+    Result := byte(formID shr 16)
+  else
+    Result := byte(formID shr 24);
+end;
+
 function sanitizeFormID(const formID: cardinal; bS: byte = $01; bNoSanitize: boolean = false): cardinal;
 begin
   if bNoSanitize then
@@ -511,6 +525,21 @@ begin
 
   if byte(formID shr 24) = 0 then
     result := formID
+    // starfield Light and medium master support
+  else if byte(formID shr 24) = $FE then // light
+  begin
+    if byte(formID shr 12) = 0 then
+      result := formID
+    else
+      result := (formID and (not($FFF shl 12))) or (cardinal(bS) shl 12);
+  end
+  else if byte(formID shr 24) = $FD then // medium
+  begin
+    if byte(formID shr 16) = 0 then
+      result := formID
+    else
+      result := (formID and (not($FF shl 16))) or (cardinal(bS) shl 16);
+  end
   else
     result := (formID and $00FFFFFF) or (cardinal(bS) shl 24);
 end;
@@ -1582,7 +1611,7 @@ var
   pos: cardinal;
   endPos: int64;
   nextFieldSize, bBaseForm: cardinal;
-  tmpIndex: integer;
+  tmpIndex, i: integer;
   pVMAD: tVMADDecoder;
   tmpid: cardinal;
 begin
@@ -1621,6 +1650,10 @@ begin
     else if bVMAD and (newField.header.name = headerVMAD) and (length(newField.buffer) > 0) then
     begin
       pVMAD := tVMADDecoder.create(newField.buffer, self, newField, getFragmentID);
+
+      for i := 0 to pVMAD.ScriptList.count - 1 do
+        tEspLoader(currentEspLoader).ScriptList.Add(lowercase(pVMAD.ScriptList[i]));
+
       if pVMAD.bBreak then
         inc(tEspLoader(currentEspLoader).BrokenVMAD);
       if pVMAD.bHasStrings and not pVMAD.bBreak then
@@ -1879,6 +1912,10 @@ var
 begin
   fTES4Record := nil;
   masterNode := nil;
+  ScriptList := tstringlist.create;
+  ScriptList.Sorted := true;
+  ScriptList.duplicates := dupIgnore;
+
   bWrongWorkSpace := false;
   setlength(aInheritedMaster, 0);
   setlength(aInheritedCompareMaster, 0);
@@ -1922,6 +1959,7 @@ begin
   FastRecList.free;
   SceneList.free;
   aInheritedEsp.free;
+  ScriptList.free;
   fTES4Record := nil;
   rDummy.free;
   for i := 0 to high(aRefList) do

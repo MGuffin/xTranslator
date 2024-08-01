@@ -1,7 +1,5 @@
 # _xTranslator
- Text & translation editor for Skyrim, Fallout4 and Starfield mods
- 
- 
+
 This software is an advanced tool for to translate Skyrim, SkyrimSE and Fallout4 mods from a language to another one.
 
 it's actually the same tool for each game, and comes with a different name:
@@ -11,9 +9,9 @@ it's actually the same tool for each game, and comes with a different name:
 -falloutNVTranslator for FalloutNV
 You can choose and change your game workspace on the fly, so it's not needed to get it from every pages.
 
-=========================================================
+------------------------------------------------------------	
 The home for this tool is the Nexus, it's made on freetime and the access is free. Please, do not upload it elsewhere.
-=========================================================
+------------------------------------------------------------	
 
 Features of the tool:
 
@@ -39,7 +37,7 @@ Functionalities:
 -Alias Tool Check: verify alias integrity between source string and its translation.
 -Special DialogList for DIAL/INFO/QUST data
 -Search and replace tool with batch support
--Support for some Online translators
+-Support for some Online ApiTranslation
 -Custom dictionary
 
 -Undo
@@ -60,10 +58,10 @@ Important: This translator is *not* a tool for to localize/delocalize *.esp/*.es
 Notes & Crédits: 
 UIlocalization: Inherited from TesvTranslator & fallout4translator (some Translations are not up to date)
 -Japanese by Vivanon, Kuroko137 & BowmoreLover (Up to date)
--German by Slavovitsh, nnw,Scharesoft & X00LA
+-German by Slavovitsh, nnw,Scharesoft & X00LA (Partial)
 -Polish by TomBrightblade (Partial)
 -Chinese Simplified & Chinese Traditional by Ruinelec, Windkenlu, Rebya & 0xb160d1c5 (Partial)
--Spanish by Fiama & Pashalsta (Partial)
+-Spanish by Fiama & Pashalsta (Up to Date)
 -Portuguese by Vulthoryu (Partial)
 -Russian by Iclinet (Partial)
 -Korean by -Ren- (Partial)
@@ -80,7 +78,7 @@ Internet for the gigantic resource
 
 Note on extra Components used by this Tool:
 
--SynEdit: https://github.com/SynEdit/SynEdit
+-SynEdit: https://github.com/TurboPack/SynEdit
 -VirtualStringTree: written by Mike Lischke (www.soft-gems.net).
 -Diff: Search Heuristic compare is using the Diff Unit http://www.angusj.com/delphi/textdiff.html credit to Angus Johnson - angusj-AT-myrealbox-DOT-com
 -HtmlViewer: https://github.com/BerndGabriel/HtmlViewer
@@ -97,12 +95,51 @@ Online translation support, the tool can also use:
 
 DeepL: https://www.deepl.com/translator
 MsTranslator: http://www.bing.com/translator
+OpenAI: https://api.openai.com/
 GoogleTranslate(web end point only): https://translate.google.com/ 
 Youdao: https://translate.youdao.com/
 Baidu: https://www.baiduinenglish.com/
 	
 ------------------------------------------------------------	
 History
+version 1.5.7b:
+-Custom txt (McM): Sst Dictionaries have been improved for custom txt. 
+-Custom txt (McM): Some parsing regex have been added and adjusted 
+-Custom txt (McM): It's now possible to change text codepage on load, on the fly.
+-UI/internal: The synedit component has been updated to the TurboPack update https://github.com/TurboPack/SynEdit
+-UI: In the edit windows, it's now possible de change the text editor to a LiteVersion (ie: TRichEdit), which can handle RTL display (the option is available in the editor context menu->display). This lite editior is faster for heavy unicode language (east, farsi etc...) but doesn't handle hightlight and search, dynamic corrections etc...
+-Arabic: arabic RTLtoLRT conversion (menu ->tool -> language specific tools) has been improved, so it's possible to choose the method, and see a preview of the result. 
+-Internal: Fixed an issue with McM/customTxt compare tool.
+-UI/Internal: loading a lot of PexScripts from outside BSA at the same time has been optimized and now offers the possibility to discard Pex without translation needed.
+
+version 1.5.6:
+-Custom txt import: Fixed an issue with lang suffixe not applied correctly when extracting a txt file from a bsa.
+-Custom txt import: Fixed an issue with McMCompare.
+-Arabic: Added a very experimental and early alpha test for arabic RTLtoLRT conversion (menu ->tool -> language specific tools)
+
+version 1.5.5:
+-Custom txt import:Text importing has been rewritten to allow importing custom text files as long as their string definitions are handled on single lines. This applies to Mcm/translate default files, as well as rftp, Skyrim Desc files, and so on. The parsing definition is located in [xTranslator\misc\customTxtDefinition.txt] and can be edited as needed.
+-Starfield: Added new REC:FIELD definitions 
+-Starfield: Added new game esm in the vocabulary list 
+-Fallout76: Added new REC:FIELD definitions
+-UI: Fix for high resolution scaling > 100%.
+
+version 1.5.4 quick Maintenance update:
+-fix for the new Fallout4 ba2 archive header.
+-Added the free CreationClub mods in vocabulary list.
+
+version 1.5.3:
+-Translation API: Added OpenAI support. You need to set the key in the Translation Apis options. You can also adjust the prompt if necessary, the model, and eventually the url. Note: OpenAI limits the number of requests/token per day. 
+-UI: when hovering the translation meter widget you can see a tooltip with the raw numbers of translated/untranslated items.
+
+version 1.5.2 Maintenance update:
+Starfield: Updated new header info version
+UI: updated Spanish UI translation, credit and thanks to Pashalsta.
+
+version 1.5.1 Maintenance update:
+Starfield: Updated new header info version
+F76: Updated new header info version 
+
 version 1.5.0:
 UI/DialogAnalysis: Added a new data analysis to show conditions on dialog line when relevant. 
 Internal: Fixed an crash that could occur when trying to generate a npcMap on 2 different versions of the same esp/esm loaded at the same time.

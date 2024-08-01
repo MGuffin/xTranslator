@@ -1412,6 +1412,9 @@ var
   tmps: rawbytestring;
   tmpString: string;
 begin
+  // for i := 0 to pred(EspLoader.scriptlist.count) do
+  // dofeedback(EspLoader.scriptlist[i]);
+
   if (EspLoader.VMADList.count = 0) then
     exit;
 
