@@ -148,7 +148,8 @@ begin
           strtmp:= stringreplace(strtmp, '#' + inttostr(i), m.groups[i].Value, [rfReplaceAll]);
         end;
         strtmp:= stringreplace(strtmp, '%d', strTransTmp, [rfReplaceAll]);
-        strtmp:= stringreplace(strtmp, '\n', sstLineBreak, [rfReplaceAll]);
+        strtmp:= stringreplace(strtmp, '\r', #13, [rfReplaceAll]);
+        strtmp:= stringreplace(strtmp, '\n', #10, [rfReplaceAll]);
         Memo3.text:=strtmp;
       end;
     except

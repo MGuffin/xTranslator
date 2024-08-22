@@ -2215,7 +2215,7 @@ begin
         if QustID <> LastQuestID then
         begin
           QustRefRec := EspLoader.getFastRecord(QustID, headerQUST);
-          QustStr := getQuestString(QustRefRec, QustID, EspLoader.mastersData);
+          QustStr := getQuestString(EspLoader, QustRefRec, QustID);
           QuestsList.AddObject(QustStr, tObject(QustID)); // add Qust Record instead
           LastQuestID := QustID;
         end;

@@ -245,6 +245,13 @@ type
     bFastRecSorted: boolean;
     bFastrefrSorted: boolean;
     bReferenceBuilt: boolean;
+
+    // support for smll/medium master disptach
+    aMaster: array [0 .. 2] of tlist<integer>;
+    // 0: normal
+    // 1: medium
+    // 2:small
+
     aRefList: array [0 .. 3] of tmcCardinalPairList;
     // 0:  refrList
     // 1:   lBookToOMOD
@@ -290,6 +297,7 @@ type
     FastRecList: tlist;
     SceneList: tlist;
     bWrongWorkSpace: boolean;
+    iPluginType: cardinal;
     aInheritedMaster: array of byte;
     aInheritedCompareMaster: array of byte;
     aInheritedEsp: tlist;
@@ -338,6 +346,7 @@ type
     function validateTES4_SNAM: tField;
     function saveArrayRefr(filename: string): boolean;
     function loadArrayRefr(filename: string): boolean;
+    function getMasterIndex(formID: cardinal): byte;
     constructor create(VT: tvirtualStringTree);
     destructor Destroy; override;
   end;
@@ -475,9 +484,9 @@ procedure initFieldSizeRec(n: string; b: boolean; value: integer);
 
 function getCompressedFlag(f: cardinal): boolean;
 function getLocalizedFlag(f: cardinal): boolean;
+function getPluginType(f: cardinal): integer;
 procedure ValidateEsp(filename: String; var iLocalized: integer; var iVersion: integer);
 procedure doValidateEsp(fStream: tstream; var iLocalized: integer; var iVersion: integer);
-function getMasterIndex(formID: cardinal): byte;
 function sanitizeFormID(const formID: cardinal; bS: byte = $01; bNoSanitize: boolean = false): cardinal;
 
 Implementation
@@ -504,18 +513,6 @@ begin
     result := true
   else
     result := lFastrec.BinarySearch(cardinal(h), index);
-end;
-
-
-function getMasterIndex(formID: cardinal): byte;
-begin
-  // starfield Light and medium master support
-  if byte(formID shr 24) = $FE then // light
-    Result := byte(formID shr 12)
-  else if byte(formID shr 24) = $FD then // medium
-    Result := byte(formID shr 16)
-  else
-    Result := byte(formID shr 24);
 end;
 
 function sanitizeFormID(const formID: cardinal; bS: byte = $01; bNoSanitize: boolean = false): cardinal;
@@ -1853,6 +1850,17 @@ begin
     result := f and $00000080 <> 0;
 end;
 
+function getPluginType(f: cardinal): integer;
+begin
+  result := 0;
+  if f and $00000100 <> 0 then // small $FE
+    result := 1
+  else if f and $00000200 <> 0 then // overlay (no used?)
+    result := 2
+  else if f and $00000400 <> 0 then // medium  $FD
+    result := 3;
+end;
+
 function getCompressedFlag(f: cardinal): boolean;
 begin
   result := f and $00040000 <> 0;
@@ -1915,7 +1923,7 @@ begin
   ScriptList := tstringlist.create;
   ScriptList.Sorted := true;
   ScriptList.duplicates := dupIgnore;
-
+  iPluginType := 0;
   bWrongWorkSpace := false;
   setlength(aInheritedMaster, 0);
   setlength(aInheritedCompareMaster, 0);
@@ -1942,6 +1950,8 @@ begin
     aRefList[i] := tmcCardinalPairList.create;
     aRefList[i].PairSorted := i <> 0;
   end;
+  for i := 0 to high(aMaster) do
+    aMaster[i] := tlist<integer>.create;
 end;
 
 destructor tEspLoader.Destroy;
@@ -1950,6 +1960,7 @@ var
 begin
   for i := 0 to pred(VMADList.count) do
     tVMADDecoder(VMADList[i]).free;
+
   VMADList.free;
   clearEspMemoryData;
   recordCompareList.free;
@@ -1964,6 +1975,8 @@ begin
   rDummy.free;
   for i := 0 to high(aRefList) do
     aRefList[i].free;
+  for i := 0 to high(aMaster) do
+    aMaster[i].free;
   inherited;
 end;
 
@@ -2044,19 +2057,36 @@ end;
 
 procedure tEspLoader.buildInheritedData(bDoProcessorData: boolean = true);
 var
-  i, j, k: integer;
-  loader: tEspLoader;
+  i, j, k, t: integer;
+  loader, loaderTmp: tEspLoader;
 begin
-
   updateStatus(getres('ComputingMasterData'));
 
   aInheritedEsp.clear;
-
   // get all espLoader in list
   for j := 0 to pred(mastersData.count) - 1 do
-    aInheritedEsp.Add(buildInheritedDataEx(j));
+  begin
+    loaderTmp := buildInheritedDataEx(j);
+    aInheritedEsp.Add(loaderTmp);
+    if assigned(loaderTmp) then
+      mastersData.objects[j] := tobject(loaderTmp.iPluginType);
+  end;
   aInheritedEsp.Add(self); // latest is self (to avoid issue with esm with the same name)
 
+  // dispatch small-medium-normal
+  for j := 0 to high(aMaster) do
+    aMaster[j].clear;
+  for j := 0 to pred(mastersData.count) do
+  begin
+    t := cardinal(mastersData.objects[j]);
+    case t of
+      1: aMaster[2].Add(j); // small
+      3: aMaster[1].Add(j); // medium
+    else
+      aMaster[0].Add(j); // normal
+    end;
+  end;
+  // --------------
   for i := 0 to pred(aInheritedEsp.count) do
   begin
     loader := aInheritedEsp[i];
@@ -2106,6 +2136,40 @@ begin
 
   ProgressBar.Position := ProgressBar.max;
   updateStatus('');
+end;
+
+function tEspLoader.getMasterIndex(formID: cardinal): byte;
+var
+  tmpIndex: byte;
+  a: integer; // point to list
+begin
+  if bGameIsSF then
+  begin
+    // starfield Light and medium master support
+    if byte(formID shr 24) = $FE then // light
+    begin
+      tmpIndex := byte(formID shr 12);
+      a := 2;
+    end
+    else if byte(formID shr 24) = $FD then // medium
+    begin
+      tmpIndex := byte(formID shr 16);
+      a := 1;
+    end
+    else
+    begin
+      tmpIndex := byte(formID shr 24); //normal
+      a := 0;
+    end;
+
+    if aMaster[a].count > tmpIndex then
+      result := byte(aMaster[a][tmpIndex])
+    else
+      result := 0;
+  end
+  // not Starfield:
+  else
+    result := byte(formID shr 24);
 end;
 
 function tEspLoader.getFastRecord(formID: cardinal; h: sHeaderSig): trecord;
@@ -2301,7 +2365,7 @@ begin
     end;
   end;
 
-  setlength(aInheritedCompareMaster, l.count + 1); // +1 for current comparedaddon, esp can me renamed differently
+  setlength(aInheritedCompareMaster, l.count + 1); // +1 for current comparedaddon, esp can be renamed differently
   for i := low(aInheritedCompareMaster) to high(aInheritedCompareMaster) do
     aInheritedCompareMaster[i] := 0;
 
@@ -2328,10 +2392,10 @@ begin
     if f.header.name = headerMAST then
     begin
       SetString(tmpstr, PAnsiChar(@f.buffer[0]), length(f.buffer));
-      mastersData.Add(ansilowercase(trim(tmpstr)));
+      mastersData.Addobject(ansilowercase(trim(tmpstr)), tobject(0));
     end;
   end;
-  mastersData.Add(ansilowercase(trim(addon_name)));
+  mastersData.Addobject(ansilowercase(trim(addon_name)), tobject(iPluginType));
 
   Data := VT.getnodedata(masterNode);
   tMaster(Data.BasicND.p).IDMaster := pred(mastersData.count);
@@ -3236,8 +3300,9 @@ begin
 {$ENDIF TES4FORMAT}
       end;
       result := ord(getLocalizedFlag(ghd.flags));
-      if saveHeader then // regular laod
+      if saveHeader then // regular load
       begin
+        iPluginType := getPluginType(ghd.flags);
         bWrongWorkSpace := getGameByFormVersion(fEspMasterVersion) <> CURRENT_GAME_ID;
         fTES4Record := trecord.create(gh, sRecord);
         VT.AddChild(masterNode, TespData.create(fTES4Record));

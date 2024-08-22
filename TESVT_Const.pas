@@ -139,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.8';
+  aPROG_CURRENTVERSION = 'v1.5.9';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -249,6 +249,7 @@ const
   USERPREFS_Vocab_FILE = 'prefs_vocab_';
   USERPREFS_VocabDisabled_FILE = 'prefs_vocabDisabled_';
   USERPREFS_Vocab_Ext = '.ini';
+  aPluginTypeName: array [0 .. 3] of string = ('Normal', 'Small', 'Esl', 'Medium');
 
   USERPREFS_VmadFile_FILE = 'Prefs_vmad.ini';
   USERPREFSCOMMON_FILE = 'commonPrefs.ini';
@@ -1034,7 +1035,7 @@ begin
     Result := 3
   else if inrange(iVersion, 182, 201) then // f76
     Result := 4
-  else if inrange(iVersion, 552, 570) then // Starfield
+  else if inrange(iVersion, 552, 576) then // Starfield
     Result := 5
   else
   begin

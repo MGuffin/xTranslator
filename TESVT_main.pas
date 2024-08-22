@@ -5228,7 +5228,7 @@ begin
     begin
       strtmp := '<b>' + MainLoader.addon_name + '</b>' + htmlBR + htmlBR + 'Masters FormID refs:' + htmlBR;
       for i := 0 to pred(MainLoader.espLoader.mastersData.count) do
-        strtmp := strtmp + format('%.2x : %s', [i, MainLoader.espLoader.mastersData[i]]) + htmlBR;
+        strtmp := strtmp + format('%.2x : %s (%s)', [i, MainLoader.espLoader.mastersData[i], aPluginTypeName[cardinal(MainLoader.espLoader.mastersData.Objects[i])]]) + htmlBR;
       openQuickHtmlViewer(self, strtmp, 200);
       exit;
     end;
@@ -6715,7 +6715,8 @@ begin
               sTransOut := stringreplace(sTransOut, '#' + IntToStr(l), strans, [rfReplaceAll]);
               if (rData.mode2 = 2) then
                 sTransOut := stringreplace(sTransOut, '%d', sk.strans, [rfReplaceAll]);
-              sTransOut := stringreplace(sTransOut, '\n', sstLineBreak, [rfReplaceAll]); // 1.4.10 linebreaksupport
+              sTransOut := stringreplace(sTransOut, '\r', #13, [rfReplaceAll]); // 1.4.10 linebreaksupport //separated crlf in 1.5.9
+              sTransOut := stringreplace(sTransOut, '\n', #10, [rfReplaceAll]); // 1.4.10 linebreaksupport
             end;
 
             if sk.sinternalparams * [Warning, bigWarning, nTrans] = [] then
@@ -6899,7 +6900,7 @@ begin
   ResetFocusedData;
   for i := 0 to pred(filenames.count) do
     if FileExists(filenames[i]) then
-      index := doloadEsp(filenames[i], true, filenames.count<iLoadedFilesThreshold);
+      index := doloadEsp(filenames[i], true, filenames.count < iLoadedFilesThreshold);
   stopStuff;
 
   if (filenames.count > 1) or (index = -1) then
@@ -8139,6 +8140,7 @@ begin
         MainLoader.drawQuestsList(ButtonedEdit4.Text, ListBox2);
     PageControl_Fuz:
       begin
+        LoadAllMasters;
         startStuff('', false);
         b1 := generateFuzMap;
         b2 := generateNpcMap(false);
@@ -9241,7 +9243,7 @@ begin
       if doloadpex(filenames[i], true, filenames.count < iLoadedFilesThreshold, bDiscard, index) then
         inc(LoadedFiles);
     end;
-    stopStuff;
+  stopStuff;
 
   if (LoadedFiles <> filenames.count) and (filenames.count > 0) then
     askDialog(formatres('noFileFromBSA', [filenames.count - LoadedFiles, filenames.count]), Form1, [askOK]);
@@ -10357,8 +10359,10 @@ begin
     exit(false);
   clearFuzUI(false);
   fuz.clear;
-  fuz.current := MainLoader.uGuid;
+
   updateStatus(formatres('fbk_fuzmap2%s', [MainLoader.addon_name]));
+  fuz.current := MainLoader.uGuid;
+  fuz.espLoader := MainLoader.espLoader;
   getFuzFromLooseFiles(fuz.List);
   FindVoiceBSAEx(MainLoader.espLoader.mastersData, Game_FuzDataFolder, fuz.BsaList);
   for i := 0 to pred(fuz.BsaList.count) do
@@ -11404,7 +11408,7 @@ begin
       if aaMisc[0][i - 1] <> 0 then
       begin
         rComp := loader.espLoader.getFastRecord(aaMisc[0][i - 1], gamesParams.sHEADERCMPOREF);
-        compo := getStringFromRecRef(rComp, aaMisc[0][i - 1], rOpts.bUseSourceCompo, headerFULL, loader.espLoader.mastersData, bNeedMaster);
+        compo := getStringFromRecRef(loader.espLoader, rComp, aaMisc[0][i - 1], rOpts.bUseSourceCompo, headerFULL, bNeedMaster);
         if rOpts.bUseRegex2 then
         begin
           regEx2.Subject := compo;

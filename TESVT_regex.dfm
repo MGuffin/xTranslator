@@ -226,7 +226,7 @@ object Form13: TForm13
           Top = 44
           Width = 669
           Height = 22
-          Hint = 'Hint_RegExReplace2'
+          Hint = 'Hint_RegExReplace3'
           AutoComplete = False
           Anchors = [akLeft, akTop, akRight, akBottom]
           Font.Charset = DEFAULT_CHARSET
@@ -328,7 +328,7 @@ object Form13: TForm13
       TabOrder = 3
     end
     object Button2: TButton
-      Left = 806
+      Left = 802
       Top = 6
       Width = 91
       Height = 25
@@ -337,10 +337,10 @@ object Form13: TForm13
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 4
-      ExplicitLeft = 802
+      ExplicitLeft = 798
     end
     object Button1: TButton
-      Left = 903
+      Left = 899
       Top = 6
       Width = 91
       Height = 25
@@ -349,7 +349,7 @@ object Form13: TForm13
       Default = True
       ModalResult = 1
       TabOrder = 5
-      ExplicitLeft = 899
+      ExplicitLeft = 895
     end
   end
   object PopupMenu1: TPopupMenu

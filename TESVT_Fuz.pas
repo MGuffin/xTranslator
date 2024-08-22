@@ -54,6 +54,10 @@ type
     List: tlist;
     BsaList, voiceType: tstringList;
     current: Cardinal;
+    espLoader: tEspLoader;
+  private
+    function getIndex(formID: Cardinal): byte;
+  public
     function getFromRec(r: rdialInfo): boolean; overload;
     function getFromRec(r: rdialInfo; t: tstrings): boolean; overload;
     function getFromRec(r: rdialInfo; var index: integer): boolean; overload;
@@ -71,7 +75,7 @@ type
 procedure FindVoiceBSAEx(addonlist: tstringList; Path: String; FBSAList: tstringList);
 function compareFuzForSorting(p1, p2: pointer): integer;
 function compareFuz(p1, p2: pointer): integer;
-function getExpressionString(espLoader: tesploader; rEx: Cardinal): string;
+function getExpressionString(espLoader: tEspLoader; rEx: Cardinal): string;
 procedure getFuzFromFile(folder, filename: string);
 procedure getXmwFromFile(folder, filename: string);
 procedure getWemFromFile(folder, filename: string);
@@ -85,20 +89,6 @@ var
   lFuzBSA: tstringList;
 
 implementation
-
-// temp hack for first light / medium support for starfield.
-// Need fixing for extended medium master inheritance
-// works only with the base game medium esm for now.
-function getMasterIndextmp(formID: Cardinal): byte;
-begin
-  // starfield Light and medium master support
-  if byte(formID shr 24) = $FE then // light
-    Result := byte(formID shr 12)
-  else if byte(formID shr 24) = $FD then // medium
-    Result := 1
-  else
-    Result := byte(formID shr 24);
-end;
 
 constructor tfuzExport.Create(folder, filename: string; i, j: Cardinal; bsaIndex: integer);
 var
@@ -153,6 +143,7 @@ end;
 constructor tFuz.Create;
 begin
   List := tlist.Create;
+  espLoader := nil;
   voiceType := tstringList.Create;
   voiceType.sorted := true;
   voiceType.Duplicates := dupIgnore;
@@ -160,6 +151,23 @@ begin
   BsaList.Duplicates := dupIgnore;
   BsaList.sorted := true;
   current := 0;
+end;
+
+function tFuz.getIndex(formID: Cardinal): byte;
+begin
+  if assigned(espLoader) then
+    Result := espLoader.getMasterIndex(formID)
+  else
+  begin
+    // temp hack for first light / medium support for starfield.
+    // Need fixing for extended medium master inheritance
+    // works only with the base game medium esm for now.
+    // starfield Light and medium master support
+    if (byte(formID shr 24) = $FE) or (byte(formID shr 24) = $FD) then
+      Result := 1
+    else
+      Result := byte(formID shr 24);
+  end;
 end;
 
 destructor tFuz.Destroy;
@@ -181,6 +189,7 @@ begin
   voiceType.clear;
   BsaList.clear;
   current := 0;
+  espLoader := nil;
 end;
 
 procedure tFuz.drawVoiceList(l: tstrings; filter: string = '');
@@ -311,7 +320,7 @@ begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getIndex(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
       begin
@@ -332,7 +341,7 @@ begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getIndex(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
         tf.used := true;
@@ -351,7 +360,7 @@ begin
     for i := index to pred(List.count) do
     begin
       tf := List[i];
-      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getMasterIndextmp(r.rformID)) then
+      if (r.hVoiceID <> tf.hVoiceID) or (tf.masterIndex <> getIndex(r.rformID)) then
         break;
       if (tf.responseID = r.rID) then
       begin
@@ -369,7 +378,7 @@ var
   tfSearch: tfuzExport;
 begin
   tfSearch := tfuzExport.Create;
-  tfSearch.masterIndex := getMasterIndextmp(r.rformID); // byte(r.rformID shr 24);
+  tfSearch.masterIndex := getIndex(r.rformID); // byte(r.rformID shr 24);
   tfSearch.responseID := r.rID;
   tfSearch.sVoiceID := r.sVoiceID;
   tfSearch.hVoiceID := r.hVoiceID;
@@ -492,7 +501,7 @@ end;
 
 // ==============emote===============
 
-function getExpressionString(espLoader: tesploader; rEx: Cardinal): string;
+function getExpressionString(espLoader: tEspLoader; rEx: Cardinal): string;
 begin
   if bGameIsSF and assigned(espLoader) then
     Result := espLoader.findkeyword(rEx, nil, true)

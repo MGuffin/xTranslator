@@ -2,8 +2,8 @@ object Form2: TForm2
   Left = 0
   Top = 0
   Caption = 'SearchandEdit'
-  ClientHeight = 682
-  ClientWidth = 1235
+  ClientHeight = 681
+  ClientWidth = 1231
   Color = clBtnFace
   Constraints.MinHeight = 480
   Constraints.MinWidth = 1116
@@ -26,8 +26,8 @@ object Form2: TForm2
   TextHeight = 13
   object Splitter2: TSplitter
     Left = 0
-    Top = 343
-    Width = 1235
+    Top = 342
+    Width = 1231
     Height = 5
     Cursor = crVSplit
     Align = alBottom
@@ -42,8 +42,8 @@ object Form2: TForm2
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 1235
-    Height = 343
+    Width = 1231
+    Height = 342
     ActivePage = TabSheet6
     Align = alClient
     DoubleBuffered = True
@@ -57,8 +57,8 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 1
     OnChange = PageControl1Change
-    ExplicitWidth = 1231
-    ExplicitHeight = 342
+    ExplicitWidth = 1239
+    ExplicitHeight = 343
     object TabSheet4: TTabSheet
       Caption = 'espRecord'
       ImageIndex = 3
@@ -250,7 +250,7 @@ object Form2: TForm2
           item
             Position = 2
             Text = 'Translated'
-            Width = 284
+            Width = 288
           end
           item
             Alignment = taCenter
@@ -651,7 +651,7 @@ object Form2: TForm2
         Columns = <
           item
             Position = 0
-            Width = 1223
+            Width = 1227
           end>
       end
     end
@@ -725,7 +725,7 @@ object Form2: TForm2
           item
             Position = 4
             Text = 'Translated'
-            Width = 516
+            Width = 520
           end
           item
             Position = 5
@@ -789,17 +789,15 @@ object Form2: TForm2
             Font.Style = []
             ParentFont = False
             TabOrder = 0
-            ExplicitWidth = 1125
           end
           object Panel14: TPanel
-            Left = 1129
+            Left = 1125
             Top = 0
             Width = 98
             Height = 22
             Align = alRight
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitLeft = 1125
             object ToolBar3: TToolBar
               Left = 0
               Top = 0
@@ -835,11 +833,10 @@ object Form2: TForm2
         Left = 0
         Top = 21
         Width = 232
-        Height = 249
+        Height = 248
         Align = alLeft
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitHeight = 248
         object Splitter5: TSplitter
           Left = 0
           Top = 155
@@ -871,11 +868,10 @@ object Form2: TForm2
           TabOrder = 0
           OnDblClick = ListBox2DblClick
           OnDrawItem = ListBox2DrawItem
-          ExplicitHeight = 154
         end
         object ListBox3: TListBox
           Left = 0
-          Top = 160
+          Top = 159
           Width = 232
           Height = 89
           Style = lbOwnerDrawFixed
@@ -891,18 +887,16 @@ object Form2: TForm2
           ParentFont = False
           TabOrder = 1
           OnDrawItem = ListBox3DrawItem
-          ExplicitTop = 159
         end
       end
       object Panel21: TPanel
         Left = 0
         Top = 0
-        Width = 1227
+        Width = 1223
         Height = 21
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 3
-        ExplicitWidth = 1223
         object Edit3: TEdit
           Left = 0
           Top = 0
@@ -926,14 +920,12 @@ object Form2: TForm2
   object Panel1: TPanel
     AlignWithMargins = True
     Left = 3
-    Top = 351
-    Width = 1229
+    Top = 350
+    Width = 1225
     Height = 328
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 350
-    ExplicitWidth = 1225
     object Panel3: TPanel
       Left = 0
       Top = 292
@@ -1037,35 +1029,32 @@ object Form2: TForm2
       object Panel20: TPanel
         Left = 233
         Top = 0
-        Width = 623
+        Width = 619
         Height = 36
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 10
         TabOrder = 2
-        ExplicitWidth = 619
         object StaticText1: TStaticText
           Left = 10
           Top = 10
-          Width = 603
-          Height = 16
+          Width = 61
+          Height = 17
           Align = alClient
           Alignment = taCenter
           Caption = 'Lbl_EditInfo'
           TabOrder = 0
-          ExplicitWidth = 599
         end
       end
     end
     object Panel4: TPanel
       Left = 0
       Top = 0
-      Width = 1229
+      Width = 1225
       Height = 292
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 1225
       object Splitter1: TSplitter
         Left = 289
         Top = 0
@@ -1253,12 +1242,11 @@ object Form2: TForm2
       object Panel16: TPanel
         Left = 291
         Top = 0
-        Width = 938
+        Width = 934
         Height = 292
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 934
         object Panel5: TPanel
           Left = 0
           Top = 0
@@ -1567,12 +1555,11 @@ object Form2: TForm2
               TabOrder = 1
               OnClick = ListBox1Click
               OnDrawItem = ListBox1DrawItem
-              ExplicitWidth = 904
             end
             object Memo4: TRichEdit
               Left = 0
               Top = 208
-              Width = 908
+              Width = 904
               Height = 36
               Align = alBottom
               BiDiMode = bdLeftToRight
@@ -1591,19 +1578,17 @@ object Form2: TForm2
               Visible = False
               OnChange = Memo4Change
               OnSelectionChange = Memo4SelectionChange
-              ExplicitWidth = 904
             end
           end
         end
         object Panel17: TPanel
           Left = 0
           Top = 270
-          Width = 938
+          Width = 934
           Height = 22
           Align = alBottom
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitWidth = 934
           object ComboBox2: TComboBox
             AlignWithMargins = True
             Left = 529
@@ -1621,10 +1606,9 @@ object Form2: TForm2
             ShowHint = True
             TabOrder = 0
             OnChange = ComboBox2Change
-            ExplicitLeft = 525
           end
           object Button3: TButton
-            Left = 721
+            Left = 717
             Top = 0
             Width = 217
             Height = 22
@@ -1636,12 +1620,11 @@ object Form2: TForm2
             Images = Form1.ImageList1
             TabOrder = 1
             OnClick = Button3Click
-            ExplicitLeft = 717
           end
           object Panel18: TPanel
             Left = 0
             Top = 0
-            Width = 529
+            Width = 525
             Height = 22
             Align = alClient
             BevelOuter = bvNone
@@ -1649,7 +1632,6 @@ object Form2: TForm2
             OnClick = Panel18Click
             OnMouseEnter = Panel18MouseEnter
             OnMouseLeave = Panel18MouseLeave
-            ExplicitWidth = 525
           end
         end
       end

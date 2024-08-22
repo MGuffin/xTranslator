@@ -102,13 +102,13 @@ Const
   PlayerName = '[NPC_:Player]';
   PlayerFORM: cardinal = 7;
 
-function getQuestString(QustRefRec: tRecord; QustID: cardinal; l: tstringlist): string;
-function getStringFromRecRef(Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; l: tstringlist; var bNeedMaster: boolean): string;
+function getQuestString(espLoader: tespLoader; QustRefRec: tRecord; QustID: cardinal): string;
+function getStringFromRecRef(espLoader: tespLoader; Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; var bNeedMaster: boolean): string;
 procedure CTDADecoderOutput(espLoader: tespLoader; l: tstrings; r: tRecord);
 
 implementation
 
-function getQuestString(QustRefRec: tRecord; QustID: cardinal; l: tstringlist): string;
+function getQuestString(espLoader: tespLoader; QustRefRec: tRecord; QustID: cardinal): string;
 var
   mName, qName: string;
   idMaster: byte;
@@ -125,10 +125,10 @@ begin
   end
   else
   begin
-    idMaster := getMasterIndex(QustID);
-    if (QustID > 0) and (InRange(idMaster, 0, (l.count - 2))) then
+    idMaster := espLoader.getMasterIndex(QustID);
+    if (QustID > 0) and (InRange(idMaster, 0, (espLoader.mastersData.count - 2))) then
     begin
-      mName := formatRes('Qust_NeedMaster%s', [l.Strings[idMaster]])
+      mName := formatRes('Qust_NeedMaster%s', [espLoader.mastersData.Strings[idMaster]])
     end
     else
       mName := getRes('Qust_ErrorInRef');
@@ -136,7 +136,7 @@ begin
   end;
 end;
 
-function getStringFromRecRef(Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; l: tstringlist; var bNeedMaster: boolean): string;
+function getStringFromRecRef(espLoader: tespLoader; Rec: tRecord; RecID: cardinal; bSource: boolean; h: sheaderSig; var bNeedMaster: boolean): string;
 var
   mName: string;
   idMaster: byte;
@@ -157,10 +157,10 @@ begin
   end
   else
   begin
-    idMaster := getMasterIndex(RecID);
-    if (RecID > 0) and (InRange(idMaster, 0, (l.count - 2))) then
+    idMaster := espLoader.getMasterIndex(RecID);
+    if (RecID > 0) and (InRange(idMaster, 0, (espLoader.mastersData.count - 2))) then
     begin
-      mName := l.Strings[idMaster];
+      mName := espLoader.mastersData.Strings[idMaster];
       bNeedMaster := true;
     end
     else

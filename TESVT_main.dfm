@@ -598,7 +598,7 @@ object Form1: TForm1
       Top = 0
       Width = 1256
       Height = 340
-      ActivePage = TabSheet10
+      ActivePage = TabSheet11
       Align = alClient
       Images = ImageList1
       TabOrder = 0
@@ -1142,7 +1142,6 @@ object Form1: TForm1
               WordWrapGlyph.Visible = False
               OnGutterClick = SynEditPexGutterClick
               OnMouseCursor = SynEditPexMouseCursor
-              ExplicitWidth = 1236
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp
@@ -1211,6 +1210,7 @@ object Form1: TForm1
               TabWidth = 6
               WordWrap = True
               WordWrapGlyph.Visible = False
+              ExplicitWidth = 1236
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp

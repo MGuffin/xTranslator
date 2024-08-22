@@ -2075,7 +2075,7 @@ begin
       if aMisc[i - 1] <> 0 then
       begin
         rComp := espLoader.getFastRecord(aMisc[i - 1], gamesParams.sHEADERCMPOREF);
-        compoString := getStringFromRecRef(rComp, aMisc[i - 1], true, headerFULL, espLoader.mastersData, b);
+        compoString := getStringFromRecRef(espLoader, rComp, aMisc[i - 1], true, headerFULL, b);
         Edit2.Text := Edit2.Text + format('[c_%.2d:%s]', [i, compoString]);
       end;
   end;
@@ -2375,7 +2375,7 @@ begin
   begin
     // get quest ref from Master if relevant
     QustRefRec := espLoader.getFastRecord(qustID, headerQUST);
-    QustStr := getQuestString(QustRefRec, qustID, espLoader.mastersData);
+    QustStr := getQuestString(espLoader, QustRefRec, qustID);
     // ---------------------
 
     ListBox2.clear;

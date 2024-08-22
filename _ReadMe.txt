@@ -103,6 +103,11 @@ Baidu: https://www.baiduinenglish.com/
 ------------------------------------------------------------	
 History
 
+version 1.5.9:
+-UI/Translation: In the regex translation tool, the end of line tag usage has been slightly modified: you can now use '\r' to add 'CR' and/or '\n' to add 'LF'
+-Internal: Added full support for Small and Medium master for Starfield. (BGS broke everything there, so this probably needs further testing...)
+-Internal: Updated Starfield header version
+
 version 1.5.8:
 -Internal: Added support for Medium & light Master analysis (fuzmap, npcmap, processing, keyword etc...). Note: the support is limited for now, and wont work correctly for more than one cascading master.
 -Internal: Updated Starfield and Fallout76 header version
