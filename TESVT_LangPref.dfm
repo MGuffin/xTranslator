@@ -26,8 +26,6 @@ object Form3: TForm3
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 625
-    ExplicitWidth = 661
     object Button1: TButton
       Left = 552
       Top = 6
@@ -85,12 +83,10 @@ object Form3: TForm3
     Top = 0
     Width = 665
     Height = 626
-    ActivePage = TabSheet1
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 1
     OnChange = PageControl1Change
-    ExplicitWidth = 661
-    ExplicitHeight = 625
     object TabSheet1: TTabSheet
       Caption = 'Set_Options2'
       object Label1: TLabel

@@ -31,8 +31,7 @@ unit TESVT_SSTFunc;
 interface
 
 uses Windows, Messages, SysUtils, Classes, math, TESVT_Const, TESVT_Typedef, TESVT_espDefinition, TESVT_Ressources, TESVT_FastSearch, TESVT_fstreamSave,
-  VirtualTrees,
-  TESVT_Streams, TESVT_LinkedList;
+  VirtualTrees, VirtualTrees.basetree, TESVT_Streams, TESVT_LinkedList;
 
 procedure clearSkList(l: tlist; freePointer: boolean);
 procedure cleararrayList(l: tAlist; freePointer, freeList: boolean);
@@ -43,8 +42,8 @@ function getReverseSSTFileName(filename: string; ext: string): string;
 procedure clearInternalRefList(list: tlist; freeList: boolean = false);
 function SaveSSTFile(filename: string; listArray: tAlist; fproc: tCompareProc; onlyColabId: integer; oldList: tlist; colabLabel, masterList: tstringList): boolean;
 function loadSstEdit(vlist: tAlist; filename: string; var count: integer; extraParamscheck, extraParams: sStrParams; initSk: boolean; colabLabel, masterList: tstringList): boolean;
-function loadVocabUserCache(edidList, vlist: tlist; filename: string; Node: pointer; id: cardinal; var count: integer; extraParamscheck, extraParams: sStrParams; bForceInit: boolean;
-  bFastLoad: boolean; colabLabel, masterList: tstringList; var version: integer; loadAll: boolean = false): boolean;
+function loadVocabUserCache(edidList, vlist: tlist; filename: string; Node: pointer; id: cardinal; var count: integer; extraParamscheck, extraParams: sStrParams;
+  bForceInit: boolean; bFastLoad: boolean; colabLabel, masterList: tstringList; var version: integer; loadAll: boolean = false): boolean;
 
 implementation
 
@@ -445,8 +444,8 @@ begin
   end;
 end;
 
-function loadVocabUserCache(edidList, vlist: tlist; filename: string; Node: pointer; id: cardinal; var count: integer; extraParamscheck, extraParams: sStrParams; bForceInit: boolean;
-  bFastLoad: boolean; colabLabel, masterList: tstringList; var version: integer; loadAll: boolean = false): boolean;
+function loadVocabUserCache(edidList, vlist: tlist; filename: string; Node: pointer; id: cardinal; var count: integer; extraParamscheck, extraParams: sStrParams;
+  bForceInit: boolean; bFastLoad: boolean; colabLabel, masterList: tstringList; var version: integer; loadAll: boolean = false): boolean;
 var
   f: TwbReadOnlyCachedFileStream;
   sk: tskystr;

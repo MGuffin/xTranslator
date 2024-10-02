@@ -31,7 +31,7 @@ unit TESVT_Ressources;
 interface
 
 uses Forms, Windows, sysutils, Graphics, Classes, ValEdit, Controls, ExtCtrls, ComCtrls, StdCtrls, menus, VirtualTrees,
-  Buttons, TESVT_DialHTML, synEdit, Winapi.Messages;
+  Buttons, TESVT_DialHTML, synEdit, Winapi.Messages, VirtualTrees.types;
 
 var
   SSTRessources: TStringList;

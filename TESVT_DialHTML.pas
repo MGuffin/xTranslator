@@ -33,7 +33,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, HTMLUn2, HtmlView, ExtCtrls, ShellAPI;
+  Dialogs, StdCtrls, HTMLUn2, HtmlView, ExtCtrls, ShellAPI, HtmlGlobals;
 
 type
   TFormHTML = class(TForm)
@@ -42,7 +42,7 @@ type
     Panel2: TPanel;
     Panel3: TPanel;
     HtmlViewer1: THtmlViewer;
-    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: Boolean);
   private
     { Déclarations privées }
   public
@@ -56,7 +56,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TFormHTML.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+procedure TFormHTML.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: Boolean);
 var i, j, k: integer;
 begin
   Handled := false;

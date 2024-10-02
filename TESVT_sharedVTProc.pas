@@ -30,7 +30,7 @@ unit TESVT_sharedVTProc;
 
 interface
 
-uses forms, sysutils, virtualtrees, types, Windows, ComCtrls, StdCtrls, graphics, controls, math, classes, TESVT_typeDef, TESVT_espDefinition, TESVT_Const,
+uses forms, sysutils, virtualtrees, VirtualTrees.types, VirtualTrees.header, VirtualTrees.BaseTree, types, Windows, ComCtrls, StdCtrls, graphics, controls, math, classes, TESVT_typeDef, TESVT_espDefinition, TESVT_Const,
   TESVT_Fastsearch, TESVT_Hint, TESVT_MainLoader, TESVT_Ressources, TESVT_Utils, system.UITypes, SynEdit;
 
 // -------shared VTfunction
@@ -239,6 +239,7 @@ end;
 procedure InitTreeOpts(t: TBaseVirtualTree; ilist: timagelist);
 begin
   TVirtualStringTree(t).Header.parentfont := false;
+  TVirtualStringTree(t).Header.height := 19;
   TVirtualStringTree(t).Header.Columns[0].Width := 85;
   TVirtualStringTree(t).Header.Columns[3].Width := 55;
   TVirtualStringTree(t).NodeDataSize := SizeOf(rTreeData);
@@ -258,7 +259,7 @@ procedure TreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
 begin
   if HitInfo.Button = mbLeft then
   begin
-    with Sender, Treeview do
+    with Sender, TBaseVirtualTree(Treeview) do
     begin
       if (SortColumn = NoColumn) or (SortColumn <> HitInfo.Column) then
       begin
@@ -269,7 +270,7 @@ begin
         SortDirection := sdDescending
       else
         SortDirection := sdAscending;
-      SortTree(SortColumn, SortDirection, false);
+         SortTree(SortColumn, SortDirection, false);
     end;
   end;
 end;

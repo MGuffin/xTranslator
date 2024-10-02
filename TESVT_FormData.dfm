@@ -27,13 +27,11 @@ object FormKeyWord: TFormKeyWord
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 688
-    ExplicitWidth = 1286
     DesignSize = (
       1290
       41)
     object Button1: TButton
-      Left = 1167
+      Left = 1163
       Top = 6
       Width = 75
       Height = 25
@@ -43,10 +41,9 @@ object FormKeyWord: TFormKeyWord
       ModalResult = 11
       TabOrder = 0
       OnClick = Button1Click
-      ExplicitLeft = 1163
     end
     object Button10: TButton
-      Left = 553
+      Left = 549
       Top = 6
       Width = 161
       Height = 25
@@ -57,7 +54,6 @@ object FormKeyWord: TFormKeyWord
       Images = Form1.ImageList1
       TabOrder = 1
       OnClick = Button10Click
-      ExplicitLeft = 549
     end
     object Button11: TButton
       Left = 10
@@ -71,7 +67,7 @@ object FormKeyWord: TFormKeyWord
       OnClick = Button11Click
     end
     object ComboBox1: TComboBox
-      Left = 720
+      Left = 716
       Top = 8
       Width = 441
       Height = 21
@@ -83,7 +79,6 @@ object FormKeyWord: TFormKeyWord
       Text = 'defaultTemplate'
       Items.Strings = (
         'defaultTemplate')
-      ExplicitLeft = 716
     end
   end
   object Panel2: TPanel
@@ -95,8 +90,6 @@ object FormKeyWord: TFormKeyWord
     BevelOuter = bvNone
     BorderWidth = 10
     TabOrder = 1
-    ExplicitWidth = 1286
-    ExplicitHeight = 688
     object Panel3: TPanel
       Left = 10
       Top = 10
@@ -105,8 +98,6 @@ object FormKeyWord: TFormKeyWord
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 1266
-      ExplicitHeight = 668
       object Panel4: TPanel
         Left = 0
         Top = 311
@@ -115,8 +106,6 @@ object FormKeyWord: TFormKeyWord
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 310
-        ExplicitWidth = 1266
         object Panel8: TPanel
           Left = 268
           Top = 0
@@ -126,7 +115,6 @@ object FormKeyWord: TFormKeyWord
           BevelInner = bvRaised
           BevelOuter = bvLowered
           TabOrder = 0
-          ExplicitLeft = 264
           object Label1: TLabel
             Left = 16
             Top = 61
@@ -590,8 +578,6 @@ object FormKeyWord: TFormKeyWord
         BevelOuter = bvNone
         Caption = 'Panel7'
         TabOrder = 1
-        ExplicitWidth = 1266
-        ExplicitHeight = 278
         object Splitter1: TSplitter
           Left = 265
           Top = 0
@@ -610,7 +596,6 @@ object FormKeyWord: TFormKeyWord
           Align = alLeft
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 278
           object ListBox1: TListBox
             Left = 0
             Top = 0
@@ -629,7 +614,6 @@ object FormKeyWord: TFormKeyWord
             TabOrder = 0
             OnClick = ListBox1Click
             OnDrawItem = ListBox1DrawItem
-            ExplicitHeight = 278
           end
         end
         object Panel13: TPanel
@@ -641,8 +625,6 @@ object FormKeyWord: TFormKeyWord
           BevelOuter = bvNone
           Caption = 'Panel13'
           TabOrder = 1
-          ExplicitWidth = 995
-          ExplicitHeight = 278
           object headerTree: TVirtualStringTree
             Left = 0
             Top = 32
@@ -653,6 +635,7 @@ object FormKeyWord: TFormKeyWord
             Color = clBtnFace
             Colors.SelectionTextColor = clWindowText
             Ctl3D = True
+            DefaultNodeHeight = 17
             DragOperations = [doMove]
             DragType = dtVCL
             Font.Charset = DEFAULT_CHARSET
@@ -661,7 +644,7 @@ object FormKeyWord: TFormKeyWord
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.AutoSizeIndex = -1
-            Header.Height = 5
+            Header.Height = 17
             Header.MinHeight = 5
             Header.Options = [hoAutoResize, hoColumnResize, hoOwnerDraw, hoShowImages, hoVisible]
             Header.SortColumn = 0
@@ -714,7 +697,6 @@ object FormKeyWord: TFormKeyWord
             BevelOuter = bvNone
             ParentColor = True
             TabOrder = 1
-            ExplicitWidth = 995
             object Label6: TLabel
               Left = 8
               Top = 4
@@ -860,8 +842,6 @@ object FormKeyWord: TFormKeyWord
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 278
-        ExplicitWidth = 1266
         object Button6: TButton
           Left = 1166
           Top = 6

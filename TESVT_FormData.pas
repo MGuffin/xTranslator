@@ -3,8 +3,9 @@ unit TESVT_FormData;
 interface
 
 uses Windows, Messages, SysUtils, System.types, Variants, Classes, Graphics, Controls, Forms, Dialogs, TESVT_Batcher, TESVT_Const,
-  TESVT_Ressources, Menus, TESVT_sharedVTProc, TESVT_espDefinition, StdCtrls, TESVT_tagID,
-  ExtCtrls, ComCtrls, ShellAPI, grids, TESVT_HeaderList, VirtualTrees, ActiveX, ClipBrd, inifiles;
+  TESVT_Ressources, Menus, TESVT_sharedVTProc, TESVT_espDefinition, StdCtrls, TESVT_tagID,  VirtualTrees.types,
+  ExtCtrls, ComCtrls, ShellAPI, grids, TESVT_HeaderList, VirtualTrees, ActiveX, ClipBrd, inifiles,
+  VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
   TFormKeyWord = class(TForm)
@@ -144,8 +145,6 @@ type
       var ImageIndex: TImageIndex);
     procedure headerTreePaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure headerTreeDragAllowed(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
-    procedure headerTreeDragDrop(Sender: TBaseVirtualTree; Source: TObject; DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState; Pt: TPoint;
-      var Effect: Integer; Mode: TDropMode);
     procedure headerTreeDragOver(Sender: TBaseVirtualTree; Source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
       var Effect: Integer; var Accept: Boolean);
     procedure headerTreeDblClick(Sender: TObject);
@@ -179,6 +178,8 @@ type
     procedure pasteFeedback1Click(Sender: TObject);
     procedure headerTreeAdvancedHeaderDraw(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
     procedure headerTreeHeaderDrawQueryElements(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements);
+    procedure headerTreeDragDrop(Sender: TBaseVirtualTree; Source: TObject; DataObject: TVTDragDataObject;
+      Formats: TFormatArray; Shift: TShiftState; Pt: TPoint; var Effect: Integer; Mode: TDropMode);
   protected
     procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
   private
@@ -844,8 +845,8 @@ begin
   Allowed := true;
 end;
 
-procedure TFormKeyWord.headerTreeDragDrop(Sender: TBaseVirtualTree; Source: TObject; DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
-  Pt: TPoint; var Effect: Integer; Mode: TDropMode);
+procedure TFormKeyWord.headerTreeDragDrop(Sender: TBaseVirtualTree; Source: TObject; DataObject: TVTDragDataObject;
+  Formats: TFormatArray; Shift: TShiftState; Pt: TPoint; var Effect: Integer; Mode: TDropMode);
 var
   pSource, pTarget: PVirtualNode;
   attMode: TVTNodeAttachMode;

@@ -122,6 +122,7 @@ object FormBrowser: TFormBrowser
     Header.Font.Height = -11
     Header.Font.Name = 'MS Sans Serif'
     Header.Font.Style = []
+    Header.Height = 17
     Header.MainColumn = 1
     Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoVisible]
     Header.ParentFont = False
@@ -155,7 +156,7 @@ object FormBrowser: TFormBrowser
       item
         Position = 1
         Text = 'Files'
-        Width = 435
+        Width = 439
       end
       item
         Alignment = taRightJustify

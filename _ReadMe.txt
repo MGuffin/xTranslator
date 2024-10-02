@@ -103,6 +103,16 @@ Baidu: https://www.baiduinenglish.com/
 ------------------------------------------------------------	
 History
 
+version 1.6.0:
+-UI/Internal: added ShatteredSpace.esm in the vocabulary data. 
+-UI/Internal: Default bsa definition updated for starfield.
+-Internal. Fixed an issue with npc/fuzmap for Starfield.
+-UI: npc and fuzmap are now not automatically generated when opening the npc panel. You need to click the "Generate npc/fuz map" button. Previous 'auto' method was messy and could cause issues. 
+-Api: updated few definitions.
+-Internal: xTranslator is now compiled with Delphi 12.1 CE
+-Internal: Updated virtualTree and htmlviewer components
+-Known issue: the medium/small FormID support still needs some work for Starfield. ETA unknown.
+
 version 1.5.9:
 -UI/Translation: In the regex translation tool, the end of line tag usage has been slightly modified: you can now use '\r' to add 'CR' and/or '\n' to add 'LF'
 -Internal: Added full support for Small and Medium master for Starfield. (BGS broke everything there, so this probably needs further testing...)

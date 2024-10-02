@@ -31,8 +31,8 @@ unit TESVT_replaceAll;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, system.UITypes, Vcl.ExtCtrls, TESVT_sharedVTProc, VirtualTrees,
-  TESVT_Ressources, TESVT_Const, TESVT_Hint,
-  Vcl.StdCtrls;
+  TESVT_Ressources, TESVT_Const, TESVT_Hint,VirtualTrees.types,
+  Vcl.StdCtrls, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
   TForm5 = class(TForm)

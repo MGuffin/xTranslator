@@ -85,6 +85,7 @@ object Form5: TForm5
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     Header.AutoSizeIndex = 2
+    Header.Height = 13
     Header.MainColumn = 1
     Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
     ParentFont = False
@@ -122,7 +123,7 @@ object Form5: TForm5
       item
         Position = 3
         Text = 'Translated'
-        Width = 441
+        Width = 445
       end
       item
         Options = [coAllowClick, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coVisible, coAllowFocus]

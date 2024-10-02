@@ -57,8 +57,6 @@ object Form2: TForm2
     ParentFont = False
     TabOrder = 1
     OnChange = PageControl1Change
-    ExplicitWidth = 1239
-    ExplicitHeight = 343
     object TabSheet4: TTabSheet
       Caption = 'espRecord'
       ImageIndex = 3
@@ -78,6 +76,7 @@ object Form2: TForm2
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         Header.AutoSizeIndex = 2
+        Header.Height = 13
         Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
         Images = Form1.ImageList2
         ParentFont = False
@@ -180,7 +179,7 @@ object Form2: TForm2
       object Splitter3: TSplitter
         Left = 686
         Top = 23
-        Height = 291
+        Height = 290
         AutoSnap = False
         MinSize = 100
         ResizeStyle = rsUpdate
@@ -192,7 +191,7 @@ object Form2: TForm2
         Left = 0
         Top = 23
         Width = 686
-        Height = 291
+        Height = 290
         Align = alLeft
         Colors.SelectionTextColor = clWindowText
         Font.Charset = DEFAULT_CHARSET
@@ -206,6 +205,7 @@ object Form2: TForm2
         Header.Font.Height = -11
         Header.Font.Name = 'MS Sans Serif'
         Header.Font.Style = []
+        Header.Height = 13
         Header.MainColumn = 1
         Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
         Header.ParentFont = False
@@ -236,6 +236,7 @@ object Form2: TForm2
         OnMouseMove = searchTreeMouseMove
         Touch.InteractiveGestures = [igPan, igPressAndTap]
         Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia, igoPanGutter, igoParentPassthrough]
+        ExplicitHeight = 291
         Columns = <
           item
             Position = 0
@@ -263,11 +264,12 @@ object Form2: TForm2
       object Panel2: TPanel
         Left = 0
         Top = 0
-        Width = 1227
+        Width = 1223
         Height = 23
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 1227
         object Panel10: TPanel
           Left = 361
           Top = 0
@@ -378,8 +380,8 @@ object Form2: TForm2
         Tag = 2
         Left = 689
         Top = 23
-        Width = 538
-        Height = 291
+        Width = 534
+        Height = 290
         Align = alClient
         ActiveLineColor = clInfoBk
         Font.Charset = DEFAULT_CHARSET
@@ -428,6 +430,8 @@ object Form2: TForm2
         WordWrap = True
         WordWrapGlyph.Visible = False
         OnGutterClick = Memo2GutterClick
+        ExplicitWidth = 538
+        ExplicitHeight = 291
         RemovedKeystrokes = <
           item
             Command = ecContextHelp
@@ -537,8 +541,8 @@ object Form2: TForm2
       object RichEdit3: TRichEdit
         Left = 0
         Top = 0
-        Width = 1227
-        Height = 314
+        Width = 1223
+        Height = 313
         Align = alClient
         Color = clSilver
         Font.Charset = ANSI_CHARSET
@@ -583,6 +587,7 @@ object Form2: TForm2
           Header.Font.Height = -11
           Header.Font.Name = 'Tahoma'
           Header.Font.Style = []
+          Header.Height = 17
           Header.Options = [hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
           Header.ParentFont = False
           ScrollBarOptions.ScrollBars = ssVertical
@@ -628,6 +633,7 @@ object Form2: TForm2
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         Header.AutoSizeIndex = -1
+        Header.Height = 13
         Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoShowSortGlyphs]
         HintMode = hmTooltip
         Images = Form1.ImageList2
@@ -684,6 +690,7 @@ object Form2: TForm2
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         Header.AutoSizeIndex = 2
+        Header.Height = 13
         Header.MainColumn = 1
         Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
         Images = Form1.ImageList2
@@ -929,12 +936,11 @@ object Form2: TForm2
     object Panel3: TPanel
       Left = 0
       Top = 292
-      Width = 1229
+      Width = 1225
       Height = 36
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 1225
       object Panel8: TPanel
         Left = 856
         Top = 0
@@ -1250,13 +1256,12 @@ object Form2: TForm2
         object Panel5: TPanel
           Left = 0
           Top = 0
-          Width = 938
+          Width = 934
           Height = 270
           Align = alClient
           BevelOuter = bvNone
           BorderWidth = 2
           TabOrder = 0
-          ExplicitWidth = 934
           object ToolBar1: TToolBar
             Left = 2
             Top = 2
@@ -1359,18 +1364,17 @@ object Form2: TForm2
           object Panel9: TPanel
             Left = 28
             Top = 2
-            Width = 908
+            Width = 904
             Height = 266
             Align = alClient
             BevelOuter = bvNone
             ParentBackground = False
             TabOrder = 1
-            ExplicitWidth = 904
             object Memo2: TSynEdit
               Tag = 1
               Left = 0
               Top = 0
-              Width = 908
+              Width = 904
               Height = 208
               Align = alClient
               ActiveLineColor = clInfoBk
@@ -1429,7 +1433,6 @@ object Form2: TForm2
               OnGutterGetText = Memo2GutterGetText
               OnStatusChange = Memo2StatusChange
               OnPaintTransient = Memo2PaintTransient
-              ExplicitWidth = 904
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp
@@ -1536,7 +1539,7 @@ object Form2: TForm2
             object ListBox1: TListBox
               Left = 0
               Top = 244
-              Width = 908
+              Width = 904
               Height = 22
               TabStop = False
               Style = lbOwnerDrawFixed

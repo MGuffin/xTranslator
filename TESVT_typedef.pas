@@ -30,7 +30,7 @@ unit TESVT_typedef;
 
 interface
 
-uses classes, sysutils, virtualtrees, Generics.Collections, math, types, graphics, windows, menus, TESVT_espDefinition, TESVT_Const,
+uses classes, sysutils, virtualtrees, virtualtrees.types, Generics.Collections, math, types, graphics, windows, menus, TESVT_espDefinition, TESVT_Const,
   controls, TESVT_Hint, TESVT_Utils, TESVT_VMAD, TESVT_RegexUtils;
 
 type

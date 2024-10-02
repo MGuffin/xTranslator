@@ -221,6 +221,7 @@ begin
       List.delete(i);
     end;
   // get ID master
+  //for i := pred(List.count) downto 0 do
   for i := 0 to pred(List.count) do
   begin
     tf := List[i];
@@ -232,7 +233,7 @@ begin
       tf.masterIndex := 0;
     if tf.bsaId < 0 then
       tf.bIsCurrent := 2
-    else if pos(mList[pred(mList.count)], BsaList[tf.bsaId]) = 1 then
+    else if pos(RemoveFileExt(mList[pred(mList.count)]), BsaList[tf.bsaId]) = 1 then
       tf.bIsCurrent := 1;
   end;
   List.sort(compareFuzForSorting);

@@ -32,8 +32,8 @@ interface
 
 {$I _config.inc}
 
-uses Classes, sysUtils, Dialogs, VirtualTrees, comCtrls, math, zlibEx, TESVT_fstreamsave, TESVT_Const, TESVT_Ressources,
-  Generics.Collections, TESVT_Streams, TESVT_VMAD, TESVT_Utils;
+uses Classes, sysUtils, Dialogs, VirtualTrees, VirtualTrees.basetree, VirtualTrees.types, comCtrls, math, zlibEx, TESVT_fstreamsave, TESVT_Const,
+  TESVT_Ressources, Generics.Collections, TESVT_Streams, TESVT_VMAD, TESVT_Utils;
 
 type
   sRecordType = (sRecord, sGrup, sMaster);
@@ -431,7 +431,8 @@ Const
   headerDOOR: sHeaderSig = 'DOOR';
   headerGBFM: sHeaderSig = 'GBFM';
   headerPRPS: sHeaderSig = 'PRPS';
-  sheaderDATA: sHeaderSig = 'DATA'; // name sHeader to avoid collision with "trecord.headerdata" (silly me)
+  sheaderDATA: sHeaderSig = 'DATA';
+  // name sHeader to avoid collision with "trecord.headerdata" (silly me)
   headerEPFT: sHeaderSig = 'EPFT'; // for Proc2, PERK extra Procedure = $07
   ALL_REC: sHeaderSig = '****';
   header0000: sHeaderSig = '0000';
@@ -439,9 +440,9 @@ Const
   aIGNOREDREC: array [0 .. 3] of sHeaderSig = ('NAVM', 'NAVI', 'NOCM', 'RFGP');
 
   // Important: all aUSEDREC_* ref must be stored in aFASTREC
-  aFASTREC: array [0 .. 48] of sHeaderSig = ('DMGT', 'RSPJ', 'CNDF', 'WTHR', 'KEYM', 'SHOU', 'WRLD', 'SPEL', 'GMST', 'PACK', 'FURN', 'CONT', 'CELL', 'RACE', 'LCTN', 'AVIF', 'DMGT', 'GBFM', 'DIAL',
-    'INFO', 'QUST', 'KYWD', 'BOOK', 'SCEN', 'PERK', 'DOOR', 'VTYP', 'NPC_', 'STAT', 'ACTI', 'LVLI', 'FLST', 'FACT', 'FLOR', 'TACT', 'CMPO', 'IRES', 'MISC', 'COBJ', 'GLOB', 'OMOD', 'ALCH', 'MGEF',
-    'ENCH', 'WEAP', 'LGDI', 'ARMO', 'INNR', 'TES4');
+  aFASTREC: array [0 .. 48] of sHeaderSig = ('DMGT', 'RSPJ', 'CNDF', 'WTHR', 'KEYM', 'SHOU', 'WRLD', 'SPEL', 'GMST', 'PACK', 'FURN', 'CONT', 'CELL', 'RACE', 'LCTN', 'AVIF', 'DMGT',
+    'GBFM', 'DIAL', 'INFO', 'QUST', 'KYWD', 'BOOK', 'SCEN', 'PERK', 'DOOR', 'VTYP', 'NPC_', 'STAT', 'ACTI', 'LVLI', 'FLST', 'FACT', 'FLOR', 'TACT', 'CMPO', 'IRES', 'MISC', 'COBJ',
+    'GLOB', 'OMOD', 'ALCH', 'MGEF', 'ENCH', 'WEAP', 'LGDI', 'ARMO', 'INNR', 'TES4');
   aFASTREFR: array [0 .. 1] of sHeaderSig = ('ACHR', 'REFR');
 
   aUSEDREC_ACHR: array [0 .. 0] of sHeaderSig = ('NAME');
@@ -857,8 +858,10 @@ var
 begin
   tmpdata := Sender.getnodedata(Node);
   case tmpdata.BasicND.p.sType of
-    sGrup: cardinal(Data^) := cardinal(Data^) + sizeOf(rGenericHeader) + sizeOf(rGrupheader);
-    sRecord: cardinal(Data^) := cardinal(Data^) + sizeOf(rGenericHeader) + sizeOf(rGenericHeaderData) + ((trecord(tmpdata.BasicND.p).header.dsize));
+    sGrup:
+      cardinal(Data^) := cardinal(Data^) + sizeOf(rGenericHeader) + sizeOf(rGrupheader);
+    sRecord:
+      cardinal(Data^) := cardinal(Data^) + sizeOf(rGenericHeader) + sizeOf(rGenericHeaderData) + ((trecord(tmpdata.BasicND.p).header.dsize));
   end;
 end;
 
@@ -995,8 +998,10 @@ end;
 function tGrup.GetGrupSubName: string;
 begin
   case headerData.sType of
-    1 .. 10: result := format('[%.8x]', [cardinal(headerData.sIdent)]);
-  else result := string(sHeaderString(headerData.sIdent))
+    1 .. 10:
+      result := format('[%.8x]', [cardinal(headerData.sIdent)]);
+  else
+    result := string(sHeaderString(headerData.sIdent))
   end;
 end;
 // quests
@@ -1753,9 +1758,12 @@ begin
   // get compression lvl
   move(b[4], compressionlvl, 2);
   case compressionlvl of
-    $0178: zcomp := zcFastest;
-    $DA78: zcomp := zcMax;
-  else zcomp := zcDefault;
+    $0178:
+      zcomp := zcFastest;
+    $DA78:
+      zcomp := zcMax;
+  else
+    zcomp := zcDefault;
   end;
 end;
 
@@ -2071,7 +2079,8 @@ begin
     if assigned(loaderTmp) then
       mastersData.objects[j] := tobject(loaderTmp.iPluginType);
   end;
-  aInheritedEsp.Add(self); // latest is self (to avoid issue with esm with the same name)
+  aInheritedEsp.Add(self);
+  // latest is self (to avoid issue with esm with the same name)
 
   // dispatch small-medium-normal
   for j := 0 to high(aMaster) do
@@ -2080,8 +2089,10 @@ begin
   begin
     t := cardinal(mastersData.objects[j]);
     case t of
-      1: aMaster[2].Add(j); // small
-      3: aMaster[1].Add(j); // medium
+      1:
+        aMaster[2].Add(j); // small
+      3:
+        aMaster[1].Add(j); // medium
     else
       aMaster[0].Add(j); // normal
     end;
@@ -2112,7 +2123,8 @@ begin
         for k := 0 to pred(loader.mastersData.count) do
         begin
           if ansilowercase(mastersData[j]) = ansilowercase(loader.mastersData[k]) then
-            loader.aInheritedMaster[j] := k + 1; // add +1 because it's stored as Byte, and 0 = NULL
+            loader.aInheritedMaster[j] := k + 1;
+          // add +1 because it's stored as Byte, and 0 = NULL
         end;
     end;
   end;
@@ -2158,7 +2170,7 @@ begin
     end
     else
     begin
-      tmpIndex := byte(formID shr 24); //normal
+      tmpIndex := byte(formID shr 24); // normal
       a := 0;
     end;
 
@@ -2215,7 +2227,8 @@ var
   loader: tEspLoader;
 begin
   mId := getMasterIndex(formID);
-  if inrange(mId, 0, pred(aInheritedEsp.count)) then // false should not happen. Security if an esp is badly shaped
+  if inrange(mId, 0, pred(aInheritedEsp.count)) then
+  // false should not happen. Security if an esp is badly shaped
   begin
     for i := pred(aInheritedEsp.count) downto 0 do
     begin
@@ -2246,7 +2259,8 @@ var
   loader: tEspLoader;
 begin
   mId := getMasterIndex(formID);
-  if inrange(mId, 0, pred(aInheritedEsp.count)) then // false should not happen. Security if an esp is badly shaped
+  if inrange(mId, 0, pred(aInheritedEsp.count)) then
+  // false should not happen. Security if an esp is badly shaped
   begin
     for i := pred(aInheritedEsp.count) downto 0 do
     begin
@@ -2339,7 +2353,8 @@ var
 begin
   mId := getMasterIndex(formID);
   if mId > high(aInheritedCompareMaster) then
-    mId := high(aInheritedCompareMaster); // support for starfield esl (formiID = FE000xxx
+    mId := high(aInheritedCompareMaster);
+  // support for starfield esl (formiID = FE000xxx
 
   if inrange(mId, 0, high(aInheritedCompareMaster)) and (aInheritedCompareMaster[mId] > 0) then
     result := (sanitizeFormID(formID, aInheritedCompareMaster[mId] - 1))
@@ -2365,7 +2380,8 @@ begin
     end;
   end;
 
-  setlength(aInheritedCompareMaster, l.count + 1); // +1 for current comparedaddon, esp can be renamed differently
+  setlength(aInheritedCompareMaster, l.count + 1);
+  // +1 for current comparedaddon, esp can be renamed differently
   for i := low(aInheritedCompareMaster) to high(aInheritedCompareMaster) do
     aInheritedCompareMaster[i] := 0;
 
@@ -2373,9 +2389,11 @@ begin
     for k := 0 to pred(l.count) do
     begin
       if ansilowercase(mastersData[i]) = ansilowercase(l[k]) then
-        aInheritedCompareMaster[k] := i + 1; // add +1 because it's stored as Byte, and 0 = NULL
+        aInheritedCompareMaster[k] := i + 1;
+      // add +1 because it's stored as Byte, and 0 = NULL
     end;
-  aInheritedCompareMaster[l.count] := byte(mastersData.count); // = last MasterData ID +1
+  aInheritedCompareMaster[l.count] := byte(mastersData.count);
+  // = last MasterData ID +1
   l.free;
 end;
 

@@ -10,9 +10,7 @@ object FormHTML: TFormHTML
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
-  PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
@@ -61,10 +59,7 @@ object FormHTML: TFormHTML
         Top = 1
         Width = 622
         Height = 326
-        TabOrder = 0
-        Align = alClient
-        BorderStyle = htFocused
-        CharSet = DEFAULT_CHARSET
+        BorderStyle = htNone
         DefBackground = clWhite
         DefFontColor = clBlack
         DefFontName = 'Arial'
@@ -81,7 +76,12 @@ object FormHTML: TFormHTML
         PrintMarginTop = 2.000000000000000000
         PrintScale = 1.000000000000000000
         QuirksMode = qmDetect
+        Text = ''
         OnHotSpotClick = HtmlViewer1HotSpotClick
+        Align = alClient
+        TabOrder = 0
+        Touch.InteractiveGestures = [igPan]
+        Touch.InteractiveGestureOptions = [igoPanSingleFingerHorizontal, igoPanSingleFingerVertical, igoPanInertia]
       end
     end
   end

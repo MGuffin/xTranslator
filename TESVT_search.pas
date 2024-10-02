@@ -34,7 +34,8 @@ uses Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics, math, Dial
   ComObj, Generics.Collections, Diff, richedit, Grids, SynEdit, SynEditTypes, SynEditMiscClasses, SynEditSearch, TESVT_sharedVTProc, TESVT_FastSearch,
   TESVT_espDefinition, TESVT_HeuristicSearch, TESVT_typedef, TESVT_Const, TESVT_fstreamSave, ToolWin, TESVT_SearchText, SynEditKeyCmds, TESVT_Ressources,
   TESVT_SpellCheck, TESVT_TranslateFunc, TESVT_Undo, TESVT_MainLoader, TESVT_spOptions, TESVT_Fuz, TESVT_bsa, shellApi, MMSYSTEM, Clipbrd, TESVT_Utils,
-  TESVT_StringsStatus, TESVT_TranslatorApi, ActnList, TESVT_NPCMap, System.Actions, System.UITypes, TESVT_RegexUtils;
+  TESVT_StringsStatus, TESVT_TranslatorApi, ActnList, TESVT_NPCMap, System.Actions, System.UITypes, TESVT_RegexUtils, VirtualTrees.types,
+  VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 type
 

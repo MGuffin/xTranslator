@@ -39,8 +39,8 @@ uses Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics, StdCtrls, 
   SynEditMiscClasses, SynEditSearch, SynEditTypes, SynEditKeyCmds, regularexpressionscore, ClipBrd, TESVT_TranslateFunc,
   TESVT_SSTFunc, TESVT_Undo, TESVT_StringsFunc, TESVT_XMLFunc, TESVT_MainLoader, TESVT_SpellCheck, TESVT_Fuz, TESVT_Utils, MMSystem,
   TESVT_StringsStatus, TESVT_Threads, SyncObjs, TESVT_Batcher, TESVT_TranslatorApi, PsAPI, Grids, IdBaseComponent,
-  TESVT_NpcMap, System.ImageList, System.UITypes, urlSubs, RegularExpressionsConsts, System.inifiles, ioutils,
-  Vcl.Themes, TESVT_RegexUtils;
+  TESVT_NpcMap, System.ImageList, System.UITypes, urlSubs, RegularExpressionsConsts, System.inifiles, ioutils, VirtualTrees.types,
+  Vcl.Themes, TESVT_RegexUtils, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL, HtmlGlobals;
 
 type
   rCommandData = record
@@ -267,12 +267,6 @@ type
     Panel20: TPanel;
     Panel21: TPanel;
     ButtonedEdit6: TButtonedEdit;
-    Panel22: TPanel;
-    ToolBar6: TToolBar;
-    ToolButton50: TToolButton;
-    ToolButton46: TToolButton;
-    ToolButton51: TToolButton;
-    ToolButton47: TToolButton;
     Panel26: TPanel;
     Panel25: TPanel;
     Panel27: TPanel;
@@ -412,6 +406,7 @@ type
     MemoLog: TRichEdit;
     TimerVocabSearch: TTimer;
     RtlToLtr1: TMenuItem;
+    Button1: TButton;
     function ApplyBatcher(id: integer; bSilent: boolean = false): boolean;
     procedure menuOnClick(Sender: TObject);
     procedure RecentmenuMesure(Sender: TObject; ACanvas: TCanvas; var Width, Height: integer);
@@ -454,7 +449,7 @@ type
     procedure SkyTreePaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure SkyTreeInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure VocabTreeGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: boolean; var ImageIndex: TImageIndex);
-    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: boolean);
+    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: boolean);
     procedure Save1Click(Sender: TObject);
     procedure Save2Click(Sender: TObject);
     procedure OpenSSTcustomClick(Sender: TObject);
@@ -463,8 +458,8 @@ type
     procedure ToolButton18Click(Sender: TObject);
     procedure ToolButton16Click(Sender: TObject);
     procedure ToolButton17Click(Sender: TObject);
-    procedure VocabTreeDragDrop(Sender: TBaseVirtualTree; source: TObject; DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState; Pt: TPoint; var Effect: integer; Mode: TDropMode);
-    procedure VocabTreeDragOver(Sender: TBaseVirtualTree; source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode; var Effect: integer; var Accept: boolean);
+    procedure VocabTreeDragOver(Sender: TBaseVirtualTree; source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode; var Effect: integer;
+      var Accept: boolean);
     procedure VocabTreeDragAllowed(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: boolean);
     procedure VocabTreeCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: integer);
     procedure addPreset1Click(Sender: TObject);
@@ -554,7 +549,8 @@ type
     procedure sstExport1Click(Sender: TObject);
     procedure importSST1Click(Sender: TObject);
     procedure zoom1Click(Sender: TObject);
-    procedure SkyTreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string; const CellRect: TRect; var DefaultDraw: boolean);
+    procedure SkyTreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string; const CellRect: TRect;
+      var DefaultDraw: boolean);
     procedure Menu_Search_SourceClick(Sender: TObject);
     procedure ToolButton1Click(Sender: TObject);
     procedure ToolButton2MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -649,6 +645,9 @@ type
     procedure ToolButton49Click(Sender: TObject);
     procedure TimerVocabSearchTimer(Sender: TObject);
     procedure RtlToLtr1Click(Sender: TObject);
+    procedure VocabTreeDragDrop(Sender: TBaseVirtualTree; source: TObject; DataObject: TVTDragDataObject; Formats: TFormatArray; Shift: TShiftState; Pt: TPoint;
+      var Effect: integer; Mode: TDropMode);
+    procedure Button1Click(Sender: TObject);
   protected
     procedure WMCommand(var Msg: TMessage); message WM_COMMAND;
     procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
@@ -680,8 +679,8 @@ type
     function ApplyBatcherExEsp(loader: tTranslatorLoader; id: integer; bSilent: boolean = false): boolean;
     function ApplyBatcherExMCM(loader: tTranslatorLoader; id: integer; bSilent: boolean = false): boolean;
     procedure ApplyRules(loader: tTranslatorLoader; sk: tskystr; var bNeedMaster: boolean; var totalCount: integer);
-    function ApplyRulesEx(loader: tTranslatorLoader; r: trecord; hf: sHeaderSig; s, strans: string; aKwd: aCardinal; oldTb: tBatcherRules; bIsFbStrict: boolean; var bNeedMaster: boolean;
-      iFallBack: integer = -1): string;
+    function ApplyRulesEx(loader: tTranslatorLoader; r: trecord; hf: sHeaderSig; s, strans: string; aKwd: aCardinal; oldTb: tBatcherRules; bIsFbStrict: boolean;
+      var bNeedMaster: boolean; iFallBack: integer = -1): string;
     function ApplyRulesExMCM(loader: tTranslatorLoader; s, strans: string; tmpEdid: string): string;
     function getFallbackReplacement(loader: tTranslatorLoader; r: trecord; aKwd: aCardinal; iFallBack: integer; oldTb: tBatcherRules; var bNeedMaster: boolean): string;
     procedure validateExternalDecompiler;
@@ -788,8 +787,8 @@ type
     procedure FinalizePex(folder, filename: string; doNotRename: boolean);
     procedure getStringTextDirect;
     procedure getStringText(doValid: boolean; forcedFocus: tskystr = nil; const newstring: string = '');
-    function loadAddonStrings(loader: tTranslatorLoader; folder, addon, lang: string; opt: parseOpt; forceCp: string; locOpts: integer = 0; bAuthBsa: boolean = false; fProc: tcompareproc = nil;
-      bBuildCache: boolean = false; bLoadAllStrings: boolean = true): boolean;
+    function loadAddonStrings(loader: tTranslatorLoader; folder, addon, lang: string; opt: parseOpt; forceCp: string; locOpts: integer = 0; bAuthBsa: boolean = false;
+      fProc: tcompareproc = nil; bBuildCache: boolean = false; bLoadAllStrings: boolean = true): boolean;
     procedure checkAllSearchOpt(b: boolean);
     procedure checkThisSearchOpt(id: integer);
     function getSearchOptState(id: integer): boolean;
@@ -838,8 +837,8 @@ type
     function doloadpex(filename: string; savefolder, buildMenu, bDiscard: boolean; var Index: integer): boolean;
     procedure startLoadsMultiPex(filenames: tstringlist);
     procedure dosearchinPexText(opt: TSynSearchOptions);
-    function assignDialogNAM(loader: tTranslatorLoader; r: trecord; fProc: tcompareproc; sl: tstringlist; fstring: string; skipmax, adjust: integer; doAll, keepChange, aliasCopy, copyall: boolean;
-      var bNeedMaster: boolean): integer;
+    function assignDialogNAM(loader: tTranslatorLoader; r: trecord; fProc: tcompareproc; sl: tstringlist; fstring: string; skipmax, adjust: integer;
+      doAll, keepChange, aliasCopy, copyall: boolean; var bNeedMaster: boolean): integer;
     function getDnamInfoData(loader: tTranslatorLoader; dnamref: cardinal; var n: string; var bNeedMaster: boolean): boolean;
     procedure ConvertTCSC(loader: tTranslatorLoader; Mode: boolean);
     procedure ConvertRTL(loader: tTranslatorLoader; Index, linesize: integer; bResize, bRemovetag: boolean);
@@ -896,6 +895,7 @@ type
     procedure f76_doRestoreBackup(gamePath: string);
     procedure f76_PatchFileWizard(dataPath, lang: string);
     procedure f76_doBackup(gamePath: string);
+    procedure refreshNpcFuzMap;
     function generateFuzMap: boolean;
     function generateNpcMap(forced: boolean): boolean;
     procedure copyFuztoClipBoard(tree: TVirtualStringTree; Node: PVirtualNode; t: tstrings);
@@ -1677,7 +1677,7 @@ begin
     begin
       if i >= 25 then
         break;
-      t.add(format('bsadef_%d=%s', [i, lBSAdef[i]]));
+      t.add(format('bsadef2_%d=%s', [i, lBSAdef[i]]));
     end;
     for i := 0 to lBSAAlias.count - 1 do
     begin
@@ -2063,7 +2063,7 @@ begin
 
     for i := 0 to 25 do
     begin
-      strtmp := format('bsadef_%d', [i]);
+      strtmp := format('bsadef2_%d', [i]);
       tValue1 := t.Values[strtmp];
       if tValue1 <> '' then
         lBSAdef.add(ansilowercase(tValue1));
@@ -2592,8 +2592,8 @@ begin
     enableToolBar(ToolBar3, false);
     enableToolBar(ToolBar4, false);
     enableToolBar(ToolBar5, false);
-    enableToolBar(ToolBar6, false);
     enableToolBar(ToolBar7, false);
+    button1.enabled:=false;
     ButtonedEdit1.Enabled := false;
 
     enableToolBar(form2.ToolBar3, false);
@@ -2656,11 +2656,11 @@ begin
     enableToolBar(ToolBar3, true);
     enableToolBar(ToolBar4, true);
     enableToolBar(ToolBar5, true);
-    enableToolBar(ToolBar6, true);
     enableToolBar(ToolBar7, true);
     enableToolBar(form2.ToolBar1, true);
     enableToolBar(form2.ToolBar2, true);
     enableToolBar(form2.ToolBar3, isFuzCompatible(MainLoader));
+    button1.enabled:=true;
 
     // if simplememo
     form2.ToolButton1.Enabled := not bUseSimpleMemo;
@@ -2838,18 +2838,30 @@ begin
   // --------
   pLine := PexDecompiler.pFbData.LineList[pexLogCursorLine - 1];
   case pLine.datatype of
-    1:; // vars
-    2:; // prop
-    3: TpexState(pLine.pdata).open := not TpexState(pLine.pdata).open; // state
-    4: TpexFunc(pLine.pdata).open := not TpexFunc(pLine.pdata).open; // state
-    5:; // struct;
-    6:; // guard
-    10:; // pObj
-    20: PexDecompiler.pFbData.varOpen := not PexDecompiler.pFbData.varOpen; // varheader
-    21: PexDecompiler.pFbData.propOpen := not PexDecompiler.pFbData.propOpen; // Propheader
-    22: PexDecompiler.pFbData.structOpen := not PexDecompiler.pFbData.structOpen; // structheader
-    23: PexDecompiler.pFbData.guardOpen := not PexDecompiler.pFbData.guardOpen; // guardHeader
-  else exit;
+    1:
+      ; // vars
+    2:
+      ; // prop
+    3:
+      TpexState(pLine.pdata).open := not TpexState(pLine.pdata).open; // state
+    4:
+      TpexFunc(pLine.pdata).open := not TpexFunc(pLine.pdata).open; // state
+    5:
+      ; // struct;
+    6:
+      ; // guard
+    10:
+      ; // pObj
+    20:
+      PexDecompiler.pFbData.varOpen := not PexDecompiler.pFbData.varOpen; // varheader
+    21:
+      PexDecompiler.pFbData.propOpen := not PexDecompiler.pFbData.propOpen; // Propheader
+    22:
+      PexDecompiler.pFbData.structOpen := not PexDecompiler.pFbData.structOpen; // structheader
+    23:
+      PexDecompiler.pFbData.guardOpen := not PexDecompiler.pFbData.guardOpen; // guardHeader
+  else
+    exit;
   end;
   updatePexFeedback(PexDecompiler, SynEditPex.topline);
   exit;
@@ -3150,7 +3162,8 @@ begin
           Result := true;
           setuserCacheUpdated(loader, false);
         end
-    else Result := false;
+    else
+      Result := false;
     end;
   end;
 end;
@@ -3995,20 +4008,8 @@ begin
       MainLoader.drawQuestsList(ButtonedEdit4.Text, ListBox2, true);
 
     stopStuff(false, b);
-
     globalUpdateAll(globalEndUpdate, 1);
 
-    if pagecontrol2.ActivePageIndex = PageControl_Fuz then
-    begin
-      startStuff('');
-      generateFuzMap;
-      generateNpcMap(false);
-      if isFuzLoaded(MainLoader, fuz.current) then
-        fuz.drawVoiceList(ListBox3.items, ButtonedEdit6.Text);
-      if isNpcLoaded(MainLoader) then
-        mainDialdata.fillList(ListBox4.items, ButtonedEdit6.Text);
-      stopStuff;
-    end;
     AutoSaveOn;
   end
   else
@@ -4102,7 +4103,8 @@ begin
     currentloader.addon_name := r.fNameStrict;
     currentloader.addon_Fullpath := filename;
     updateStatus(currentloader.addon_name);
-    b := loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, CreateNodeAddon, bforceCpOnLoad, 0, false, nil, false, false);
+    b := loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, CreateNodeAddon, bforceCpOnLoad, 0, false,
+      nil, false, false);
 
   finally
     if b then
@@ -4119,8 +4121,8 @@ begin
   end;
 end;
 
-function TForm1.loadAddonStrings(loader: tTranslatorLoader; folder, addon, lang: string; opt: parseOpt; forceCp: string; locOpts: integer = 0; bAuthBsa: boolean = false; fProc: tcompareproc = nil;
-  bBuildCache: boolean = false; bLoadAllStrings: boolean = true): boolean;
+function TForm1.loadAddonStrings(loader: tTranslatorLoader; folder, addon, lang: string; opt: parseOpt; forceCp: string; locOpts: integer = 0; bAuthBsa: boolean = false;
+  fProc: tcompareproc = nil; bBuildCache: boolean = false; bLoadAllStrings: boolean = true): boolean;
 var
   j, totalParseResult: integer;
   presult: ParseResult;
@@ -4888,7 +4890,8 @@ begin
     else
       tmpFilename := MainLoader.addon_NameWithSuffixe;
 
-    filename := SaveFileDialog(getRes('Dia_SaveMCMAs'), MainLoader.addon_folder, tmpFilename, formatres('FilterTXT2%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
+    filename := SaveFileDialog(getRes('Dia_SaveMCMAs'), MainLoader.addon_folder, tmpFilename,
+      formatres('FilterTXT2%s|%s', [CustomTxtParams.sCustomExtList, CustomTxtParams.sCustomExtList]));
 
     if filename <> '' then
       FinalizeMCM(ExtractFilePath(filename), extractFileName(filename), bskipSuffixe, true);
@@ -4955,9 +4958,12 @@ begin
     b := true;
     multi := true;
     case askDialog(getRes('beta_Warning') + formatres('Fbk_ExportInBSAMulti_Ask', [MainLoader.addon_BSAName, output]), Form1, [askYes, askNo, askCancel]) of
-      mrYes: multi := true;
-      mrNo: multi := false;
-    else b := false;
+      mrYes:
+        multi := true;
+      mrNo:
+        multi := false;
+    else
+      b := false;
     end;
   end;
 
@@ -5093,6 +5099,11 @@ begin
       dofeedback(formatres('Fbk_Saved', [folder + filename + '_' + Destlanguage]), true, [askPanel]);
     stopStuff;
   end;
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  refreshNpcFuzMap;
 end;
 
 procedure TForm1.ButtonedEdit1Change(Sender: TObject);
@@ -5365,9 +5376,12 @@ begin
   begin
     idOpt := form8.RadioGroup1.itemIndex;
     case idOpt of
-      1: fProc := compareOptNoTransValid;
-      2: fProc := compareOptSelection;
-    else fProc := compareOptEverything;
+      1:
+        fProc := compareOptNoTransValid;
+      2:
+        fProc := compareOptSelection;
+    else
+      fProc := compareOptEverything;
     end;
     a := form8.CheckBox1.checked;
     b := form8.CheckBox3.checked;
@@ -5707,7 +5721,8 @@ begin
   getStringText(true);
 end;
 
-procedure TForm1.SkyTreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string; const CellRect: TRect; var DefaultDraw: boolean);
+procedure TForm1.SkyTreeDrawText(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const Text: string; const CellRect: TRect;
+  var DefaultDraw: boolean);
 begin
   TreeDrawText(Sender, TargetCanvas, Node, Column, Text, CellRect, DefaultDraw);
 end;
@@ -5944,9 +5959,12 @@ var
 begin
   Data := Sender.GetNodeData(Node);
   case Data.BasicND.p.sType of
-    sRecord: trecord(Data.BasicND.p).free;
-    sGrup: tgrup(Data.BasicND.p).free;
-    sMaster: tmaster(Data.BasicND.p).free;
+    sRecord:
+      trecord(Data.BasicND.p).free;
+    sGrup:
+      tgrup(Data.BasicND.p).free;
+    sMaster:
+      tmaster(Data.BasicND.p).free;
   end;
   Data.BasicND.free;
 end;
@@ -5957,9 +5975,12 @@ var
 begin
   Data := Sender.GetNodeData(Node);
   case Data.BasicND.p.sType of
-    sRecord: CellText := trecord(Data.BasicND.p).getStringName;
-    sGrup: CellText := tgrup(Data.BasicND.p).getname;
-    sMaster: CellText := tmaster(Data.BasicND.p).EspName;
+    sRecord:
+      CellText := trecord(Data.BasicND.p).getStringName;
+    sGrup:
+      CellText := tgrup(Data.BasicND.p).getname;
+    sMaster:
+      CellText := tmaster(Data.BasicND.p).EspName;
   end;
 end;
 
@@ -5982,7 +6003,8 @@ begin
         TargetCanvas.Font.Style := [fsItalic];
         TargetCanvas.Font.Color := clSilver;
       end;
-    sMaster: TargetCanvas.Font.Style := [fsBold];
+    sMaster:
+      TargetCanvas.Font.Style := [fsBold];
   end;
 
 end;
@@ -6107,17 +6129,28 @@ begin
   begin
     if TMenuItem(PopupWarning.items[i]).checked then
       case TMenuItem(PopupWarning.items[i]).tag of
-        1: include(Result, fuzWarning);
-        2: include(Result, npcWarning);
-        3: include(Result, lowWarning);
-        4: include(Result, Warning);
-        5: include(Result, bigWarning);
-        6: include(Result, isOrphean);
-        7: include(Result, toLocalizedSharedID);
-        8: include(Result, aliasError);
-        9: include(Result, stringSizeError);
-        10: include(Result, stringCRError);
-        11: include(Result, unusedInSST);
+        1:
+          include(Result, fuzWarning);
+        2:
+          include(Result, npcWarning);
+        3:
+          include(Result, lowWarning);
+        4:
+          include(Result, Warning);
+        5:
+          include(Result, bigWarning);
+        6:
+          include(Result, isOrphean);
+        7:
+          include(Result, toLocalizedSharedID);
+        8:
+          include(Result, aliasError);
+        9:
+          include(Result, stringSizeError);
+        10:
+          include(Result, stringCRError);
+        11:
+          include(Result, unusedInSST);
       end;
   end;
 end;
@@ -6342,9 +6375,13 @@ begin
             if (s[1] <> '') then
             begin
               case searchInMode of
-                0: tmpVisible := tmpVisible and SearchInString(s[1], Data.BasicND.s.s, r[1], sBack[1], bfRegexDiscard[1]);
-                1: tmpVisible := tmpVisible and SearchInString(s[1], Data.BasicND.s.strans, r[1], sBack[1], bfRegexDiscard[1]);
-                2: tmpVisible := tmpVisible and (((tmpFormID >= 0) and (tmpFormID = getSkID(Data.BasicND.s))) or SearchInString(s[1], getSkIDName(Data.BasicND.s), r[1], sBack[1], bfRegexDiscard[1]));
+                0:
+                  tmpVisible := tmpVisible and SearchInString(s[1], Data.BasicND.s.s, r[1], sBack[1], bfRegexDiscard[1]);
+                1:
+                  tmpVisible := tmpVisible and SearchInString(s[1], Data.BasicND.s.strans, r[1], sBack[1], bfRegexDiscard[1]);
+                2:
+                  tmpVisible := tmpVisible and (((tmpFormID >= 0) and (tmpFormID = getSkID(Data.BasicND.s))) or SearchInString(s[1], getSkIDName(Data.BasicND.s), r[1], sBack[1],
+                    bfRegexDiscard[1]));
               end;
             end;
           end;
@@ -6546,12 +6583,18 @@ var
   tmp: string;
 begin
   case bsaType of
-    1: tmp := '[TXT] ';
-    2: tmp := '[PEX] ';
-    3: tmp := '[STR] ';
-    4: tmp := '[ESP] ';
-    5: tmp := '[BSA] ';
-  else tmp := ''
+    1:
+      tmp := '[TXT] ';
+    2:
+      tmp := '[PEX] ';
+    3:
+      tmp := '[STR] ';
+    4:
+      tmp := '[ESP] ';
+    5:
+      tmp := '[BSA] ';
+  else
+    tmp := ''
   end;
   for i := recentAddon.count - 1 downto 0 do
     if ansilowercase(recentAddon.strings[i]) = ansilowercase(tmp + filename) then
@@ -6705,9 +6748,12 @@ begin
               end;
 
               case t of
-                1: include(sk.sinternalparams, nTrans);
-                2: include(sk.sinternalparams, Warning);
-                3: include(sk.sinternalparams, bigWarning);
+                1:
+                  include(sk.sinternalparams, nTrans);
+                2:
+                  include(sk.sinternalparams, Warning);
+                3:
+                  include(sk.sinternalparams, bigWarning);
               end;
 
               sTransOut := stringreplace(sTransOut, '%' + IntToStr(l), strans, [rfReplaceAll]);
@@ -6833,10 +6879,14 @@ begin
     iXMLExportOpt := formXMLOpt.RadioGroup1.itemIndex;
     bColabSplit := formXMLOpt.CheckBox1.checked;
     case iXMLExportOpt of
-      1: fProc := compareOptTranslatedAndValidated;
-      2: fProc := compareOptSelection;
-      3: fProc := compareSourceDestDiffandColab;
-    else fProc := compareOptEverything;
+      1:
+        fProc := compareOptTranslatedAndValidated;
+      2:
+        fProc := compareOptSelection;
+      3:
+        fProc := compareSourceDestDiffandColab;
+    else
+      fProc := compareOptEverything;
     end;
 
   end;
@@ -7105,8 +7155,10 @@ end;
 procedure TForm1.saveCacheLocalizedEsp(currentloader: tTranslatorLoader; bLoadedFromCache: boolean);
 begin
   case currentloader.CloseCacheProcess(bLoadedFromCache) of
-    1: dofeedback(formatres('Fbk_CacheSavedError', [datacache + currentloader.addon_name]), false);
-    2: dofeedback(formatres('Fbk_CacheSaved', [datacache + currentloader.addon_name]), false, [askPanel]);
+    1:
+      dofeedback(formatres('Fbk_CacheSavedError', [datacache + currentloader.addon_name]), false);
+    2:
+      dofeedback(formatres('Fbk_CacheSaved', [datacache + currentloader.addon_name]), false, [askPanel]);
   end;
 end;
 
@@ -7373,8 +7425,10 @@ begin
           findStrMatchEx(LocalVocabBaseList, loader.listArray[j], compareOptEverythingLockedStatus, [validated], false, true, false, false, false)
         else
         begin
-          findEdidMatchEx(LocalVocabEdidList, loader.listArray[j], compareOptEverythingLockedStatus, compareEspStr_V4Strict, false, transParams, [translated], true, false, false, false);
-          findEdidMatchEx(LocalVocabEdidList, loader.listArray[j], compareOptNoTransLockedStatus, compareEspStr_V4Relax, false, transParams, [translated], true, false, false, false);
+          findEdidMatchEx(LocalVocabEdidList, loader.listArray[j], compareOptEverythingLockedStatus, compareEspStr_V4Strict, false, transParams, [translated], true, false,
+            false, false);
+          findEdidMatchEx(LocalVocabEdidList, loader.listArray[j], compareOptNoTransLockedStatus, compareEspStr_V4Relax, false, transParams, [translated], true, false,
+            false, false);
           // findEdidMatchEx(LocalVocabEdidList, loader.listArray[j], compareOptNoTransLockedStatus, compareEspStr_V4Edid, false, transParams, [translated],
           // true, false, false, false);
         end;
@@ -7719,7 +7773,7 @@ end;
 
 // -------------html
 
-procedure TForm1.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: boolean);
+procedure TForm1.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: boolean);
 var
   ext: string;
   i, j, k: integer;
@@ -7814,7 +7868,8 @@ begin
     exit;
   if BlockSameLanguageEditing then
     exit;
-  if not((loader.fLoaderMode = sTESVTsstEdit) or (loader.fLoaderMode = sTESVEsp) or (loader.fLoaderMode = sTESVEspStrings) or (loader.fLoaderMode = sTESVMcM) or (loader.fLoaderMode = sTESVPex)) then
+  if not((loader.fLoaderMode = sTESVTsstEdit) or (loader.fLoaderMode = sTESVEsp) or (loader.fLoaderMode = sTESVEspStrings) or (loader.fLoaderMode = sTESVMcM) or
+    (loader.fLoaderMode = sTESVPex)) then
     exit;
 
   if loader.fLoaderMode = sTESVTsstEdit then
@@ -7908,7 +7963,8 @@ begin
     exit;
   end;
 
-  if not((loader.fLoaderMode = sTESVTsstEdit) or (loader.fLoaderMode = sTESVEsp) or (loader.fLoaderMode = sTESVEspStrings) or (loader.fLoaderMode = sTESVMcM) or (loader.fLoaderMode = sTESVPex)) then
+  if not((loader.fLoaderMode = sTESVTsstEdit) or (loader.fLoaderMode = sTESVEsp) or (loader.fLoaderMode = sTESVEspStrings) or (loader.fLoaderMode = sTESVMcM) or
+    (loader.fLoaderMode = sTESVPex)) then
   begin
     MessageBeep(MB_ICONSTOP);
     exit;
@@ -8129,31 +8185,16 @@ begin
 end;
 
 procedure TForm1.TimerPageControl2Timer(Sender: TObject);
-var
-  b1, b2: boolean;
 begin
   TimerPageControl2.Enabled := false;
   case pagecontrol2.ActivePageIndex of
-    PageControl_Heuristic: findHeuristicFocus;
+    PageControl_Heuristic:
+      findHeuristicFocus;
     PageControl_Quest:
       if assigned(MainLoader) then
         MainLoader.drawQuestsList(ButtonedEdit4.Text, ListBox2);
-    PageControl_Fuz:
-      begin
-        LoadAllMasters;
-        startStuff('', false);
-        b1 := generateFuzMap;
-        b2 := generateNpcMap(false);
-        stopStuff(false, false);;
-        if not b1 and isFuzLoaded(MainLoader, fuz.current) then
-          fuz.drawVoiceList(ListBox3.items, ButtonedEdit6.Text);
-        if not b2 and isNpcLoaded(MainLoader) then
-          mainDialdata.fillList(ListBox4.items, ButtonedEdit6.Text);
-        if b1 or b2 then
-          repaintTrees;
-        SkyTreeFocusChanged(ilSkyTree, ilSkyTree.focusedNode, 0);
-      end;
-    PageControl_Log: MemoLog.Repaint;
+    PageControl_Log:
+      MemoLog.Repaint;
   end;
 end;
 
@@ -8295,7 +8336,8 @@ begin
   Allowed := true;
 end;
 
-procedure TForm1.VocabTreeDragDrop(Sender: TBaseVirtualTree; source: TObject; DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState; Pt: TPoint; var Effect: integer; Mode: TDropMode);
+procedure TForm1.VocabTreeDragDrop(Sender: TBaseVirtualTree; source: TObject; DataObject: TVTDragDataObject; Formats: TFormatArray; Shift: TShiftState; Pt: TPoint;
+  var Effect: integer; Mode: TDropMode);
 var
   pSource, pTarget: PVirtualNode;
   attMode: TVTNodeAttachMode;
@@ -8323,17 +8365,23 @@ begin
     if bSourceIsFolder then
     begin
       case Mode of
-        dmAbove: attMode := amInsertBefore;
-        dmOnNode: attMode := amInsertAfter;
-      else attMode := amInsertAfter;
+        dmAbove:
+          attMode := amInsertBefore;
+        dmOnNode:
+          attMode := amInsertAfter;
+      else
+        attMode := amInsertAfter;
       end;
     end
     else
     begin
       case Mode of
-        dmAbove: attMode := amAddChildFirst;
-        dmOnNode: attMode := amAddChildLast;
-      else attMode := amAddChildFirst;
+        dmAbove:
+          attMode := amAddChildFirst;
+        dmOnNode:
+          attMode := amAddChildLast;
+      else
+        attMode := amAddChildFirst;
       end;
     end;
   end
@@ -8400,7 +8448,8 @@ begin
   end;
 end;
 
-procedure TForm1.VocabTreeDragOver(Sender: TBaseVirtualTree; source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode; var Effect: integer; var Accept: boolean);
+procedure TForm1.VocabTreeDragOver(Sender: TBaseVirtualTree; source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode; var Effect: integer;
+  var Accept: boolean);
 var
   pSource, pTarget: PVirtualNode;
   DataSource, DataTarget: ptreedatafdr;
@@ -8663,10 +8712,14 @@ begin
     bExportFuz := formXMLOpt.CheckBox2.checked;
     iXMLExportOpt := formXMLOpt.RadioGroup1.itemIndex;
     case iXMLExportOpt of
-      1: fProc := compareOptTranslatedAndValidated;
-      2: fProc := compareOptSelection;
-      3: fProc := compareSourceDestDiffandColab;
-    else fProc := compareOptEverything;
+      1:
+        fProc := compareOptTranslatedAndValidated;
+      2:
+        fProc := compareOptSelection;
+      3:
+        fProc := compareSourceDestDiffandColab;
+    else
+      fProc := compareOptEverything;
     end;
   end;
   formXMLOpt.free;
@@ -8876,7 +8929,8 @@ begin
       currentloader.addon_name := r.fNameStrict;
       currentloader.addon_Fullpath := filename;
       updateStatus(currentloader.addon_name);
-      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.addon_Ext, currentloader.listArray[0], false);
+      b := loadAddonMCM(currentloader, currentloader.addon_folder, ansilowercase(currentloader.addon_name), currentloader.addon_Lang, currentloader.addon_Ext,
+        currentloader.listArray[0], false);
 
     except
       On E: Exception do
@@ -9191,7 +9245,8 @@ begin
       currentloader.addon_name := fData.fNameStrict;
       currentloader.loaderType := sLoaderTypeStr;
       languageTmp := fData.fLang;
-      b := loadAddonStringsDirect(currentloader, bStream, currentloader.addon_BSApath, fData.fPath, currentloader.addon_name, languageTmp, CreateNodeAddon, bforceCpOnLoad, false, nil, false);
+      b := loadAddonStringsDirect(currentloader, bStream, currentloader.addon_BSApath, fData.fPath, currentloader.addon_name, languageTmp, CreateNodeAddon, bforceCpOnLoad, false,
+        nil, false);
       if b then
       begin
         currentloader.fLoaderMode := sTESVStrings;
@@ -9490,8 +9545,8 @@ begin
   end
 end;
 
-function TForm1.assignDialogNAM(loader: tTranslatorLoader; r: trecord; fProc: tcompareproc; sl: tstringlist; fstring: string; skipmax, adjust: integer; doAll, keepChange, aliasCopy, copyall: boolean;
-  var bNeedMaster: boolean): integer;
+function TForm1.assignDialogNAM(loader: tTranslatorLoader; r: trecord; fProc: tcompareproc; sl: tstringlist; fstring: string; skipmax, adjust: integer;
+  doAll, keepChange, aliasCopy, copyall: boolean; var bNeedMaster: boolean): integer;
 var
   f: tfield;
   i, j: integer;
@@ -9644,9 +9699,12 @@ begin
 
       idOpt := form9.RadioGroup1.itemIndex;
       case idOpt of
-        1: fProc := compareOptPartialOnly;
-        2: fProc := compareOptSelection;
-      else fProc := compareOptEverything;
+        1:
+          fProc := compareOptPartialOnly;
+        2:
+          fProc := compareOptSelection;
+      else
+        fProc := compareOptEverything;
       end;
 
       // get top node for all master
@@ -9672,8 +9730,8 @@ begin
         begin
           DataEsp := espTree.GetNodeData(Node);
           if (DataEsp.BasicND.p.sType = sRecord) and (DataEsp.BasicND.p.Header.name = headerINFO) then
-            totalCount := totalCount + assignDialogNAM(loader, trecord(DataEsp.BasicND.p), fProc, sl, oldDial_Format, skipmax, adjust, form9.CheckBox1.checked, form9.CheckBox2.checked,
-              form9.CheckBox4.checked, form9.CheckBox5.checked, bNeedMaster);
+            totalCount := totalCount + assignDialogNAM(loader, trecord(DataEsp.BasicND.p), fProc, sl, oldDial_Format, skipmax, adjust, form9.CheckBox1.checked,
+              form9.CheckBox2.checked, form9.CheckBox4.checked, form9.CheckBox5.checked, bNeedMaster);
           Node := espTree.GetNext(Node);
           updatepBar(500);
         end;
@@ -10053,8 +10111,10 @@ begin
     end;
     if b then
     begin
-      b := loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(addon_nametmp), Sourcelanguage, idMatchSourceBuildVocab, bforceCpOnLoad, bOpt, bAuthBsa, nil, true);
-      b := b and loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(addon_nametmp), Destlanguage, idMatchTransVocab, bforceCpOnSave, bOpt, bAuthBsa, compareOptEverything, true);
+      b := loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(addon_nametmp), Sourcelanguage, idMatchSourceBuildVocab, bforceCpOnLoad, bOpt, bAuthBsa,
+        nil, true);
+      b := b and loadAddonStrings(currentloader, currentloader.addon_folder, ansilowercase(addon_nametmp), Destlanguage, idMatchTransVocab, bforceCpOnSave, bOpt, bAuthBsa,
+        compareOptEverything, true);
     end;
   finally
     if not b then
@@ -10269,7 +10329,8 @@ begin
         Application.ProcessMessages;
 
         // need to cut this in debugmode, because the external call crashes the debugger
-        if RunExecutable(toolPath + fuzConvert2, ['-o', tmpFuzPath + fuzTMPWAV, tmpFuzPath + fuzTMPWEM], tmpFuzPath, true, process) and authFileAccessRW(tmpFuzPath + fuzTMPWAV) then
+        if RunExecutable(toolPath + fuzConvert2, ['-o', tmpFuzPath + fuzTMPWAV, tmpFuzPath + fuzTMPWEM], tmpFuzPath, true, process) and authFileAccessRW(tmpFuzPath + fuzTMPWAV)
+        then
         begin
           Result := true;
           PlaySound(PChar(tmpFuzPath + fuzTMPWAV), 0, SND_ASYNC);
@@ -10386,8 +10447,8 @@ begin
   begin
     Data := tree.GetNodeData(Node);
     if Data.BasicND.s.esp.fName = headerNAM1 then
-      Clipboard.AsText := strSeparatorCRLF + Data.BasicND.s.getEspRef + sstLineBreak + strSeparatorCRLF + Data.BasicND.s.s + sstLineBreak + strSeparatorCRLF + Data.BasicND.s.strans + sstLineBreak +
-        strSeparatorCRLF + t.Text + strSeparatorCRLF;
+      Clipboard.AsText := strSeparatorCRLF + Data.BasicND.s.getEspRef + sstLineBreak + strSeparatorCRLF + Data.BasicND.s.s + sstLineBreak + strSeparatorCRLF + Data.BasicND.s.strans
+        + sstLineBreak + strSeparatorCRLF + t.Text + strSeparatorCRLF;
   end;
 end;
 
@@ -10676,8 +10737,8 @@ begin
       iNotTranslatedCount := 0;
       // statistiques
       for i := 0 to lToTranslate.count - 1 do
-        if (tskystr(lToTranslate[i]).sinternalparams * [OnTranslationApiArray, OnTranslationSoftLock] = [OnTranslationApiArray]) or (OnTranslationRetry in tskystr(lToTranslate[i]).sinternalparams)
-        then
+        if (tskystr(lToTranslate[i]).sinternalparams * [OnTranslationApiArray, OnTranslationSoftLock] = [OnTranslationApiArray]) or
+          (OnTranslationRetry in tskystr(lToTranslate[i]).sinternalparams) then
           inc(iNotTranslatedCount);
       dofeedback(formatres('fbk_apiStats2%d%d%d%%%d', [iNotTranslatedCount, lToTranslate.count, round((iNotTranslatedCount / lToTranslate.count) * 100), totalCharCount]));
 
@@ -10789,9 +10850,25 @@ end;
 
 procedure TForm1.ToolButton50Click(Sender: TObject);
 begin
-  startStuff('');
-  generateNpcMap(true);
-  stopStuff;
+  refreshNpcFuzMap;
+end;
+
+procedure TForm1.refreshNpcFuzMap;
+var
+  b1, b2: boolean;
+begin
+  LoadAllMasters;
+  startStuff('', false);
+  b1 := generateFuzMap;
+  b2 := generateNpcMap(false);
+  stopStuff(false, false);;
+  if not b1 and isFuzLoaded(MainLoader, fuz.current) then
+    fuz.drawVoiceList(ListBox3.items, ButtonedEdit6.Text);
+  if not b2 and isNpcLoaded(MainLoader) then
+    mainDialdata.fillList(ListBox4.items, ButtonedEdit6.Text);
+  if b1 or b2 then
+    repaintTrees;
+  SkyTreeFocusChanged(ilSkyTree, ilSkyTree.focusedNode, 0);
 end;
 
 function TForm1.generateNpcMap(forced: boolean): boolean;
@@ -11097,8 +11174,10 @@ begin
   begin
     Data := espTree.GetNodeData(Node);
     case Data.BasicND.p.sType of
-      sRecord: tmpMemory := tmpMemory + trecord(Data.BasicND.p).getsize + 4;
-      sGrup: tmpMemory := tmpMemory + tgrup(Data.BasicND.p).getsize + 4;
+      sRecord:
+        tmpMemory := tmpMemory + trecord(Data.BasicND.p).getsize + 4;
+      sGrup:
+        tmpMemory := tmpMemory + tgrup(Data.BasicND.p).getsize + 4;
     end;
     tmpMemory := tmpMemory + 48 + 8;
     // size of pnode in tree + adress in tree (tespData + @p);
@@ -11355,8 +11434,8 @@ type
     sComponentSeparator: string;
   end;
 
-function assignComponent(loader: tTranslatorLoader; bFromDefUI: boolean; r: trecord; baseString: string; kwList: aCardinal; regEx1, regEx2: TPerlRegEx; rOpts: rDefuiOptions; var bNeedMaster: boolean;
-  var sAutoHeader: string): string;
+function assignComponent(loader: tTranslatorLoader; bFromDefUI: boolean; r: trecord; baseString: string; kwList: aCardinal; regEx1, regEx2: TPerlRegEx; rOpts: rDefuiOptions;
+  var bNeedMaster: boolean; var sAutoHeader: string): string;
 var
   aaMisc: aaCardinal;
   i, j: integer;
@@ -11506,9 +11585,12 @@ begin
       // ---------
       idOpt := form18.RadioGroup1.itemIndex;
       case idOpt of
-        1: fProc := compareOptPartialOnly;
-        2: fProc := compareOptSelection;
-      else fProc := compareOptEverything;
+        1:
+          fProc := compareOptPartialOnly;
+        2:
+          fProc := compareOptSelection;
+      else
+        fProc := compareOptEverything;
       end;
       // ----
       timeUndo;
@@ -11804,8 +11886,8 @@ begin
     Result := pos(pattern, s) > 0;
 end;
 
-function TForm1.ApplyRulesEx(loader: tTranslatorLoader; r: trecord; hf: sHeaderSig; s, strans: string; aKwd: aCardinal; oldTb: tBatcherRules; bIsFbStrict: boolean; var bNeedMaster: boolean;
-  iFallBack: integer = -1): string;
+function TForm1.ApplyRulesEx(loader: tTranslatorLoader; r: trecord; hf: sHeaderSig; s, strans: string; aKwd: aCardinal; oldTb: tBatcherRules; bIsFbStrict: boolean;
+  var bNeedMaster: boolean; iFallBack: integer = -1): string;
 // iFallback = -1  nofallback
 // iFallback = 0  global fallback.   if bIsFbStrict then rname must match tb.rname
 // iFallback = 1-F  get in specific bank
@@ -12430,25 +12512,29 @@ begin
   if FormKeyWord.CheckBox5.checked then
   begin
     case o of
-      1: fProc := compareOptPartialOnlyExFilter;
+      1:
+        fProc := compareOptPartialOnlyExFilter;
       2:
         begin
           fProc := compareOptSelectionExFilter;
           debug_getBatcher := true;
         end
-    else fProc := compareOptEverythingExFilter;
+    else
+      fProc := compareOptEverythingExFilter;
     end;
   end
   else
   begin
     case o of
-      1: fProc := compareOptPartialOnlyExLocked;
+      1:
+        fProc := compareOptPartialOnlyExLocked;
       2:
         begin
           fProc := compareOptSelectionExLocked;
           debug_getBatcher := true;
         end
-    else fProc := compareOptEverythingExLocked;
+    else
+      fProc := compareOptEverythingExLocked;
     end;
   end;
   // process
@@ -12511,25 +12597,29 @@ begin
   if FormKeyWord.CheckBox5.checked then
   begin
     case o of
-      1: fProc := compareOptPartialOnlyExFilter;
+      1:
+        fProc := compareOptPartialOnlyExFilter;
       2:
         begin
           fProc := compareOptSelectionExFilter;
           debug_getBatcher := true;
         end
-    else fProc := compareOptEverythingExFilter;
+    else
+      fProc := compareOptEverythingExFilter;
     end;
   end
   else
   begin
     case o of
-      1: fProc := compareOptPartialOnlyExLocked;
+      1:
+        fProc := compareOptPartialOnlyExLocked;
       2:
         begin
           fProc := compareOptSelectionExLocked;
           debug_getBatcher := true;
         end
-    else fProc := compareOptEverythingExLocked;
+    else
+      fProc := compareOptEverythingExLocked;
     end;
   end;
 
@@ -13020,8 +13110,10 @@ procedure TForm1.SaveLocalizedClick(Sender: TObject);
 begin
   if assigned(MainLoader) and assigned(MainLoader.espLoader) then
   begin
-    MainLoader.doApplySst(SSTUserFolder + getSSTFileName(MainLoader.addon_name, 'sst'), compareEspStr_V4Strict, compareOptEverythingExLocked, nil, nil, bResetStateOpt, bApplyTagOnly, true);
-    MainLoader.doApplySst(SSTUserFolder + getSSTFileName(MainLoader.addon_name, 'sst'), compareEspStr_V4Relax, compareOptNoTransExLocked, nil, nil, bResetStateOpt, bApplyTagOnly, true);
+    MainLoader.doApplySst(SSTUserFolder + getSSTFileName(MainLoader.addon_name, 'sst'), compareEspStr_V4Strict, compareOptEverythingExLocked, nil, nil, bResetStateOpt,
+      bApplyTagOnly, true);
+    MainLoader.doApplySst(SSTUserFolder + getSSTFileName(MainLoader.addon_name, 'sst'), compareEspStr_V4Relax, compareOptNoTransExLocked, nil, nil, bResetStateOpt,
+      bApplyTagOnly, true);
     MainLoader.updateAllRecordsForStringIDRestoration(false);
     MainLoader.espLoader.saveEsp(MainLoader.addon_folder + ChangeFileExt(MainLoader.addon_name, '.esp'));
     FinalizeStrings(MainLoader.addon_folder, MainLoader.addon_name);
@@ -13204,8 +13296,10 @@ begin
   if assigned(MainLoader) and FileExists(filename) then
   begin
     case Mode of
-      0 .. 1: MainLoader.doApplySst(filename, proc, fProc, fProcVmad, fprocVmadTrans, bResetStateOpt, bApplyTagOnly, false);
-      2: XMLImportbase(filename, MainLoader.listArray, iApplySSTModeOpt, fProc, fProcVmad, fprocVmadTrans, bResetStateOpt);
+      0 .. 1:
+        MainLoader.doApplySst(filename, proc, fProc, fProcVmad, fprocVmadTrans, bResetStateOpt, bApplyTagOnly, false);
+      2:
+        XMLImportbase(filename, MainLoader.listArray, iApplySSTModeOpt, fProc, fProcVmad, fprocVmadTrans, bResetStateOpt);
     end;
     dofeedback(formatres('batcherFbk_importLang%s', [filename]), false);
   end

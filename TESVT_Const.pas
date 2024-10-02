@@ -139,7 +139,7 @@ const
   basePROG_compil: string = '(x32)';
 {$ENDIF}
   aPROG_NAME: array [0 .. 5] of string = ('Fallout4', 'Skyrim', 'FalloutNV', 'SkyrimSE', 'Fallout76', 'Starfield');
-  aPROG_CURRENTVERSION = 'v1.5.9';
+  aPROG_CURRENTVERSION = 'v1.6.0';
 
 {$IFDEF DEBUG}
 {$IFDEF TES4FORMAT}
@@ -294,8 +294,8 @@ const
   fVirtualKwdLGDIKwdId = $00FFFFF0;
   fVirtualKwdLGDIKwdName = '@@xKWD:LegendaryKwd';
   fVirtualKwdINNRKwdId: array [0 .. 9] of cardinal = ($00FFFFF1, $00FFFFF2, $00FFFFF3, $00FFFFF4, $00FFFFF5, $00FFFFF6, $00FFFFF7, $00FFFFF8, $00FFFFF9, $00FFFFFA);
-  fVirtualKwdINNRKwdName: array [0 .. 9] of string = ('@@xKWD:INNRgrp_0', '@@xKWD:INNRgrp_1', '@@xKWD:INNRgrp_2', '@@xKWD:INNRgrp_3', '@@xKWD:INNRgrp_4', '@@xKWD:INNRgrp_5', '@@xKWD:INNRgrp_6',
-    '@@xKWD:INNRgrp_7', '@@xKWD:INNRgrp_8', '@@xKWD:_INNRgrp_9');
+  fVirtualKwdINNRKwdName: array [0 .. 9] of string = ('@@xKWD:INNRgrp_0', '@@xKWD:INNRgrp_1', '@@xKWD:INNRgrp_2', '@@xKWD:INNRgrp_3', '@@xKWD:INNRgrp_4', '@@xKWD:INNRgrp_5',
+    '@@xKWD:INNRgrp_6', '@@xKWD:INNRgrp_7', '@@xKWD:INNRgrp_8', '@@xKWD:_INNRgrp_9');
   fVirtualKwdDataValue: array [0 .. 3] of cardinal = ($00FFFFFB, $00FFFFFC, $00FFFFFD, $00FFFFFE);
   fVirtualKwdDataValueName: array [0 .. 3] of string = ('@@DATA:Value500', '@@DATA:Value1000', '@@DATA:Value2000', '@@DATA:Value4000');
 
@@ -494,10 +494,10 @@ const
 
   FORBIDDENFILECHAR: array [0 .. 8] of char = ('"', '/', '\', '*', '?', '<', '>', '|', ':');
 
-  ascIISymbols: array [0 .. 32] of string = ('NUL ', 'SOH ', 'STX ', 'ETX ', 'EOT ', 'ENQ ', 'ACK ', 'BEL ', 'BS ', 'TAB ', 'LF ', 'VT ', 'FF ', 'CR ', 'SO ', 'SI ', 'DLE ', 'DC1 ', 'DC2 ', 'DC3 ',
-    'DC4 ', 'NAK ', 'SYN ', 'ETB ', 'CAN ', 'EM ', 'SUB ', 'ESC ', 'FS ', 'GS ', 'RS ', 'US ', 'SPACECHAR ');
-  aCleanChar: array [0 .. 33] of char = (#0, #1, #2, #3, #4, #5, #6, #7, #8, #9, #10, #11, #12, #13, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25, #26, #26, #28, #29, #30, #31,
-    #32, #$3000);
+  ascIISymbols: array [0 .. 32] of string = ('NUL ', 'SOH ', 'STX ', 'ETX ', 'EOT ', 'ENQ ', 'ACK ', 'BEL ', 'BS ', 'TAB ', 'LF ', 'VT ', 'FF ', 'CR ', 'SO ', 'SI ', 'DLE ',
+    'DC1 ', 'DC2 ', 'DC3 ', 'DC4 ', 'NAK ', 'SYN ', 'ETB ', 'CAN ', 'EM ', 'SUB ', 'ESC ', 'FS ', 'GS ', 'RS ', 'US ', 'SPACECHAR ');
+  aCleanChar: array [0 .. 33] of char = (#0, #1, #2, #3, #4, #5, #6, #7, #8, #9, #10, #11, #12, #13, #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25, #26, #26, #28, #29,
+    #30, #31, #32, #$3000);
   aSymbols: array [0 .. 4] of char = (',', '-', '.', ':', ';');
   aWhiteChar: array [0 .. 1] of char = (#$0020, #$00A0);
   cWidgetColor: array [1 .. 6] of cardinal = ($00FFFFFF, $00DDBBAA, $00DD77DD, $00AACCAA, $005555FF, $0088DDDD);
@@ -540,7 +540,7 @@ const
     '%basename% - miscClient.bsa' + sstLineBreak + '%basename%.bsa',
     // Starfield
     '%basename% - main.ba2' + sstLineBreak + '%basename% - misc.ba2' + sstLineBreak + '%basename%.ba2');
-
+  //
   defaultBSAdef: array [0 .. 5] of string = (
     // fallout4
     '%basename% - main.ba2' + sstLineBreak + '%basename% - interface.ba2' + sstLineBreak + '%basename%.ba2',
@@ -554,7 +554,9 @@ const
     '%basename% - main.ba2' + sstLineBreak + '%basename% - Localization.ba2' + sstLineBreak + '%basename% - interface.ba2' + sstLineBreak + '%basename%.ba2' + sstLineBreak +
     'seventysix - localization.ba2',
     // starfield
-    '%basename% - main.ba2' + sstLineBreak + '%basename% - Localization.ba2' + sstLineBreak + '%basename% - interface.ba2' + sstLineBreak + '%basename%.ba2');
+    '%basename% - main.ba2' + sstLineBreak + '%basename% - main02.ba2' + sstLineBreak + '%basename% - Localization.ba2' + sstLineBreak + '%basename% - interface.ba2' + sstLineBreak
+    + '%basename%.ba2');
+  //
   defaultBSAAlias: array [0 .. 5] of string = (
     // fallout4
     '',
@@ -563,7 +565,8 @@ const
     // NV
     '',
     // skyrimSE
-    'update=skyrim - interface.bsa' + sstLineBreak + 'dawnguard=skyrim - interface.bsa' + sstLineBreak + 'hearthfires=skyrim - interface.bsa' + sstLineBreak + 'dragonborn=skyrim - interface.bsa',
+    'update=skyrim - interface.bsa' + sstLineBreak + 'dawnguard=skyrim - interface.bsa' + sstLineBreak + 'hearthfires=skyrim - interface.bsa' + sstLineBreak +
+    'dragonborn=skyrim - interface.bsa',
     // fallout76
     '',
     // starfield
@@ -1309,12 +1312,17 @@ begin
   if sFolderAlt <> '' then
   begin
     case iMode of
-      1: Result := sFolderAlt;
+      1:
+        Result := sFolderAlt;
       // esp
-      2: Result := sFolderAlt + GAME_INTERFACEMCM_SUBFOLDER; // mcm
-      3: Result := sFolderAlt + GAME_SCRIPTS_SUBFOLDER; // script
-      4: Result := sfolder + sFolderAlt; // wizardAllTemplates
-    else Result := sFolderAlt + GAME_STRINGS_SUBFOLDER; // string
+      2:
+        Result := sFolderAlt + GAME_INTERFACEMCM_SUBFOLDER; // mcm
+      3:
+        Result := sFolderAlt + GAME_SCRIPTS_SUBFOLDER; // script
+      4:
+        Result := sfolder + sFolderAlt; // wizardAllTemplates
+    else
+      Result := sFolderAlt + GAME_STRINGS_SUBFOLDER; // string
     end;
   end
   else
@@ -1525,9 +1533,12 @@ begin
     if authFileAccess(f) then
       l.loadfromfile(f);
     case clean of
-      0: removeCommentLine(l);
-      1: cleanResList(l);
-    else exit;
+      0:
+        removeCommentLine(l);
+      1:
+        cleanResList(l);
+    else
+      exit;
     end;
   except
     On E: Exception do
@@ -1558,13 +1569,16 @@ end;
 function isChar_WordDelimiter(c: char): boolean;
 begin
   case c of
-    #0 .. #32, '.', ',', '?', '!', ':', ';', '(', ')', '[', ']', '{', '}', '°', '"', '/', '\', '|', '+', '*', '=', '%', '&', '>', '<', '¡', '¿', '$', '@', '§', '#', '~', '^', '_', #160, #8239,
+    #0 .. #32, '.', ',', '?', '!', ':', ';', '(', ')', '[', ']', '{', '}', '°', '"', '/', '\', '|', '+', '*', '=', '%', '&', '>', '<', '¡', '¿', '$', '@', '§', '#', '~', '^', '_',
+      #160, #8239,
     // Non-breaking spaces ,
     #8230, // Suspension points
     #8216, // Single quotes
     #171, #187, #8220, #8221, // Double quotes
-    #8211, #8212: Result := true; // Dashes
-  else Result := false;
+    #8211, #8212:
+      Result := true; // Dashes
+  else
+    Result := false;
   end;
 end;
 
@@ -1573,23 +1587,28 @@ begin
   Result := isChar_WordDelimiter(c);
   if not Result then
     case c of
-      '-', '''', #8209, '’', #8720: Result := true;
+      '-', '''', #8209, '’', #8720:
+        Result := true;
     end;
 end;
 
 function isChar_WordDelimitersEndLine(c: char): boolean;
 begin
   case c of
-    '.', '?', '!', '¡', '¿', #8230: Result := true;
-  else Result := false;
+    '.', '?', '!', '¡', '¿', #8230:
+      Result := true;
+  else
+    Result := false;
   end;
 end;
 
 function isChar_WordDelimitersSPAcceptedInside(c: char): boolean;
 begin
   case c of
-    '-', '''', #8209, #8217, #8720: Result := true;
-  else Result := false;
+    '-', '''', #8209, #8217, #8720:
+      Result := true;
+  else
+    Result := false;
   end;
 end;
 
@@ -2068,13 +2087,20 @@ end;
 procedure setGameByIni;
 begin
   case LOADING_PREFS_ID of
-    0 .. 2: setGameEx(LOADING_PREFS_ID);
-    3: setLastGameUsed;
-    4: setGameByDialog;
-    5: setGameByExe;
-    6: setGameEx(3); // skyrim SE
-    7: setGameEx(4); // fallout76
-    8: setGameEx(5); // starfield
+    0 .. 2:
+      setGameEx(LOADING_PREFS_ID);
+    3:
+      setLastGameUsed;
+    4:
+      setGameByDialog;
+    5:
+      setGameByExe;
+    6:
+      setGameEx(3); // skyrim SE
+    7:
+      setGameEx(4); // fallout76
+    8:
+      setGameEx(5); // starfield
   end;
 end;
 

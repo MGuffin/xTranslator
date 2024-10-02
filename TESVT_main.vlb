@@ -31,9 +31,6 @@ Coordinates=952,624,108,36
 [ComboBox1]
 Coordinates=121,10,101,124
 
-[ToolButton46]
-Coordinates=851,624,91,36
-
 [LDtree]
 Coordinates=788,624,53,36
 
@@ -272,9 +269,6 @@ Coordinates=651,486,81,36
 [ButtonedEdit6]
 Coordinates=10,212,95,58
 
-[ToolBar6]
-Coordinates=574,486,67,36
-
 [importSST1]
 Coordinates=1259,606,82,36
 
@@ -449,9 +443,6 @@ Coordinates=586,1052,93,36
 [AddIdToStr]
 Coordinates=497,1052,79,36
 
-[ToolButton50]
-Coordinates=602,394,91,36
-
 [gbSpellCheck1]
 Coordinates=1642,56,101,36
 
@@ -469,9 +460,6 @@ Coordinates=813,144,55,58
 
 [ToolButton43]
 Coordinates=400,394,91,36
-
-[ToolButton51]
-Coordinates=198,394,91,36
 
 [TabSheet8]
 Coordinates=111,394,77,36
@@ -740,14 +728,8 @@ Coordinates=1996,496,40,36
 [Panel27]
 Coordinates=115,212,62,58
 
-[ToolButton47]
-Coordinates=344,280,91,36
-
 [clearPreset2]
 Coordinates=1996,606,87,36
-
-[Panel22]
-Coordinates=420,144,62,58
 
 [Undo1]
 Coordinates=1996,716,52,36
@@ -777,7 +759,7 @@ Coordinates=1996,1101,79,36
 Coordinates=1996,1156,130,36
 
 []
-Coordinates=1824,1046,57,36
+Coordinates=420,144,62,58
 
 [ArrayTranslatorApi_2]
 Coordinates=914,221,65,36

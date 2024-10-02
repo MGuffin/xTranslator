@@ -30,7 +30,8 @@ unit TESVT_Browser;
 
 interface
 
-uses Windows, Controls, sysutils, Forms, Classes, ExtCtrls, StdCtrls, messages, TESVT_Ressources, TESVT_Const, TESVT_Bsa, VirtualTrees, TESVT_sharedVTProc, TESVT_typedef, Menus;
+uses Windows, Controls, sysutils, Forms, Classes, ExtCtrls, StdCtrls, messages, TESVT_Ressources, TESVT_Const, TESVT_Bsa, VirtualTrees, TESVT_sharedVTProc,
+VirtualTrees.types, TESVT_typedef, Menus, VirtualTrees.BaseAncestorVCL, VirtualTrees.BaseTree, VirtualTrees.AncestorVCL;
 
 const
   WM_AFTER_SHOW = WM_USER + 300; // custom message
@@ -145,7 +146,7 @@ procedure TFormBrowser.BrowserTreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHea
 begin
   if HitInfo.Button = mbLeft then
   begin
-    with Sender, Treeview do
+    with Sender, TBaseVirtualTree(Treeview) do
     begin
       if (SortColumn = NoColumn) or (SortColumn <> HitInfo.Column) then
       begin

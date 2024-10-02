@@ -32,7 +32,7 @@ unit TESVT_LangPref;
 interface
 
 uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Menus, TESVT_const, TESVT_fstreamSave, TESVT_bsa, SynEdit, TESVT_Ressources,
-  ExtCtrls, ComCtrls, Buttons, Grids, ValEdit, HTMLUn2, HtmlView, ShellAPI;
+  ExtCtrls, ComCtrls, Buttons, Grids, ValEdit, HTMLUn2, HtmlView, ShellAPI, HtmlGlobals;
 
 type
   TForm3 = class(TForm)
@@ -188,7 +188,7 @@ type
     procedure Memo3Change(Sender: TObject);
     procedure ValueListEditor1SelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
     procedure ValueListEditor2GetPickList(Sender: TObject; const KeyName: string; Values: TStrings);
-    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+    procedure HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: Boolean);
     procedure Button11Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
@@ -363,7 +363,7 @@ begin
   PageControl1Change(nil);
 end;
 
-procedure TForm3.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: string; var Handled: Boolean);
+procedure TForm3.HtmlViewer1HotSpotClick(Sender: TObject; const SRC: thtstring; var Handled: Boolean);
 var
   i, j, k: Integer;
 begin

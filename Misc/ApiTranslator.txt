@@ -156,6 +156,7 @@ OpenAI_uk=ukrainian
 OpenAI_et=estonian
 OpenAI_est=estonian
 OpenAI_zhhans=chinese
+OpenAI_tr=turkish
 
 MsTranslate_english=en
 MsTranslate_french=fr
@@ -200,6 +201,7 @@ MsTranslate_uk=uk
 MsTranslate_et=et
 MsTranslate_est=et
 MsTranslate_zhhans=zh
+MsTranslate_tr=tr
 
 Google_english=en
 Google_french=fr
@@ -239,6 +241,7 @@ Google_hu=hu
 Google_cs=cs
 Google_ko=ko
 Google_th=th
+Google_tr=tr
 
 Baidu_english=en
 Baidu_french=fra
@@ -330,3 +333,4 @@ DeepL_est=et
 DeepL_et=et
 DeepL_fi=fi
 DeepL_zhhans=zh
+DeepL_tr=tr

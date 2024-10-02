@@ -56,7 +56,6 @@ object Form1: TForm1
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 1252
     object Splitter3: TSplitter
       Left = 240
       Top = 0
@@ -396,7 +395,6 @@ object Form1: TForm1
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 300
       object ComboBox1: TComboBox
         AlignWithMargins = True
         Left = 63
@@ -415,7 +413,6 @@ object Form1: TForm1
         ParentDoubleBuffered = False
         TabOrder = 0
         OnChange = ComboBox1Change
-        ExplicitWidth = 234
       end
       object ComboBox_changeCP: TComboBox
         AlignWithMargins = True
@@ -591,8 +588,6 @@ object Form1: TForm1
     BevelOuter = bvNone
     Caption = 'Panel4'
     TabOrder = 2
-    ExplicitTop = 309
-    ExplicitWidth = 1252
     object pagecontrol2: TPageControl
       Left = 0
       Top = 0
@@ -603,7 +598,6 @@ object Form1: TForm1
       Images = ImageList1
       TabOrder = 0
       OnChange = pagecontrol2Change
-      ExplicitWidth = 1252
       object TabSheet8: TTabSheet
         Caption = 'Home'
         ImageIndex = 3
@@ -658,6 +652,7 @@ object Form1: TForm1
           Height = 286
           Align = alClient
           ButtonStyle = bsTriangle
+          DefaultNodeHeight = 17
           DragOperations = [doMove]
           DragType = dtVCL
           Font.Charset = DEFAULT_CHARSET
@@ -671,6 +666,7 @@ object Form1: TForm1
           Header.Font.Height = -11
           Header.Font.Name = 'MS Sans Serif'
           Header.Font.Style = []
+          Header.Height = 17
           Header.MainColumn = 1
           Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoVisible]
           Header.ParentFont = False
@@ -893,6 +889,7 @@ object Form1: TForm1
           Font.Name = 'Tahoma'
           Font.Style = []
           Header.AutoSizeIndex = 2
+          Header.Height = 13
           Header.MainColumn = 1
           Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
           Header.SortColumn = 3
@@ -958,6 +955,7 @@ object Form1: TForm1
           Font.Name = 'Courier New'
           Font.Style = []
           Header.AutoSizeIndex = 0
+          Header.Height = 14
           Header.MainColumn = -1
           ParentFont = False
           PopupMenu = PopupMenu3
@@ -984,7 +982,6 @@ object Form1: TForm1
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitWidth = 1244
           object Panel10: TPanel
             Left = 357
             Top = 0
@@ -993,7 +990,6 @@ object Form1: TForm1
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitWidth = 887
             object ToolBar2: TToolBar
               Left = 0
               Top = 0
@@ -1009,7 +1005,6 @@ object Form1: TForm1
               ParentShowHint = False
               ShowHint = True
               TabOrder = 0
-              ExplicitWidth = 887
               object ToolButton37: TToolButton
                 Left = 0
                 Top = 0
@@ -1080,7 +1075,6 @@ object Form1: TForm1
           ActivePage = TabSheet14
           Align = alClient
           TabOrder = 1
-          ExplicitWidth = 1244
           object TabSheet13: TTabSheet
             Caption = 'PexAsm'
             object SynEditPex: TSynEdit
@@ -1210,7 +1204,6 @@ object Form1: TForm1
               TabWidth = 6
               WordWrap = True
               WordWrapGlyph.Visible = False
-              ExplicitWidth = 1236
               RemovedKeystrokes = <
                 item
                   Command = ecContextHelp
@@ -1322,7 +1315,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 1248
-          Height = 52
+          Height = 60
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
@@ -1398,9 +1391,9 @@ object Form1: TForm1
           end
           object Panel20: TPanel
             Left = 0
-            Top = 27
+            Top = 30
             Width = 1248
-            Height = 25
+            Height = 30
             Align = alBottom
             BevelOuter = bvNone
             TabOrder = 1
@@ -1408,10 +1401,11 @@ object Form1: TForm1
               Left = 0
               Top = 0
               Width = 365
-              Height = 25
+              Height = 30
               Align = alLeft
               BevelOuter = bvNone
               TabOrder = 0
+              ExplicitHeight = 25
               object ButtonedEdit6: TButtonedEdit
                 Left = 0
                 Top = 0
@@ -1430,97 +1424,55 @@ object Form1: TForm1
                 OnRightButtonClick = ButtonedEdit6RightButtonClick
               end
             end
-            object Panel22: TPanel
+            object Panel26: TPanel
               Left = 365
               Top = 0
-              Width = 132
-              Height = 25
-              Align = alLeft
-              BevelOuter = bvNone
-              TabOrder = 1
-              object ToolBar6: TToolBar
-                Left = 0
-                Top = 0
-                Width = 132
-                Height = 29
-                ButtonHeight = 24
-                ButtonWidth = 24
-                Caption = 'ToolBar6'
-                HotImages = ImageList2
-                Images = ImageList1
-                ParentShowHint = False
-                ShowHint = True
-                TabOrder = 0
-                object ToolButton50: TToolButton
-                  Left = 0
-                  Top = 0
-                  Hint = 'hint_GenerateNPCMap2'
-                  Caption = 'ToolButton50'
-                  ImageIndex = 68
-                  OnClick = ToolButton50Click
-                end
-                object ToolButton46: TToolButton
-                  Left = 24
-                  Top = 0
-                  Hint = 'Hint_LoadAllMaster2'
-                  Caption = 'ToolButton46'
-                  ImageIndex = 78
-                  OnClick = ToolButton46Click
-                end
-                object ToolButton51: TToolButton
-                  Left = 48
-                  Top = 0
-                  Width = 8
-                  Caption = 'ToolButton51'
-                  ImageIndex = 5
-                  Style = tbsSeparator
-                end
-                object ToolButton47: TToolButton
-                  Left = 56
-                  Top = 0
-                  Hint = 'hint_ResetNPCMap'
-                  Caption = 'ToolButton47'
-                  ImageIndex = 12
-                  OnClick = ToolButton47Click
-                end
-              end
-            end
-            object Panel26: TPanel
-              Left = 497
-              Top = 0
-              Width = 751
-              Height = 25
+              Width = 883
+              Height = 30
               Align = alClient
               BevelOuter = bvNone
-              TabOrder = 2
+              TabOrder = 1
+              object Button1: TButton
+                Left = 11
+                Top = 0
+                Width = 212
+                Height = 21
+                Caption = 'but_generateMap'
+                TabOrder = 0
+                OnClick = Button1Click
+              end
             end
           end
         end
         object Panel25: TPanel
           Left = 0
-          Top = 52
+          Top = 60
           Width = 1248
-          Height = 259
+          Height = 251
           Align = alClient
           BevelOuter = bvNone
           Caption = 'Panel25'
           TabOrder = 1
+          ExplicitTop = 52
+          ExplicitHeight = 259
           object Splitter2: TSplitter
             Left = 365
             Top = 0
             Width = 5
-            Height = 259
+            Height = 251
             AutoSnap = False
             MinSize = 200
+            ExplicitHeight = 259
           end
           object Panel27: TPanel
             Left = 0
             Top = 0
             Width = 365
-            Height = 259
+            Height = 251
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
+            ExplicitHeight = 259
             object Splitter4: TSplitter
               Left = 0
               Top = 112
@@ -1565,16 +1517,17 @@ object Form1: TForm1
               Left = 0
               Top = 117
               Width = 365
-              Height = 142
+              Height = 134
               Align = alClient
               BevelOuter = bvNone
               Caption = 'Panel28'
               TabOrder = 1
+              ExplicitHeight = 142
               object ListBox3: TListBox
                 Left = 0
                 Top = 0
                 Width = 365
-                Height = 142
+                Height = 134
                 Style = lbOwnerDrawFixed
                 Align = alClient
                 DoubleBuffered = False
@@ -1590,6 +1543,7 @@ object Form1: TForm1
                 OnDrawItem = ListBox3DrawItem
                 OnKeyUp = ListBox3KeyUp
                 OnMouseDown = ListBox3MouseDown
+                ExplicitHeight = 142
               end
             end
           end
@@ -1597,7 +1551,7 @@ object Form1: TForm1
             Left = 370
             Top = 0
             Width = 878
-            Height = 259
+            Height = 251
             Style = lbOwnerDrawFixed
             Align = alClient
             Font.Charset = DEFAULT_CHARSET
@@ -1610,6 +1564,7 @@ object Form1: TForm1
             TabOrder = 1
             OnDblClick = ListBox1DblClick
             OnDrawItem = ListBox1DrawItem
+            ExplicitHeight = 259
           end
         end
       end
@@ -1800,7 +1755,6 @@ object Form1: TForm1
         end>
       ParentColor = True
       ParentDoubleBuffered = False
-      ExplicitWidth = 1252
     end
   end
   object Panel29: TPanel
@@ -1811,8 +1765,6 @@ object Form1: TForm1
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 1252
-    ExplicitHeight = 264
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -1823,8 +1775,6 @@ object Form1: TForm1
       Images = ImageList1
       TabOrder = 0
       OnChange = PageControl1Change
-      ExplicitWidth = 1252
-      ExplicitHeight = 246
       object TabSheet1: TTabSheet
         Caption = 'STRINGS'
         object SkyTree: TVirtualStringTree
@@ -1848,6 +1798,7 @@ object Form1: TForm1
           Header.Font.Height = -11
           Header.Font.Name = 'Tahoma'
           Header.Font.Style = []
+          Header.Height = 13
           Header.MainColumn = 1
           Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
           Header.ParentFont = False
@@ -1936,6 +1887,7 @@ object Form1: TForm1
           Font.Name = 'Tahoma'
           Font.Style = []
           Header.AutoSizeIndex = 2
+          Header.Height = 13
           Header.MainColumn = 1
           Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
           Images = ImageList2
@@ -2022,6 +1974,7 @@ object Form1: TForm1
           Font.Name = 'Tahoma'
           Font.Style = []
           Header.AutoSizeIndex = 2
+          Header.Height = 13
           Header.MainColumn = 1
           Header.Options = [hoAutoResize, hoColumnResize, hoDrag, hoOwnerDraw, hoShowSortGlyphs, hoVisible]
           Header.Style = hsFlatButtons
@@ -2101,8 +2054,6 @@ object Form1: TForm1
       BevelOuter = bvNone
       TabOrder = 1
       Visible = False
-      ExplicitTop = 246
-      ExplicitWidth = 1252
     end
   end
   object Panel31: TPanel
@@ -2115,7 +2066,6 @@ object Form1: TForm1
     TabOrder = 4
     Visible = False
     OnAlignPosition = Panel31AlignPosition
-    ExplicitWidth = 1252
     object Image1: TImage
       Left = 259
       Top = 6
