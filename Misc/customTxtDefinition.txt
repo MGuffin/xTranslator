@@ -6,6 +6,8 @@
 #CustomTypeIsFallback_1=false		define if the pattern is the fallback if no pattern in the list can match.
 #CustomTypeSaveLangSuffixe_1=true	if true, rebuild the output name with the target language suffixe (ex: mcmcfile_en.txt)		
 #CustomTypeSearchByLine_1=true		if true, analyse the text  with a single match per line, if false, process a match-again routine over the whole text in a raw. The later process might be very slow on big files.
+#CustomTypeLineLimit_1=50		define the maximum number of lines to look for a regex match, starting from the beginning.
+#CustomTypeSizeLimit_1=2048		define the maximum number of characters to look for a regex match, starting from the first one.
 #---------
 SupportedTxtExt=*.txt;*.ini;*.csv;*.pas;*.xml;*.json;*.pot;  
 #---------
@@ -19,6 +21,8 @@ CustomTypeRestrictExt_1=.txt
 CustomTypeSaveLangSuffixe_1=true
 CustomTypeIsFallback_1=false
 CustomTypeSearchByLine_1=true
+CustomTypeLineLimit_1=50
+CustomTypeSizeLimit_1=2048
 #---------
 CustomTypeRegex_2=^(?![;#])([^=]+)====(?!.*={2,})(.*)$
 CustomTypeLabel_2=res
@@ -28,6 +32,8 @@ CustomTypeRestrictExt_2=.ini
 CustomTypeSaveLangSuffixe_2=false
 CustomTypeIsFallback_2=false
 CustomTypeSearchByLine_2=true
+CustomTypeLineLimit_2=50
+CustomTypeSizeLimit_2=2048
 #---------
 CustomTypeRegex_3=^(?!#)(.+~[0-9a-fA-F]+)\|.*?name\("(.+?)"\)(?:\|.*?name\("(.+?)"\))?
 CustomTypeLabel_3=rftp
@@ -37,6 +43,8 @@ CustomTypeRestrictExt_3=.txt
 CustomTypeSaveLangSuffixe_3=false
 CustomTypeIsFallback_3=false
 CustomTypeSearchByLine_3=true
+CustomTypeLineLimit_3=50
+CustomTypeSizeLimit_3=2048
 #---------
 CustomTypeRegex_4=^(0x.+~[^\|]+)\|([^\|]+)
 CustomTypeLabel_4=descfw
@@ -46,6 +54,8 @@ CustomTypeRestrictExt_4=.txt
 CustomTypeSaveLangSuffixe_4=false
 CustomTypeIsFallback_4=false
 CustomTypeSearchByLine_4=true
+CustomTypeLineLimit_4=50
+CustomTypeSizeLimit_4=2048
 #-----fallback: catch each line directly--------
 CustomTypeRegex_5=^(.*)$
 CustomTypeLabel_5=Generic
@@ -55,6 +65,8 @@ CustomTypeRestrictExt_5=*
 CustomTypeSaveLangSuffixe_5=false
 CustomTypeIsFallback_5=true
 CustomTypeSearchByLine_5=true
+CustomTypeLineLimit_5=50
+CustomTypeSizeLimit_5=2048
 #---------
 CustomTypeRegex_6=<(description|moduleName)>(.*?)<\/\1>
 CustomTypeLabel_6=fomod
@@ -64,6 +76,8 @@ CustomTypeRestrictExt_6=.txt
 CustomTypeSaveLangSuffixe_6=false
 CustomTypeIsFallback_6=false
 CustomTypeSearchByLine_6=false
+CustomTypeLineLimit_6=50
+CustomTypeSizeLimit_6=2048
 #---------testPOT 
 #CustomTypeRegex_7=^(?!#)msgctxt "(.*?)"$^(?!#)msgid "(.*?)"$
 #CustomTypeRegex_7=msgctxt "(.*?)".*?msgid "(.*?)"
@@ -74,6 +88,8 @@ CustomTypeSearchByLine_6=false
 #CustomTypeSaveLangSuffixe_7=false
 #CustomTypeIsFallback_7=false
 #CustomTypeSearchByLine_7=false
+#CustomTypeLineLimit_7=50
+#CustomTypeSizeLimit_7=2048
 #---------test
 #CustomTypeRegex_9=^(?!#)msgctxt "(.*?)"$^(?!#)msgid "(.*?)"$
 #CustomTypeRegex_9=msgid "(.*?)"$
@@ -84,6 +100,8 @@ CustomTypeSearchByLine_6=false
 #CustomTypeSaveLangSuffixe_9=false
 #CustomTypeIsFallback_9=false
 #CustomTypeSearchByLine_9=true
+#CustomTypeLineLimit_9=50
+#CustomTypeSizeLimit_9=2048
 #---------test
 #CustomTypeRegex_8="form_id": "(.*?)",.*?"original": "(.*?)",
 #CustomTypeRegex_8="original": "(.*?)",
@@ -94,4 +112,5 @@ CustomTypeSearchByLine_6=false
 #CustomTypeSaveLangSuffixe_8=false
 #CustomTypeIsFallback_8=false
 #CustomTypeSearchByLine_8=true
-
+#CustomTypeLineLimit_8=50
+#CustomTypeSizeLimit_8=2048

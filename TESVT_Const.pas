@@ -105,6 +105,8 @@ type
     iIdBackref: integer;
     bUseSaveLangSuffixe: boolean;
     stats: integer;
+    iLineLimit: integer;
+    iSizeLimit: integer;
   end;
 
   pcustomTxtDefinition = ^rcustomTxtDefinition;
@@ -123,6 +125,8 @@ type
     function getrefId(i: integer): integer;
     function getLabel(i: integer): string;
     function getEncoding(i: integer): tencoding;
+    function getLineLimit(i: integer): integer;
+    function getSizeLimit(i: integer): integer;
     function mcmDecider(f: tstringList): integer;
     function isValidTxtExt(ext: string): boolean;
     function isSearchByLine(i: integer): boolean;
@@ -1091,6 +1095,8 @@ begin
     p.bIsFallback := strtobooldef(l.Values[format('CustomTypeIsFallback_%d', [i])], false);
     p.bUseSaveLangSuffixe := strtobooldef(l.Values[format('CustomTypeSaveLangSuffixe_%d', [i])], false);
     p.bSearchByLine := strtobooldef(l.Values[format('CustomTypeSearchByLine_%d', [i])], true);
+    p.iLineLimit := strtointdef(l.Values[format('CustomTypeLineLimit_%d', [i])], 50);
+    p.iSizeLimit := strtointdef(l.Values[format('CustomTypeSizeLimit_%d', [i])], 2048);
 
   end;
   // define fallback
@@ -1195,13 +1201,26 @@ begin
     pcustomTxtDefinition(lCustomTxtParamList[i]).stats := 0;
 end;
 
+function tCustomTxt.getLineLimit(i: integer): integer;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  Result := p.iLineLimit;
+end;
+
+function tCustomTxt.getSizeLimit(i: integer): integer;
+var
+  p: pcustomTxtDefinition;
+begin
+  p := lCustomTxtParamList[i];
+  Result := p.iSizeLimit;
+end;
+
 function tCustomTxt.mcmDecider(f: tstringList): integer;
 var
   i, j, m: integer;
   RegEx: tperlRegex;
-const
-  iLineLimit = 50;
-  iSizeLimit = 2048;
 begin
   Result := -1;
   if lCustomTxtParamList.Count = 0 then
@@ -1226,13 +1245,13 @@ begin
             RegEx.subject := f[i];
             if RegEx.Match then
               incStat(j);
-            if i > iLineLimit then
+            if i > getLineLimit(j) then
               break;
           end;
         end
         else
         begin
-          RegEx.subject := copy(f.text, 1, iSizeLimit);
+          RegEx.subject := copy(f.text, 1, getSizeLimit(j));
           if RegEx.Match then
             repeat
               incStat(j);
@@ -1569,7 +1588,7 @@ end;
 function isChar_WordDelimiter(c: char): boolean;
 begin
   case c of
-    #0 .. #32, '.', ',', '?', '!', ':', ';', '(', ')', '[', ']', '{', '}', '°', '"', '/', '\', '|', '+', '*', '=', '%', '&', '>', '<', '¡', '¿', '$', '@', '§', '#', '~', '^', '_',
+    #0 .. #32, '.', ',', '?', '!', ':', ';', '(', ')', '[', ']', '{', '}', 'Â°', '"', '/', '\', '|', '+', '*', '=', '%', '&', '>', '<', 'Â¡', 'Â¿', '$', '@', 'Â§', '#', '~', '^', '_',
       #160, #8239,
     // Non-breaking spaces ,
     #8230, // Suspension points
@@ -1587,7 +1606,7 @@ begin
   Result := isChar_WordDelimiter(c);
   if not Result then
     case c of
-      '-', '''', #8209, '’', #8720:
+      '-', '''', #8209, 'Â’', #8720:
         Result := true;
     end;
 end;
@@ -1595,7 +1614,7 @@ end;
 function isChar_WordDelimitersEndLine(c: char): boolean;
 begin
   case c of
-    '.', '?', '!', '¡', '¿', #8230:
+    '.', '?', '!', 'Â¡', 'Â¿', #8230:
       Result := true;
   else
     Result := false;
