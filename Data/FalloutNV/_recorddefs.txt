@@ -1,9 +1,9 @@
 #WARNING: do not modify this file, unless you know what you are doing.
 #Bad editing can  result in corrupted Esp.
-#FieldId=RecordID=List (0: strings, 1: dlStrings, 2: ilStrings
+#FieldId=RecordID=List (0: strings, 1: dlStrings, 2: ilStrings)
 #CharCase must match
 #(*) indicate the string can't be null (needs at least one space).
-#(!) indicate the string skip the zero terminal .
+#(!) indicate the string skip the zero terminal.
 #-proc1, -proc2, -proc3 refer to internal procedures that defines some conditions for reading the data
 Def_:NAM1=INFO=2*
 Def_:CNAM=QUST=1
@@ -13,6 +13,7 @@ Def_:RDMP=REGN=0
 Def_:EPF2=PERK=0
 Def_:RNAM=FLOR=0
 Def_:RNAM=INFO=0*
+Def_:TDUM=DIAL=0
 Def_:BPTN=BPTD=0
 Def_:MNAM=FACT=0
 Def_:FNAM=FACT=0
